@@ -1,0 +1,27 @@
+# Start from the official Go image
+FROM golang:latest
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Set GOBIN environment variable and install Air
+ENV GOBIN=/usr/local/bin
+RUN go install github.com/cosmtrek/air@latest
+
+# Copy the Go Mod and Sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies
+RUN go mod download
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go app (optional, depending on your use case)
+# RUN go build -o server .
+
+# Expose port 3001 to the outside world
+EXPOSE 3001
+
+# Use Air for hot reloading
+CMD ["air"]

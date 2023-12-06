@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  server:
+    build: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+    depends_on:
+      - mongodb
+
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules # to prevent overwriting node_modules
+    depends_on:
+      - server
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo:/docker-entrypoint-initdb.d
+      - ./mongo/data:/data/db

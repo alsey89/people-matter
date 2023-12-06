@@ -1,0 +1,29 @@
+# Ignore all log files and temporary files
+*.log
+*.tmp
+
+# Ignore specific directories
+vendor/
+tests/
+
+# Ignore executable and object files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.o
+*.out
+
+# Ignore the Go workspace directory (if you're using one)
+.go/
+
+# Ignore typical files that should not be included
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+LICENSE
+
+tmp
