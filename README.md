@@ -113,9 +113,21 @@ We welcome contributions from the community! If you'd like to contribute, please
 
    ```
 
+#### About the stack
+
+- /client --> nuxt3 hybrid frontend
+  -- runs with **npm run dev** by default
+  -- hot-reloads FE server on save
+- /server --> go echo server
+  -- runs with **air** by default
+  -- restarts BE server on save
+- /mongo --> local mongoDB container with initialization script
+  -- data resides on /mongo/data
+  -- to reset the data, delete the folder and rebuild docker-compose
+
 ## Usage
 
-After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
+After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
 
 ## Support
 
