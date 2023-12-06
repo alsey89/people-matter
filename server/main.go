@@ -31,10 +31,10 @@ func main() {
 	defer client.Disconnect(context.Background())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"}, //todo: update in production
+		AllowOrigins:     []string{viper.GetString("CLIENT_URL")},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		AllowCredentials: true,
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodOptions},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
 	}))
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Secure()) //todo: enable in production
@@ -42,7 +42,7 @@ func main() {
 		TokenLookup:    "cookie:_csrf",
 		CookiePath:     "/",
 		CookieDomain:   "localhost",
-		CookieSecure:   false,
+		CookieSecure:   viper.GetBool("IS_PRODUCTION"),
 		CookieHTTPOnly: true,
 		// CookieSameSite: http.SameSiteStrictMode, //todo: enable in production
 	}))
