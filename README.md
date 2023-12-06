@@ -89,13 +89,11 @@ We welcome contributions from the community! If you'd like to contribute, please
 4. Push to the branch (`git push origin feature/amazing-feature`).
 5. Open a pull request.
 
-Please make sure to update the checklist with a `[x]` when you start working on a feature to indicate that it's in progress.
-
 ## Development Setup
 
 #### Prerequisites
 
-- Ensure Docker and Docker Compose are installed. [Docker Installation Guide](#)
+- Ensure Docker and Docker Compose are installed.
 
 #### Setup Instructions
 
@@ -117,7 +115,7 @@ Please make sure to update the checklist with a `[x]` when you start working on 
 
 ## Usage
 
-After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. Since the project is in development, the env file is included in the repo and secure features have been commented out.
+After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
 
 ## Support
 

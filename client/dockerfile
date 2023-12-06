@@ -1,0 +1,13 @@
+FROM node AS base
+WORKDIR /app
+
+COPY package.json ./
+RUN npm install -g bun
+RUN bun install
+
+COPY . .
+
+EXPOSE 3000
+
+# Command to run the application in development mode with hot reload
+CMD ["bun", "run", "dev"]

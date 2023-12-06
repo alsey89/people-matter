@@ -108,7 +108,7 @@ func (ur *UserRepository) CheckEmailAvailability(email string) (bool, error) {
 		return false, err
 	}
 
-	emailIsAvailable := count > 0
+	emailIsAvailable := count == 0
 
 	return emailIsAvailable, nil
 }
