@@ -8,10 +8,18 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"extesy-fullstack/internal/shared"
+	"verve-hrms/internal/shared"
 )
 
-func GetCurrentUserHandler(c echo.Context, userRepository *UserRepository) error {
+type UserHandler struct {
+	userService *UserService
+}
+
+func NewUserHandler(userService *UserService) *UserHandler {
+	return &UserHandler{userService: userService}
+}
+
+func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("error asserting user")
@@ -44,9 +52,9 @@ func GetCurrentUserHandler(c echo.Context, userRepository *UserRepository) error
 		})
 	}
 
-	existingUser, err := userRepository.Read(&objID)
+	userData, err := uh.userService.GetUserByID(&objID)
 	if err != nil {
-		log.Printf("Error reading user data: %v", err)
+		log.Printf("Error getting user data: %v", err)
 		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
@@ -55,11 +63,11 @@ func GetCurrentUserHandler(c echo.Context, userRepository *UserRepository) error
 
 	return c.JSON(http.StatusOK, shared.APIResponse{
 		Message: "user data has been retrieved",
-		Data:    existingUser,
+		Data:    userData,
 	})
 }
 
-func EditCurrentUserHandler(c echo.Context, userRepository *UserRepository) error {
+func (uh *UserHandler) EditUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("error asserting user")
@@ -101,7 +109,7 @@ func EditCurrentUserHandler(c echo.Context, userRepository *UserRepository) erro
 		})
 	}
 
-	updatedUser, err := userRepository.Update(&objID, updateData)
+	updatedUser, err := uh.userService.UpdateUser(&objID, updateData)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
 			Message: err.Error(),

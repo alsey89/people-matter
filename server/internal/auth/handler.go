@@ -6,17 +6,21 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 
-	"extesy-fullstack/internal/shared"
-	"extesy-fullstack/internal/user"
+	"verve-hrms/internal/shared"
 )
 
-func SignupHandler(c echo.Context, userRepository *user.UserRepository) error {
+type AuthHandler struct {
+	authService *AuthService
+}
+
+func NewAuthHandler(authService *AuthService) *AuthHandler {
+	return &AuthHandler{authService: authService}
+}
+
+func (ah *AuthHandler) Signup(c echo.Context) error {
 	creds := new(Credentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -28,52 +32,18 @@ func SignupHandler(c echo.Context, userRepository *user.UserRepository) error {
 		username = "New User" // default username
 	}
 	email := creds.Email
+	if !shared.EmailValidator(email) {
+		return c.JSON(http.StatusConflict, shared.APIResponse{
+			Message: "invalid email",
+			Data:    nil,
+		})
+	}
+
 	password := creds.Password
 
-	emailIsAvailable, err := userRepository.CheckEmailAvailability(email) //* using availability over existence because of return type (bool)
-	if !emailIsAvailable {
-		return c.JSON(http.StatusConflict, shared.APIResponse{
-			Message: "user already exists",
-			Data:    nil,
-		})
-	}
+	newUser, err := ah.authService.Signup(email, password, username)
 	if err != nil {
-		log.Printf("error checking email availability: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Printf("Error hashing password: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"message": "error hashing password",
-		})
-	}
-
-	newUUID, err := uuid.NewUUID()
-	if err != nil {
-		log.Printf("Error generating UUID: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	newUser := user.User{
-		Username:  username,
-		UserID:    newUUID,
-		Email:     email,
-		Password:  string(hashedPassword),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	newUser, err = userRepository.Create(newUser) //* this adds the ID to newUser
-	if err != nil {
-		log.Printf("Error inserting new user: %v", err)
+		log.Printf("error signing up: %v", err)
 		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
@@ -109,13 +79,21 @@ func SignupHandler(c echo.Context, userRepository *user.UserRepository) error {
 
 	c.SetCookie(cookie)
 
+	//! send event to worker thread
+	// event := footprint.Event{
+	// 	Name:      "_signedUp",
+	// 	UserID:    newUserID,
+	// 	TimeStamp: shared.GetCurrentDateTime(),
+	// }
+	// worker.SendEvent(event)
+
 	return c.JSON(http.StatusOK, shared.APIResponse{
 		Message: "user has been signed up and signed in",
 		Data:    newUser,
 	})
 }
 
-func SigninHandler(c echo.Context, userRepository *user.UserRepository) error {
+func (ah *AuthHandler) Signin(c echo.Context) error {
 	creds := new(Credentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -129,25 +107,10 @@ func SigninHandler(c echo.Context, userRepository *user.UserRepository) error {
 	email := creds.Email
 	password := creds.Password
 
-	// Check if user exists
-	existingUser, err := userRepository.ReadByEmail(email)
-	if err == mongo.ErrNoDocuments {
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
-			Message: "user does not exist",
-			Data:    nil,
-		})
-	} else if err != nil {
-		log.Printf("error reading user by email: %v", err)
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(password))
+	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
-		log.Printf("error comparing password: %v", err)
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		log.Printf("error signing in: %v", err)
+		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
@@ -188,7 +151,7 @@ func SigninHandler(c echo.Context, userRepository *user.UserRepository) error {
 	})
 }
 
-func SignoutHandler(c echo.Context) error {
+func (ah *AuthHandler) Signout(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "jwt"
 	cookie.Value = ""
@@ -205,7 +168,7 @@ func SignoutHandler(c echo.Context) error {
 	})
 }
 
-func CheckAuthHandler(c echo.Context) error {
+func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("error asserting user")

@@ -29,6 +29,8 @@ func NewUserRepository(client *mongo.Client) *UserRepository {
 	return &UserRepository{client: client}
 }
 
+// ! Basic CRUD operations ------------------------------------------------------
+
 func (ur *UserRepository) Create(newUser User) (User, error) {
 	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -50,20 +52,6 @@ func (ur *UserRepository) Read(objID *primitive.ObjectID) (User, error) {
 
 	var existingUser User
 	err := coll.FindOne(ctx, bson.M{"_id": objID}).Decode(&existingUser)
-	if err != nil {
-		return User{}, err
-	}
-
-	return existingUser, nil
-}
-
-func (ur *UserRepository) ReadByEmail(email string) (User, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var existingUser User
-	err := coll.FindOne(ctx, bson.M{"email": email}).Decode(&existingUser)
 	if err != nil {
 		return User{}, err
 	}
@@ -98,17 +86,31 @@ func (ur *UserRepository) Delete(objID *primitive.ObjectID) error {
 	return err
 }
 
-func (ur *UserRepository) CheckEmailAvailability(email string) (bool, error) {
+//! Specific operations ------------------------------------------------------
+
+func (ur *UserRepository) ReadByEmail(email string) (User, error) {
+	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var existingUser User
+	err := coll.FindOne(ctx, bson.M{"email": email}).Decode(&existingUser)
+	if err != nil {
+		return User{}, err
+	}
+
+	return existingUser, nil
+}
+
+func (ur *UserRepository) CountUsersByEmail(email string) (int64, error) {
 	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	count, err := coll.CountDocuments(ctx, bson.M{"email": email})
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 
-	emailIsAvailable := count == 0
-
-	return emailIsAvailable, nil
+	return count, nil
 }

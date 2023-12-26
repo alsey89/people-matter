@@ -11,21 +11,19 @@ import (
 
 	"github.com/spf13/viper"
 
-	"extesy-fullstack/internal/auth"
-	"extesy-fullstack/internal/user"
-	"extesy-fullstack/setup"
+	"verve-hrms/internal/auth"
+	"verve-hrms/internal/user"
+	"verve-hrms/setup"
 )
 
-func init() {
+func main() {
+	e := echo.New()
+
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
 	}
-}
-
-func main() {
-	e := echo.New()
 
 	client := setup.GetMongoClient()
 	defer client.Disconnect(context.Background())
@@ -53,32 +51,24 @@ func main() {
 		TokenLookup:   "cookie:jwt",
 	})
 
-	//* Instantiate Repositories
+	//* Instantiate User Domain
 	userRepository := user.NewUserRepository(client)
+	userService := user.NewUserService(userRepository)
+	userHandler := user.NewUserHandler(userService)
 
-	//todo: inject repository to service, service to handler
+	//* Instantiate Auth Domain
+	authService := auth.NewAuthService(userService)
+	authHandler := auth.NewAuthHandler(authService)
 
 	authRoutes := e.Group("api/v1/auth")
-	authRoutes.POST("/signin", func(c echo.Context) error {
-		return auth.SigninHandler(c, userRepository)
-	})
-	authRoutes.POST("/signup", func(c echo.Context) error {
-		return auth.SignupHandler(c, userRepository)
-	})
-	authRoutes.POST("/signout", func(c echo.Context) error {
-		return auth.SignoutHandler(c)
-	})
-	authRoutes.GET("/check", func(c echo.Context) error {
-		return auth.CheckAuthHandler(c)
-	}, jwtMiddleware)
+	authRoutes.POST("/signin", authHandler.Signin)
+	authRoutes.POST("/signup", authHandler.Signup)
+	authRoutes.POST("/signout", authHandler.Signout)
+	authRoutes.GET("/check", authHandler.CheckAuth, jwtMiddleware)
 
 	userRoutes := e.Group("api/v1/user")
-	userRoutes.GET("/data", func(c echo.Context) error {
-		return user.GetCurrentUserHandler(c, userRepository)
-	}, jwtMiddleware)
-	userRoutes.PUT("/data", func(c echo.Context) error {
-		return user.EditCurrentUserHandler(c, userRepository)
-	}, jwtMiddleware)
+	userRoutes.GET("/data", userHandler.GetUser, jwtMiddleware)
+	userRoutes.PUT("/data", userHandler.EditUser, jwtMiddleware)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))
