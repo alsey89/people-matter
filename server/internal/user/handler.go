@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"verve-hrms/internal/shared"
+	"verve-hrms/internal/common"
 )
 
 type UserHandler struct {
@@ -22,13 +22,13 @@ func NewUserHandler(userService *UserService) *UserHandler {
 func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting user")
+		log.Printf("error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
 		log.Printf("error asserting claims: %v", user.Claims)
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
 		})
@@ -37,7 +37,7 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 	_id, ok := claims["id"].(string)
 	if !ok {
 		log.Printf("error asserting isAdmin: %v", claims["isAdmin"])
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
@@ -46,7 +46,7 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 	objID, err := primitive.ObjectIDFromHex(_id)
 	if err != nil {
 		log.Printf("Error converting string to ObjectID: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
@@ -55,13 +55,13 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 	userData, err := uh.userService.GetUserByID(&objID)
 	if err != nil {
 		log.Printf("Error getting user data: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user data has been retrieved",
 		Data:    userData,
 	})
@@ -70,13 +70,13 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 func (uh *UserHandler) EditUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting user")
+		log.Printf("error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
 		log.Printf("error asserting claims: %v", user.Claims)
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
 		})
@@ -85,7 +85,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 	_id, ok := claims["id"].(string)
 	if !ok {
 		log.Printf("error asserting id: %v", claims["id"])
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
@@ -94,7 +94,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 	objID, err := primitive.ObjectIDFromHex(_id)
 	if err != nil {
 		log.Printf("Error converting string to ObjectID: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
@@ -103,7 +103,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 	var updateData User
 	err = c.Bind(&updateData)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
@@ -111,13 +111,13 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 
 	updatedUser, err := uh.userService.UpdateUser(&objID, updateData)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user data has been updated",
 		Data:    updatedUser,
 	})

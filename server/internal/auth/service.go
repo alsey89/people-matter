@@ -1,11 +1,9 @@
 package auth
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"verve-hrms/internal/user"
 
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,18 +18,15 @@ func NewAuthService(userService *user.UserService) *AuthService {
 func (as *AuthService) Signup(email string, password string, username string) (*user.User, error) {
 	emailIsAvailable, err := as.userService.IsEmailAvailable(email) //* using availability over existence because of return type (bool)
 	if !emailIsAvailable {
-		err = errors.New("email is already in use")
-		return nil, err
+		return nil, fmt.Errorf("s.signup: %w", ErrEmailNotAvailable)
 	}
 	if err != nil {
-		log.Printf("Error checking email availability: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("s.signup: %w", err)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Printf("Error hashing password: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("s.signup: %w", err)
 	}
 
 	newUser := user.User{
@@ -43,8 +38,7 @@ func (as *AuthService) Signup(email string, password string, username string) (*
 
 	createdUser, err := as.userService.CreateNewAccount(newUser) //* this adds the ID to newUser
 	if err != nil {
-		log.Printf("Error creating new user: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("s.signup: %w", err)
 	}
 
 	return createdUser, nil
@@ -53,23 +47,16 @@ func (as *AuthService) Signup(email string, password string, username string) (*
 func (as *AuthService) Signin(email string, password string) (*user.User, error) {
 
 	user, err := as.userService.GetUserByEmail(email)
-	if err == mongo.ErrNoDocuments {
-		err = errors.New("user not found")
-		return nil, err
-	}
 	if err != nil {
-		log.Printf("Error getting user by email: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("s.signin: %w", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err == bcrypt.ErrMismatchedHashAndPassword {
-		err = errors.New("incorrect password")
-		return nil, err
-	}
 	if err != nil {
-		log.Printf("Error comparing password hashes: %v", err)
-		return nil, err
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return nil, fmt.Errorf("s.signin: %w", ErrInvalidCredentials)
+		}
+		return nil, fmt.Errorf("s.signin: %w", err)
 	}
 
 	return user, nil

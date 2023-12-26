@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 
-	"verve-hrms/internal/shared"
+	"verve-hrms/internal/common"
 )
 
 type AuthHandler struct {
@@ -24,7 +24,11 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	creds := new(Credentials)
 	err := c.Bind(creds)
 	if err != nil {
-		return err
+		log.Printf("error binding credentials: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
 	}
 
 	username := creds.Username
@@ -32,8 +36,8 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 		username = "New User" // default username
 	}
 	email := creds.Email
-	if !shared.EmailValidator(email) {
-		return c.JSON(http.StatusConflict, shared.APIResponse{
+	if !common.EmailValidator(email) {
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid email",
 			Data:    nil,
 		})
@@ -43,9 +47,15 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 
 	newUser, err := ah.authService.Signup(email, password, username)
 	if err != nil {
+		if err == ErrEmailNotAvailable {
+			return c.JSON(http.StatusConflict, common.APIResponse{
+				Message: "email is already in use",
+				Data:    nil,
+			})
+		}
 		log.Printf("error signing up: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
@@ -63,8 +73,8 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
 		log.Printf("Error signing jwt with claims: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
@@ -83,11 +93,11 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	// event := footprint.Event{
 	// 	Name:      "_signedUp",
 	// 	UserID:    newUserID,
-	// 	TimeStamp: shared.GetCurrentDateTime(),
+	// 	TimeStamp: common.GetCurrentDateTime(),
 	// }
 	// worker.SendEvent(event)
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user has been signed up and signed in",
 		Data:    newUser,
 	})
@@ -98,8 +108,8 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	err := c.Bind(creds)
 	if err != nil {
 		log.Printf("error binding credentials: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
@@ -109,9 +119,15 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 
 	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
+		if err == ErrInvalidCredentials {
+			return c.JSON(http.StatusBadRequest, common.APIResponse{
+				Message: "invalid credentials",
+				Data:    nil,
+			})
+		}
 		log.Printf("error signing in: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
@@ -129,8 +145,8 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
 		log.Printf("error signing jwt with claims: %v", err)
-		return c.JSON(http.StatusInternalServerError, shared.APIResponse{
-			Message: err.Error(),
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
@@ -145,7 +161,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user has been signed in",
 		Data:    existingUser,
 	})
@@ -162,7 +178,7 @@ func (ah *AuthHandler) Signout(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user has been signed out",
 		Data:    nil,
 	})
@@ -171,13 +187,13 @@ func (ah *AuthHandler) Signout(c echo.Context) error {
 func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting user")
+		log.Printf("error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
 		log.Printf("error asserting claims: %v", user.Claims)
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
 		})
@@ -186,13 +202,13 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 	isAdmin, ok := claims["isAdmin"].(bool)
 	if !ok {
 		log.Printf("error asserting isAdmin: %v", claims["isAdmin"])
-		return c.JSON(http.StatusBadRequest, shared.APIResponse{
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(http.StatusOK, shared.APIResponse{
+	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "success",
 		Data: echo.Map{
 			"Authenticated": true,
