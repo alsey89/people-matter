@@ -90,10 +90,10 @@ func (ur *UserRepository) Delete(objID *primitive.ObjectID) error {
 	defer cancel()
 
 	result, err := coll.DeleteOne(ctx, bson.M{"_id": objID})
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("r.delete: %w", ErrUserNotFound)
+	}
 	if err != nil {
-		if result.DeletedCount == 0 {
-			return fmt.Errorf("r.delete: %w", ErrUserNotFound)
-		}
 		return fmt.Errorf("r.delete: %w", err)
 	}
 
