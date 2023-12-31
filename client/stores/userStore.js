@@ -18,6 +18,7 @@ export const useUserStore = defineStore("user-store", {
   actions: {
     //! Auth API Calls
     async signin({ store, email, password }) {
+      const messageStore = useMessageStore();
       try {
         const response = await axios.post(
           "http://localhost:3001/api/v1/auth/signin",
@@ -40,17 +41,19 @@ export const useUserStore = defineStore("user-store", {
           return navigateTo("/");
         }
       } catch (error) {
-        console.error("Error:", error);
-        return error.response;
+        this.handleError(error);
       }
     },
-    async signup({ store, email, password }) {
+    async signup({ store, username, email, password, confirmPassword }) {
+      const messageStore = useMessageStore();
       try {
         const response = await axios.post(
           "http://localhost:3001/api/v1/auth/signup",
           {
+            username: username,
             email: email,
             password: password,
+            confirmPassword: confirmPassword,
           },
           {
             headers: {
@@ -60,15 +63,13 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        console.log("Response Data:", response.data);
         this.userData = response.data.data;
         this.lastFetch = Date.now();
         if (response.status === 200) {
           return navigateTo("/");
         }
       } catch (error) {
-        console.error("Error:", error.response);
-        return error.response;
+        this.handleError(error);
       }
     },
     async signout() {
@@ -125,6 +126,29 @@ export const useUserStore = defineStore("user-store", {
       const THRESHOLD = 5 * 60 * 1000; //* 5 minutes
       if (!this.lastFetch) return true;
       return Date.now() - this.lastFetch > THRESHOLD;
+    },
+    handleError(error) {
+      const messageStore = useMessageStore();
+      if (error.response) {
+        if (error.response.status === 409) {
+          messageStore.setError("Email already exists. Please sign in.");
+          return navigateTo("/signin");
+        }
+        if (error.response.status === 500) {
+          messageStore.setError("Server error. Please try again later.");
+        }
+        console.log(error.response.data);
+        messageStore.setError("Something went wrong.");
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log(error.request);
+        messageStore.setError("No response was received.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Error", error.message);
+        messageStore.setError("Something went wrong.");
+      }
+      console.log(error.config);
     },
   },
   persist: {

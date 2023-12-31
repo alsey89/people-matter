@@ -1,13 +1,18 @@
 <template>
-    <div class="text-5xl text-red-500 font-bold underline">
-        {{ userStore.getUserData }}
+    <div class="flex justify-center">
+        <NBCardHorizontal class="w-1/2">
+            <div class="text-wrap">
+                {{ userStore.getUserData }}
+            </div>
+        </NBCardHorizontal>
     </div>
-    <button @click="userStore.signout" class="my-8 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-200">
-        SIGN OUT
-    </button>
+    <NBButtonSquare @click="userStore.signout">
+        <NBText class="px-4"> Sign Out </NBText>
+    </NBButtonSquare>
 </template>
 
 <script setup>
+
 definePageMeta({
     title: 'Home',
     layout: 'default',

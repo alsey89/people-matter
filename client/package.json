@@ -14,10 +14,12 @@
     "@nuxtjs/tailwindcss": "^6.10.1",
     "@pinia-plugin-persistedstate/nuxt": "^1.2.0",
     "nuxt": "^3.8.2",
+    "nuxt-icon": "^0.6.8",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.1",
     "@pinia/nuxt": "^0.5.1",
     "axios": "^1.6.2",
     "pinia": "^2.1.7"
