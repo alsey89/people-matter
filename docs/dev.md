@@ -18,7 +18,9 @@ docker-compose down --remove-orphans
 ## troubleshooting
 
 - for node_module errors try deleting the node modules folder, then spin up docker-compose
-- for "cannot find defineNuxtConfig" errors, try deleting the node modules folde and the .nuxt folder. Then, do an npm install outside of the container before spinning up docker-compose
+- for "cannot find defineNuxtConfig" errors, try:
+  - setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
+  - deleting the node modules folder and the .nuxt folder. Then, do an npm install outside of the container (client) before spinning up docker-compose.
 
 # Architecture
 
