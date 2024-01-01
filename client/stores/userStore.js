@@ -129,16 +129,26 @@ export const useUserStore = defineStore("user-store", {
     },
     handleError(error) {
       const messageStore = useMessageStore();
+
       if (error.response) {
-        if (error.response.status === 409) {
-          messageStore.setError("Email already exists. Please sign in.");
-          return navigateTo("/signin");
-        }
-        if (error.response.status === 500) {
-          messageStore.setError("Server error. Please try again later.");
+        switch (error.response.status) {
+          case 409:
+            messageStore.setError("Email already exists. Please sign in.");
+            return navigateTo("/signin");
+          case 401:
+            messageStore.setError("Invalid credentials. Please try again.");
+            break;
+          case 404:
+            messageStore.setError("User not found. Please try again.");
+            break;
+          case 500:
+            messageStore.setError("Server error. Please try again later.");
+            break;
+          default:
+            messageStore.setError("Something went wrong.");
+            break;
         }
         console.log(error.response.data);
-        messageStore.setError("Something went wrong.");
       } else if (error.request) {
         // The request was made but no response was received
         console.log(error.request);

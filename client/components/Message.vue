@@ -1,5 +1,5 @@
 <template>
-    <div v-auto-animate v-if="messageStore.getMessage || messageStore.getError"
+    <div v-if="messageStore.getMessage || messageStore.getError"
         :class="`fixed bottom-20 md:bottom-auto top-auto md:top-20 inset-x-0 mx-auto z-50 w-full max-w-xl px-8 py-2 rounded-lg shadow ${messageStore.getError ? 'border-red-500 bg-red-50' : 'border-green-500 bg-green-50'}`">
         <div class="flex justify-between py-3">
             <div class="flex">

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 
 	"verve-hrms/internal/common"
+	"verve-hrms/internal/user"
 )
 
 type AuthHandler struct {
@@ -119,13 +121,19 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 
 	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
-		if err == ErrInvalidCredentials {
-			return c.JSON(http.StatusBadRequest, common.APIResponse{
+		log.Printf("error signing in: %v", err)
+		if errors.Is(err, user.ErrUserNotFound) {
+			return c.JSON(http.StatusNotFound, common.APIResponse{
+				Message: "user not found",
+				Data:    nil,
+			})
+		}
+		if errors.Is(err, ErrInvalidCredentials) {
+			return c.JSON(http.StatusUnauthorized, common.APIResponse{
 				Message: "invalid credentials",
 				Data:    nil,
 			})
 		}
-		log.Printf("error signing in: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
