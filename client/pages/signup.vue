@@ -91,14 +91,14 @@ const submitForm = async () => {
 
   try {
     const res = await userStore.signup({
-      name: name.value,
+      username: name.value,
       email: email.value,
       password: password.value,
       confirmPassword: confirmPassword.value
     });
   } catch (error) {
-    // handle other errors
-    messageStore.setError(error.message);
+    console.error(error);
+    messageStore.setError("Something went wrong.");
   }
 };
 </script>

@@ -1,0 +1,204 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This server provides APIs for the Verve HRMS application",
+        "title": "Verve HRMS API",
+        "contact": {
+            "name": "alsey89",
+            "email": "phyokyawsoe89@gmail.com"
+        },
+        "license": {
+            "name": "GPL 3.0",
+            "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:3001",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/check": {
+            "get": {
+                "description": "Check if the user is authenticated and if they are an admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Check authentication status",
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "admin status not found",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signin": {
+            "post": {
+                "description": "Authenticate a user and start a session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User signin",
+                "parameters": [
+                    {
+                        "description": "Signin Credentials",
+                        "name": "creds",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user has been signed in",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "invalid Credentials",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "user Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signout": {
+            "post": {
+                "description": "End a user's session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User signout",
+                "responses": {
+                    "200": {
+                        "description": "user has been signed out",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "description": "Create a new user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User signup",
+                "parameters": [
+                    {
+                        "description": "Signup Credentials",
+                        "name": "creds",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user has been signed up and signed in",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid email",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "email not available",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "auth.Credentials": {
+            "type": "object",
+            "properties": {
+                "confirmPassword": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

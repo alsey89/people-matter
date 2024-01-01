@@ -8,13 +8,28 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"github.com/spf13/viper"
 
+	_ "verve-hrms/docs"
 	"verve-hrms/internal/auth"
 	"verve-hrms/internal/user"
 	"verve-hrms/setup"
 )
+
+// @title Verve HRMS API
+// @version 1.0
+// @description This server provides APIs for the Verve HRMS application
+
+// @contact.name alsey89
+// @contact.email phyokyawsoe89@gmail.com
+
+// @license.name GPL 3.0
+// @license.url https://www.gnu.org/licenses/gpl-3.0.en.html
+
+// @host localhost:3001
+// @BasePath /api/v1
 
 func main() {
 	e := echo.New()
@@ -50,6 +65,10 @@ func main() {
 		SigningMethod: "HS256",
 		TokenLookup:   "cookie:jwt",
 	})
+
+	//swagger routes
+	e.Static("/swagger", "docs")
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	//* Instantiate User Domain
 	userRepository := user.NewUserRepository(client)

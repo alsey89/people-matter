@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"verve-hrms/internal/common"
 	"verve-hrms/internal/user"
 
 	"golang.org/x/crypto/bcrypt"
@@ -30,10 +31,12 @@ func (as *AuthService) Signup(email string, password string, username string) (*
 	}
 
 	newUser := user.User{
-		Username: username,
-		Email:    email,
-		Password: string(hashedPassword),
-		IsAdmin:  false,
+		Username:  username,
+		Email:     email,
+		Password:  string(hashedPassword),
+		IsAdmin:   false,
+		CreatedAt: common.GetCurrentDateTime(),
+		UpdatedAt: common.GetCurrentDateTime(),
 	}
 
 	createdUser, err := as.userService.CreateNewAccount(newUser) //* this adds the ID to newUser
