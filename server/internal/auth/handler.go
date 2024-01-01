@@ -49,13 +49,13 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 
 	newUser, err := ah.authService.Signup(email, password, username)
 	if err != nil {
-		if err == ErrEmailNotAvailable {
+		log.Printf("h.signup: %v", err)
+		if errors.Is(err, ErrEmailNotAvailable) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
-				Message: "email is already in use",
+				Message: "email not available",
 				Data:    nil,
 			})
 		}
-		log.Printf("error signing up: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -121,7 +121,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 
 	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
-		log.Printf("error signing in: %v", err)
+		log.Printf("h.signin: %v", err)
 		if errors.Is(err, user.ErrUserNotFound) {
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",

@@ -18,7 +18,7 @@ func NewAuthService(userService *user.UserService) *AuthService {
 func (as *AuthService) Signup(email string, password string, username string) (*user.User, error) {
 	emailIsAvailable, err := as.userService.IsEmailAvailable(email) //* using availability over existence because of return type (bool)
 	if !emailIsAvailable {
-		return nil, ErrEmailNotAvailable
+		return nil, fmt.Errorf("s.signup: %w", ErrEmailNotAvailable)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("s.signup: %w", err)

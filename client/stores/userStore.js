@@ -84,8 +84,7 @@ export const useUserStore = defineStore("user-store", {
         sessionStorage.clear();
         return navigateTo("/signin");
       } catch (error) {
-        console.error("Error:", error);
-        return error.response;
+        this.handleError(error);
       }
     },
     async checkAuth(store) {
@@ -116,8 +115,7 @@ export const useUserStore = defineStore("user-store", {
         this.userData = response.data.data;
         this.lastFetch = Date.now();
       } catch (error) {
-        console.error("Error:", error.response);
-        return error.response;
+        this.handleError(error);
       } finally {
         this.isLoading = false;
       }
@@ -131,24 +129,27 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
 
       if (error.response) {
+        console.log(error.response.data);
         switch (error.response.status) {
-          case 409:
-            messageStore.setError("Email already exists. Please sign in.");
-            return navigateTo("/signin");
           case 401:
-            messageStore.setError("Invalid credentials. Please try again.");
-            break;
+            messageStore.setError("Invalid credentials.");
+            return navigateTo("/signin");
+          case 403:
+            messageStore.setError("Access denied.");
+            return navigateTo("/signin");
           case 404:
-            messageStore.setError("User not found. Please try again.");
-            break;
+            messageStore.setError("Data not found.");
+            return navigateTo("/signin");
+          case 409:
+            messageStore.setError("Data already exists.");
+            return navigateTo("/signin");
           case 500:
-            messageStore.setError("Server error. Please try again later.");
-            break;
+            messageStore.setError("Server error.");
+            return navigateTo("/signin");
           default:
             messageStore.setError("Something went wrong.");
-            break;
+            return navigateTo("/signin");
         }
-        console.log(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.log(error.request);
