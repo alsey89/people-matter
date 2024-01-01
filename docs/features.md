@@ -1,4 +1,4 @@
-### Core HRMS Features Checklist:
+# Core HRMS Features Checklist:
 
 - [ ] **Employee Information Management**
   - [ ] Employee profiles
@@ -32,7 +32,7 @@
   - [ ] Compliance document repository
   - [ ] Legal and compliance alerts
 
-### Employee Portal Features Checklist:
+# Employee Portal Features Checklist:
 
 - [ ] **Social Feed**
   - [ ] Central newsfeed
