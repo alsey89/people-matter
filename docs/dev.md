@@ -1,6 +1,6 @@
 # Dev Environment
 
-## Set up using docker-compose
+## Uses docker-compose for setup
 
 ### Spinning up
 
@@ -15,12 +15,18 @@ docker-compose up
 docker-compose down --remove-orphans
 ```
 
-## troubleshooting
+## Uses Swagger for server API documentation
 
-- for node_module errors try deleting the node modules folder, then spin up docker-compose
-- for "cannot find defineNuxtConfig" errors, try:
-  - setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
-  - deleting the node modules folder and the .nuxt folder. Then, do an npm install outside of the container (client) before spinning up docker-compose.
+### Generate swagger documentation
+
+```
+cd server
+swag init
+```
+
+### Accessing swagger documentation
+
+[SWAGGER LINK](http://localhost:3001/swagger/index.html)
 
 # Architecture
 
@@ -37,3 +43,10 @@ docker-compose down --remove-orphans
 - follow CLEAN & SOLID principles wherever feasible
 - dependency injection: hander(api interface) <- service (business logic) <- repository (db)
 - todo: define narrow interfaces
+
+# Troubleshooting
+
+- for node_module errors try deleting the node modules folder, then spin up docker-compose
+- for "cannot find defineNuxtConfig" errors, try:
+  - setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
+  - deleting the node modules folder and the .nuxt folder. Then, do an npm install outside of the container (client) before spinning up docker-compose.
