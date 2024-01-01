@@ -19,7 +19,7 @@ import (
 func main() {
 	e := echo.New()
 
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile("dev.env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
