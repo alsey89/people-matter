@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen">
     <div class="w-80 flex flex-col justfiy-center items-center">
-      <NBCardVertical class=" bg-secondary-bg">
+      <NBCard class="bg-gray-100">
         <NBCardHeader>
           <NBText>
             Sign In To Verve HR
@@ -34,7 +34,7 @@
             <button class="text-sky-700 hover:text-sky-900 hover:underline">Sign Up</button>
           </NuxtLink>
         </NBCardFooter>
-      </NBCardVertical>
+      </NBCard>
     </div>
   </div>
 </template>

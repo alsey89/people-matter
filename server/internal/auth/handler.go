@@ -35,7 +35,7 @@ func NewAuthHandler(authService *AuthService) *AuthHandler {
 // @Failure 500 {object} common.APIResponse "something went wrong"
 // @Router /auth/signup [post]
 func (ah *AuthHandler) Signup(c echo.Context) error {
-	creds := new(Credentials)
+	creds := new(SignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
 		log.Printf("error binding credentials: %v", err)
@@ -131,7 +131,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 // @Failure 500 {object} common.APIResponse "internal Server Error"
 // @Router /auth/signin [post]
 func (ah *AuthHandler) Signin(c echo.Context) error {
-	creds := new(Credentials)
+	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
 		log.Printf("error binding credentials: %v", err)

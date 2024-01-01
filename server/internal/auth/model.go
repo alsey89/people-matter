@@ -12,9 +12,14 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type Credentials struct {
+type SignupCredentials struct {
 	Username        string `json:"username" bson:"username"`
 	Email           string `json:"email" bson:"email"`
 	Password        string `json:"password" bson:"password"`
 	ConfirmPassword string `json:"confirmPassword" bson:"confirmPassword"`
+}
+
+type SigninCredentials struct {
+	Email    string `json:"email" bson:"email"`
+	Password string `json:"password" bson:"password"`
 }

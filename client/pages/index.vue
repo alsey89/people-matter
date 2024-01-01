@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-center items-center">
-        <NBCardVertical>
+        <NBCard>
             <div class="flex flex-col gap-4">
                 <div v-for="(value, key) in userStore.getUserData" :key="key">
                     <NBText class="text-center">
@@ -11,7 +11,7 @@
             <NBButtonSquare @click="userStore.signout">
                 <NBText class="px-4"> Sign Out </NBText>
             </NBButtonSquare>
-        </NBCardVertical>
+        </NBCard>
     </div>
 </template>
 
