@@ -1,6 +1,6 @@
 <template>
   <Message />
   <NuxtLayout>
-    <NuxtPage class="bg-orange-300" />
+    <NuxtPage />
   </NuxtLayout>
 </template>
