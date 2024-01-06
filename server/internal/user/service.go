@@ -58,14 +58,3 @@ func (us *UserService) DeleteUser(objID *primitive.ObjectID) error {
 
 	return nil
 }
-
-func (us *UserService) IsEmailAvailable(email string) (bool, error) {
-	userCount, err := us.userRepository.CountUsersByEmail(email)
-	if err != nil {
-		return false, fmt.Errorf("s.is_email_available: %w", err)
-	}
-
-	isEmailAvailable := userCount == 0
-
-	return isEmailAvailable, nil
-}

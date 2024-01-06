@@ -1,42 +1,58 @@
 package setup
 
 import (
-	"context"
 	"fmt"
+	"verve-hrms/internal/user"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var client *mongo.Client
+var client *gorm.DB
 
-func GetMongoClient() *mongo.Client {
+func GetClient() *gorm.DB {
 	if client != nil {
 		return client
 	}
 
-	// Local MongoDB URI
-	localURI := "mongodb://mongodb:27017"
+	pgUser := viper.GetString("POSTGRES_USER")
+	if pgUser == "" {
+		pgUser = "postgres"
+	}
+	pgPassword := viper.GetString("POSTGRES_PASSWORD")
+	if pgPassword == "" {
+		pgPassword = "postgres"
+	}
+	pgHost := viper.GetString("POSTGRES_HOST")
+	if pgHost == "" {
+		pgHost = "postgres"
+	}
+	pgPort := viper.GetString("POSTGRES_PORT")
+	if pgPort == "" {
+		pgPort = "5432"
+	}
+	pgDB := viper.GetString("POSTGRES_DB")
+	if pgDB == "" {
+		pgDB = "verve"
+	}
 
-	opts := options.Client().ApplyURI(localURI)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
 
-	// Open the connection
 	var err error
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		TranslateError: true, //* This is needed to translate postgres errors to gorm errors
+	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		TranslateError: true, // ! this is needed to translate postgres errors to gorm errors
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	//set up automigrate
-	err = db.AutoMigrate(&user.User{}, &user.ContactInfo{}, &user.EmergencyContact{})
+	err = client.AutoMigrate(&user.User{}, &user.ContactInfo{}, &user.EmergencyContact{})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Connected to local MongoDB!")
+	fmt.Println("Connected to PostgreSQL!")
 
 	return client
 }

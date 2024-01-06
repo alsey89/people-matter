@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 
 	"verve-hrms/internal/common"
-	"verve-hrms/internal/user"
 )
 
 type AuthHandler struct {
@@ -46,10 +45,6 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 		})
 	}
 
-	username := creds.Username
-	if username == "" {
-		username = "New User" // default username
-	}
 	email := creds.Email
 	if !common.EmailValidator(email) {
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
@@ -68,7 +63,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 		})
 	}
 
-	newUser, err := ah.authService.Signup(email, password, username)
+	newUser, err := ah.authService.Signup(email, password)
 	if err != nil {
 		log.Printf("h.signup: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -135,8 +130,8 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	err := c.Bind(creds)
 	if err != nil {
 		log.Printf("error binding credentials: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid form data",
 			Data:    nil,
 		})
 	}
@@ -147,7 +142,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
 		log.Printf("h.signin: %v", err)
-		if errors.Is(err, user.ErrUserNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",
 				Data:    nil,

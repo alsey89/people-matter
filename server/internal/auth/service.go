@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"verve-hrms/internal/common"
 	"verve-hrms/internal/user"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,14 +15,7 @@ func NewAuthService(userService *user.UserService) *AuthService {
 	return &AuthService{userService: userService}
 }
 
-func (as *AuthService) Signup(email string, password string, username string) (*user.User, error) {
-	emailIsAvailable, err := as.userService.IsEmailAvailable(email) //* using availability over existence because of return type (bool)
-	if !emailIsAvailable {
-		return nil, fmt.Errorf("s.signup: %w", ErrEmailNotAvailable)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("s.signup: %w", err)
-	}
+func (as *AuthService) Signup(email string, password string) (*user.User, error) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
