@@ -9,6 +9,10 @@ docker-compose build
 docker-compose up
 ```
 
+## Usage
+
+After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
+
 ### Shutting down
 
 ```
@@ -30,18 +34,23 @@ swag init
 
 # Architecture
 
-## Client is Nuxt3
+## Client
 
+- language: javascript
+- framework: Nuxt3
 - architecture follows framework conventions
 - components subfolders are arranged by function
 - NB folder contains neobrutalism design components
 
-## Server is Go-Echo
+## Server is Go
 
+- language: Go
+- server framework: Echo
+- database: PostgreSQL
 - style should follow [Uber-Go Style Guide](https://github.com/uber-go/guide) wherever possible
 - architecture is domain driven
 - follow CLEAN & SOLID principles wherever feasible
-- dependency injection: hander(api interface) <- service (business logic) <- repository (db)
+- dependency injection: hander (api interface) <- service (business logic) <- repository (db actions) <- db client
 - todo: define narrow interfaces
 
 # Troubleshooting

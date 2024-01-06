@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 
 	"verve-hrms/internal/common"
 	"verve-hrms/internal/user"
@@ -46,7 +47,6 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	}
 
 	username := creds.Username
-	log.Printf("username: %v", username)
 	if username == "" {
 		username = "New User" // default username
 	}
@@ -71,7 +71,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	newUser, err := ah.authService.Signup(email, password, username)
 	if err != nil {
 		log.Printf("h.signup: %v", err)
-		if errors.Is(err, ErrEmailNotAvailable) {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "email not available",
 				Data:    nil,

@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"fmt"
+	"log"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -39,6 +41,7 @@ func (ur *UserRepository) Create(newUser User) (*User, error) {
 
 	result, err := coll.InsertOne(ctx, newUser)
 	if err != nil {
+		log.Printf("Error in UserRepository Create, Error Type: %s, Error Details: %+v", reflect.TypeOf(err), err)
 		return nil, fmt.Errorf("r.create: %w", err)
 	}
 
@@ -54,9 +57,6 @@ func (ur *UserRepository) Read(objID *primitive.ObjectID) (*User, error) {
 	var existingUser User
 	err := coll.FindOne(ctx, bson.M{"_id": objID}).Decode(&existingUser)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("r.read: %w", ErrUserNotFound)
-		}
 		return nil, fmt.Errorf("r.read: %w", err)
 	}
 
@@ -75,9 +75,6 @@ func (ur *UserRepository) Update(objID *primitive.ObjectID, updateData User) (*U
 	var updatedUser User
 	err := coll.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedUser)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("r.update: %w", ErrUserNotFound)
-		}
 		return nil, fmt.Errorf("r.update: %w", err)
 	}
 

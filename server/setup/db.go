@@ -21,14 +21,17 @@ func GetMongoClient() *mongo.Client {
 
 	opts := options.Client().ApplyURI(localURI)
 
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
+	// Open the connection
+	var err error
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		TranslateError: true, //* This is needed to translate postgres errors to gorm errors
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	// Send a ping to confirm a successful connection
-	err = client.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Err()
+	//set up automigrate
+	err = db.AutoMigrate(&user.User{}, &user.ContactInfo{}, &user.EmergencyContact{})
 	if err != nil {
 		panic(err)
 	}

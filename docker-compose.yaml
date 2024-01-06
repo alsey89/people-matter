@@ -15,7 +15,7 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/app
-      - /app/node_modules # to prevent overwriting node_modules
+      - /app/node_modules
     depends_on:
       - server
 
@@ -24,5 +24,5 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo:/docker-entrypoint-initdb.d
-      - ./mongo/data:/data/db
+      - ./database:/docker-entrypoint-initdb.d
+      # - ./database/data:/var/lib/postgresql/data #todo: uncomment this line to persist data

@@ -31,12 +31,9 @@ func (as *AuthService) Signup(email string, password string, username string) (*
 	}
 
 	newUser := user.User{
-		Username:  username,
-		Email:     email,
-		Password:  string(hashedPassword),
-		IsAdmin:   false,
-		CreatedAt: common.GetCurrentDateTime(),
-		UpdatedAt: common.GetCurrentDateTime(),
+		Email:    email,
+		Password: string(hashedPassword),
+		IsAdmin:  false,
 	}
 
 	createdUser, err := as.userService.CreateNewAccount(newUser) //* this adds the ID to newUser
