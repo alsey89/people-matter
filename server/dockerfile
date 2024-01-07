@@ -25,3 +25,4 @@ EXPOSE 3001
 
 # Use Air for hot reloading
 CMD ["air"]
+# CMD ["go", "run", "main.go"]

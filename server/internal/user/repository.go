@@ -1,133 +1,78 @@
 package user
 
 import (
-	"context"
 	"fmt"
-	"time"
+	"verve-hrms/internal/schema"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
-	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
-	Create(newUser User) (User, error)
-	Read(objID *primitive.ObjectID) (User, error)
-	ReadByEmail(email string) (User, error)
-	Update(objID *primitive.ObjectID, updateData User) (User, error)
-	Delete(objID *primitive.ObjectID) error
-	CheckIfEmailInUse(email string) (int64, error)
+	Create(newUser *schema.User) (*schema.User, error)
+	Read(UserID uint) (*schema.User, error)
+	ReadByEmail(email string) (*schema.User, error)
+	Update(UserID uint, updateData *schema.User) (*schema.User, error)
+	Delete(UserID uint) error
 }
 
 type UserRepository struct {
-	client *mongo.Client
+	client *gorm.DB
 }
 
-func NewUserRepository(client *mongo.Client) *UserRepository {
+func NewUserRepository(client *gorm.DB) *UserRepository {
 	return &UserRepository{client: client}
 }
 
-// ! Basic CRUD operations ------------------------------------------------------
-
-func (ur *UserRepository) Create(newUser User) (*User, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	result, err := coll.InsertOne(ctx, newUser)
-	if err != nil {
-		return nil, fmt.Errorf("r.create: %w", err)
+// Basic CRUD operations ------------------------------------------------------
+func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
+	result := ur.client.Create(newUser)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.create: %w", result.Error)
 	}
 
-	newUser.ID = result.InsertedID.(primitive.ObjectID)
-	return &newUser, nil
+	return newUser, nil
 }
 
-func (ur *UserRepository) Read(objID *primitive.ObjectID) (*User, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var existingUser User
-	err := coll.FindOne(ctx, bson.M{"_id": objID}).Decode(&existingUser)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("r.read: %w", ErrUserNotFound)
-		}
-		return nil, fmt.Errorf("r.read: %w", err)
+func (ur UserRepository) Read(UserID uint) (*schema.User, error) {
+	var user schema.User
+	result := ur.client.First(&user, "id = ?", UserID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read: %w", result.Error)
 	}
 
-	return &existingUser, nil
+	return &user, nil
 }
 
-func (ur *UserRepository) Update(objID *primitive.ObjectID, updateData User) (*User, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	filter := bson.M{"_id": objID}
-	update := bson.M{"$set": updateData}
-	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-
-	var updatedUser User
-	err := coll.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedUser)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("r.update: %w", ErrUserNotFound)
-		}
-		return nil, fmt.Errorf("r.update: %w", err)
+func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
+	var user schema.User
+	result := ur.client.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read_by_email: %w", result.Error)
 	}
 
-	return &updatedUser, nil
+	return &user, nil
 }
 
-func (ur *UserRepository) Delete(objID *primitive.ObjectID) error {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	result, err := coll.DeleteOne(ctx, bson.M{"_id": objID})
-	if result.DeletedCount == 0 {
-		return fmt.Errorf("r.delete: %w", ErrUserNotFound)
+func (ur UserRepository) Update(UserID uint, updateData schema.User) (*schema.User, error) {
+	var user schema.User
+	result := ur.client.First(&user, "id = ?", UserID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.update: %w", result.Error)
 	}
-	if err != nil {
-		return fmt.Errorf("r.delete: %w", err)
+
+	result = ur.client.Model(&user).Updates(updateData)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
+func (ur UserRepository) Delete(UserID uint) error {
+	result := ur.client.Delete(&schema.User{}, "id = ?", UserID)
+	if result.Error != nil {
+		return fmt.Errorf("user.r.delete: %w", result.Error)
 	}
 
 	return nil
-}
-
-//! Specific operations ------------------------------------------------------
-
-func (ur *UserRepository) ReadByEmail(email string) (*User, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var existingUser User
-	err := coll.FindOne(ctx, bson.M{"email": email}).Decode(&existingUser)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("r.read_by_email: %w", ErrUserNotFound)
-		}
-		return nil, fmt.Errorf("r.read_by_email: %w", err)
-	}
-
-	return &existingUser, nil
-}
-
-func (ur *UserRepository) CountUsersByEmail(email string) (int64, error) {
-	coll := ur.client.Database(viper.GetString("DB_NAME")).Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	count, err := coll.CountDocuments(ctx, bson.M{"email": email})
-	if err != nil {
-		return 0, fmt.Errorf("r.count_users_by_email: %w", err)
-	}
-
-	return count, nil
 }

@@ -9,6 +9,10 @@ docker-compose build
 docker-compose up
 ```
 
+## Usage
+
+After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
+
 ### Shutting down
 
 ```
@@ -30,19 +34,62 @@ swag init
 
 # Architecture
 
-## Client is Nuxt3
+## Client
 
+- language: javascript
+- framework: Nuxt3
 - architecture follows framework conventions
 - components subfolders are arranged by function
 - NB folder contains neobrutalism design components
 
-## Server is Go-Echo
+## Server is Go
 
-- style should follow [Uber-Go Style Guide](https://github.com/uber-go/guide) wherever possible
+- language: Go
+- server framework: Echo
+- database: PostgreSQL
+- ORM: GORM
+
+### Style
+
+- follow [Uber-Go Style Guide](https://github.com/uber-go/guide) wherever possible
 - architecture is domain driven
 - follow CLEAN & SOLID principles wherever feasible
-- dependency injection: hander(api interface) <- service (business logic) <- repository (db)
-- todo: define narrow interfaces
+
+### Architecture
+
+- CLEAN architecture
+- dependency injection: hander (api interface) <- service (business logic) <- repository (db actions) <- db client
+- todo: define narrower interfaces
+
+### Folder Structure
+
+All internal domains are under the internal folder.
+
+Each domain contains:
+
+- Model: structs specific to the domain
+- Error: errors specific to the domain
+- Handler: API interfaces specific to the domain
+  1. Claims validation & setting
+  2. Cookies validation & setting
+  3. Marshaling & Unmarshaling JSON
+  4. Other validations
+- Service: business logic specific to the domain
+  1. Core business logic
+  2. Ignorant of clientside interactions
+  3. Ignorant of database interactions
+- Repository: db actions specific to the domain
+  1. Database actions
+
+Common domain:
+
+- Contains Models, Errors, etc. common between various domains
+
+Schema domain:
+
+- Contains database schema structs
+- Reason why they are not under specific domains is due to cyclical imports. To refactor later.
+  (I don't know an elegant solution to this problem. Would welcome advice.)
 
 # Troubleshooting
 
