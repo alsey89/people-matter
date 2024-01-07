@@ -38,6 +38,7 @@ export const useUserStore = defineStore("user-store", {
         this.userData = response.data.data;
         this.lastFetch = Date.now();
         if (response.status === 200) {
+          messageStore.setMessage("Successfully signed in.");
           return navigateTo("/");
         }
       } catch (error) {

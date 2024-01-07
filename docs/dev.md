@@ -50,8 +50,10 @@ swag init
 
 # Architecture
 
-## Client is Nuxt3
+## Client
 
+- language: javascript
+- framework: Nuxt3
 - architecture follows framework conventions
 - components subfolders are arranged by function
 - NB folder contains neobrutalism design components
@@ -68,8 +70,6 @@ swag init
 - follow [Uber-Go Style Guide](https://github.com/uber-go/guide) wherever possible
 - architecture is domain driven
 - follow CLEAN & SOLID principles wherever feasible
-- dependency injection: hander(api interface) <- service (business logic) <- repository (db)
-- todo: define narrow interfaces
 
 ### Architecture
 

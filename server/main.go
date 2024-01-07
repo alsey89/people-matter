@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 
@@ -40,8 +39,7 @@ func main() {
 		log.Fatalf("Error reading config file: %v", err)
 	}
 
-	client := setup.GetMongoClient()
-	defer client.Disconnect(context.Background())
+	client := setup.GetClient()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{viper.GetString("CLIENT_URL")},

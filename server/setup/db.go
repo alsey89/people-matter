@@ -1,23 +1,41 @@
 package setup
 
 import (
-	"context"
 	"fmt"
+	"verve-hrms/internal/schema"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var client *mongo.Client
+var client *gorm.DB
 
-func GetMongoClient() *mongo.Client {
+func GetClient() *gorm.DB {
 	if client != nil {
 		return client
 	}
 
-	// Local MongoDB URI
-	localURI := "mongodb://mongodb:27017"
+	pgUser := viper.GetString("POSTGRES_USER")
+	if pgUser == "" {
+		pgUser = "postgres"
+	}
+	pgPassword := viper.GetString("POSTGRES_PASSWORD")
+	if pgPassword == "" {
+		pgPassword = "postgres"
+	}
+	pgHost := viper.GetString("POSTGRES_HOST")
+	if pgHost == "" {
+		pgHost = "postgres"
+	}
+	pgPort := viper.GetString("POSTGRES_PORT")
+	if pgPort == "" {
+		pgPort = "5432"
+	}
+	pgDB := viper.GetString("POSTGRES_DB")
+	if pgDB == "" {
+		pgDB = "verve"
+	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
 
@@ -29,13 +47,24 @@ func GetMongoClient() *mongo.Client {
 		panic(err)
 	}
 
-	// Send a ping to confirm a successful connection
-	err = client.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Err()
+	err = client.AutoMigrate(
+		&schema.User{},
+		&schema.ContactInfo{},
+		&schema.EmergencyContact{},
+		&schema.Superior{},
+		&schema.Subordinate{},
+		&schema.Title{},
+		&schema.Department{},
+		&schema.Location{},
+		&schema.JobInfo{},
+		&schema.SalaryInfo{},
+		&schema.SalaryPayment{},
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Connected to local MongoDB!")
+	fmt.Println("Connected to PostgreSQL!")
 
 	return client
 }

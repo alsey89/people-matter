@@ -9,14 +9,6 @@
         </NBCardHeader>
         <!-- Form -->
         <form class="w-full flex flex-col justify-center items-center gap-4" @submit.prevent="submitForm">
-          <!-- Name Field -->
-          <NBFormField>
-            <template v-slot:icon>
-              <Icon name="material-symbols:account-circle-outline" />
-            </template>
-            <input type="text" v-model="name" class="h-8 w-full focus:outline-none px-1" maxlength="256" name="name"
-              placeholder="Username" required />
-          </NBFormField>
           <!-- Email Field -->
           <NBFormField>
             <template v-slot:icon>
@@ -41,14 +33,14 @@
               name="confirmPassword" placeholder="Repeat Password" required />
           </NBFormField>
           <!-- Sign Up Button -->
-          <NBButtonSquare class="w-full bg-sky-700 hover:bg-sky-900 text-white">
+          <NBButtonSquare class="w-full bg-secondary hover:bg-secondary-dark text-white">
             Sign Up
           </NBButtonSquare>
         </form>
         <NBCardFooter>
           Already have an account?
           <NuxtLink to="/signin">
-            <button class="text-sky-700 hover:text-sky-900 hover:underline">Sign In</button>
+            <button class="text-secondary hover:text-secondary-dark hover:underline">Sign In</button>
           </NuxtLink>
         </NBCardFooter>
       </NBCard>

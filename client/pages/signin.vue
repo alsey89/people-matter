@@ -24,14 +24,14 @@
               name="password" placeholder="Enter Password" required />
           </NBFormField>
           <!-- Button -->
-          <NBButtonSquare class="w-full bg-sky-700 hover:bg-sky-900 text-white">
+          <NBButtonSquare class="w-full bg-secondary hover:bg-secondary-dark text-white">
             Sign In
           </NBButtonSquare>
         </form>
         <NBCardFooter>
           Already have an account?
           <NuxtLink to="/signup">
-            <button class="text-sky-700 hover:text-sky-900 hover:underline">Sign Up</button>
+            <button class="text-secondary hover:text-secondary-dark hover:underline">Sign Up</button>
           </NuxtLink>
         </NBCardFooter>
       </NBCard>
