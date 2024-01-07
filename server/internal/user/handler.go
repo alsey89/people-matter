@@ -34,16 +34,18 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 		})
 	}
 
-	ID, ok := claims["ID"].(uint)
+	ID, ok := claims["id"].(float64)
 	if !ok {
-		log.Printf("user.h.get_user: error asserting id: %v", claims["ID"])
+		log.Printf("user.h.get_user: error asserting id: %v", claims["id"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "admin status not found",
+			Message: "id not found",
 			Data:    nil,
 		})
 	}
 
-	userData, err := uh.userService.GetUserByID(ID)
+	uintID := uint(ID)
+
+	userData, err := uh.userService.GetUserByID(uintID)
 	if err != nil {
 		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -73,14 +75,16 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 		})
 	}
 
-	ID, ok := claims["ID"].(uint)
+	ID, ok := claims["id"].(float64)
 	if !ok {
-		log.Printf("user.h.edit_user: error asserting id: %v", claims["ID"])
+		log.Printf("user.h.edit_user: error asserting id: %v", claims["id"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
 	}
+
+	uintID := uint(ID)
 
 	var updateData schema.User
 	err := c.Bind(&updateData)
@@ -92,7 +96,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 		})
 	}
 
-	updatedUser, err := uh.userService.UpdateUser(ID, updateData)
+	updatedUser, err := uh.userService.UpdateUser(uintID, updateData)
 	if err != nil {
 		log.Printf("user.h.edit_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{

@@ -24,5 +24,4 @@ definePageMeta({
 });
 const userStore = useUserStore();
 
-const showUserData = ref(false);
 </script>

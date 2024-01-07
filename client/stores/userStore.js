@@ -3,6 +3,15 @@ import axios from "axios";
 export const useUserStore = defineStore("user-store", {
   state: () => ({
     userData: null,
+    //* user data
+    firstName: null,
+    middleName: null,
+    lastName: null,
+    nickName: null,
+    //* account data
+    email: null,
+    avatarUrl: null,
+    //* store
     isLoading: false,
     lastFetch: null,
   }),
@@ -10,7 +19,8 @@ export const useUserStore = defineStore("user-store", {
     //* all user data
     getUserData: (state) => state.userData,
     getAvatarUrl: (state) => state.userData?.avatarUrl,
-    getUsername: (state) => state.userData?.username,
+    getFullName: (state) =>
+      state.userData?.firstName + " " + state.userData?.lastName,
     getUserId: (state) => state.userData?.userId,
     getEmail: (state) => state.userData?.email,
     getIsAdmin: (state) => state.userData?.isAdmin,
@@ -67,6 +77,7 @@ export const useUserStore = defineStore("user-store", {
         this.userData = response.data.data;
         this.lastFetch = Date.now();
         if (response.status === 200) {
+          messageStore.setMessage("Successfully signed up.");
           return navigateTo("/");
         }
       } catch (error) {
@@ -114,6 +125,12 @@ export const useUserStore = defineStore("user-store", {
           }
         );
         this.userData = response.data.data;
+        this.firstName = response.data.data.firstName;
+        this.lastName = response.data.data.lastName;
+        this.middleName = response.data.data.middleName;
+        this.nickName = response.data.data.nickName;
+        this.email = response.data.data.email;
+        this.avatarUrl = response.data.data.avatarUrl;
         this.lastFetch = Date.now();
       } catch (error) {
         this.handleError(error);
@@ -121,6 +138,8 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
+
+    //! Untilities
     shouldFetchUserData() {
       const THRESHOLD = 5 * 60 * 1000; //* 5 minutes
       if (!this.lastFetch) return true;
