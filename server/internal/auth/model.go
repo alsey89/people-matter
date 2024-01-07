@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// * JWT claims struct
 type Claims struct {
 	ID      uint   `json:"id,omitempty" bson:"id,omitempty"`
 	IsAdmin bool   `json:"isAdmin" default:"false"`

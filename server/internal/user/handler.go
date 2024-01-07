@@ -6,9 +6,9 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"verve-hrms/internal/common"
+	"verve-hrms/internal/schema"
 )
 
 type UserHandler struct {
@@ -22,39 +22,30 @@ func NewUserHandler(userService *UserService) *UserHandler {
 func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting token")
+		log.Printf("user.h.get_user: error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
-		log.Printf("error asserting claims: %v", user.Claims)
+		log.Printf("user.h.get_user: error asserting claims: %v", user.Claims)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
 		})
 	}
 
-	_id, ok := claims["id"].(string)
+	ID, ok := claims["ID"].(uint)
 	if !ok {
-		log.Printf("error asserting isAdmin: %v", claims["isAdmin"])
+		log.Printf("user.h.get_user: error asserting id: %v", claims["ID"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
 	}
 
-	objID, err := primitive.ObjectIDFromHex(_id)
+	userData, err := uh.userService.GetUserByID(ID)
 	if err != nil {
-		log.Printf("Error converting string to ObjectID: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	userData, err := uh.userService.GetUserByID(&objID)
-	if err != nil {
-		log.Printf("Error getting user data: %v", err)
+		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
@@ -70,47 +61,40 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 func (uh *UserHandler) EditUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting token")
+		log.Printf("user.h.edit_user: error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
-		log.Printf("error asserting claims: %v", user.Claims)
+		log.Printf("user.h.edit_user: error asserting claims: %v", user.Claims)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
 		})
 	}
 
-	_id, ok := claims["id"].(string)
+	ID, ok := claims["ID"].(uint)
 	if !ok {
-		log.Printf("error asserting id: %v", claims["id"])
+		log.Printf("user.h.edit_user: error asserting id: %v", claims["ID"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
 	}
 
-	objID, err := primitive.ObjectIDFromHex(_id)
+	var updateData schema.User
+	err := c.Bind(&updateData)
 	if err != nil {
-		log.Printf("Error converting string to ObjectID: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	var updateData User
-	err = c.Bind(&updateData)
-	if err != nil {
+		log.Printf("user.h.edit_user: error binding request %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	updatedUser, err := uh.userService.UpdateUser(&objID, updateData)
+	updatedUser, err := uh.userService.UpdateUser(ID, updateData)
 	if err != nil {
+		log.Printf("user.h.edit_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,

@@ -1,4 +1,4 @@
-package user
+package schema
 
 import (
 	"time"
@@ -18,16 +18,22 @@ type User struct {
 	IsVerified bool       `json:"isVerified" gorm:"default:false"`
 	LastLogin  *time.Time `json:"lastLogin"  gorm:"default:null"`
 
-	//*job information
-
-	//* basic personal information
-	FirstName  string  `json:"firstName"`
-	MiddleName *string `json:"middleName"`
-	LastName   string  `json:"lastName"`
-	Nickname   *string `json:"nickname"`
-	//* detailed personal information
+	//* personal information
+	FirstName        string            `json:"firstName"`
+	MiddleName       *string           `json:"middleName"`
+	LastName         string            `json:"lastName"`
+	Nickname         *string           `json:"nickname"`
 	ContactInfo      *ContactInfo      `json:"contactInfo"`
 	EmergencyContact *EmergencyContact `json:"emergencyContact"`
+
+	//*job information
+	Title      string   `json:"title"      gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
+	Department string   `json:"department" gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
+	JobInfo    *JobInfo `json:"jobInfo"`
+
+	//* salary information
+	SalaryInfoID  uint            `json:"salaryInfoId"`
+	SalaryPayment []SalaryPayment `json:"salaryPayment"`
 }
 
 type ContactInfo struct {

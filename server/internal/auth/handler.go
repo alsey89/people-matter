@@ -129,7 +129,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
-		log.Printf("error binding credentials: %v", err)
+		log.Printf("auth.h.signin: error binding credentials: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid form data",
 			Data:    nil,
@@ -147,17 +147,17 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 				Message: "user not found",
 				Data:    nil,
 			})
-		}
-		if errors.Is(err, ErrInvalidCredentials) {
+		} else if errors.Is(err, ErrInvalidCredentials) {
 			return c.JSON(http.StatusUnauthorized, common.APIResponse{
 				Message: "invalid credentials",
 				Data:    nil,
 			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, common.APIResponse{
+				Message: "something went wrong",
+				Data:    nil,
+			})
 		}
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
-			Data:    nil,
-		})
 	}
 
 	claims := Claims{
@@ -233,12 +233,12 @@ func (ah *AuthHandler) Signout(c echo.Context) error {
 func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("error asserting token")
+		log.Printf("auth.check_auth: error asserting token")
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
-		log.Printf("error asserting claims: %v", user.Claims)
+		log.Printf("auth.check_auth: error asserting claims: %v", user.Claims)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,
@@ -247,7 +247,7 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 
 	isAdmin, ok := claims["isAdmin"].(bool)
 	if !ok {
-		log.Printf("error asserting isAdmin: %v", claims["isAdmin"])
+		log.Printf("auth.check_auth: error asserting isAdmin: %v", claims["isAdmin"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
