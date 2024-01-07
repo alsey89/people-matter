@@ -19,10 +19,12 @@ func GetMongoClient() *mongo.Client {
 	// Local MongoDB URI
 	localURI := "mongodb://mongodb:27017"
 
-	opts := options.Client().ApplyURI(localURI)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
 
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
+	var err error
+	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		TranslateError: true, // ! this is needed to translate postgres errors to gorm errors
+	})
 	if err != nil {
 		panic(err)
 	}
