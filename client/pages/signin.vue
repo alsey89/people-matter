@@ -7,7 +7,7 @@
             Sign In To Verve HR
           </NBText>
         </NBCardHeader>
-        <!-- Form -->
+        <!-- ----------------------------------------- -->
         <form class="w-full flex flex-col justify-center items-center gap-4" @submit.prevent="submitForm">
           <NBFormField>
             <template v-slot:icon>
@@ -23,16 +23,15 @@
             <input type="password" v-model="password" class="h-10 w-full focus:outline-none px-1" maxlength="256"
               name="password" placeholder="Enter Password" required />
           </NBFormField>
-          <!-- Button -->
-          <NBButtonSquare class="w-full bg-secondary hover:bg-secondary-dark text-white">
+          <NBButtonSquare class="w-full bg-primary hover:bg-primary-dark text-white">
             Sign In
           </NBButtonSquare>
         </form>
+        <!-- ----------------------------------------- -->
         <NBCardFooter>
           Already have an account?
-          <NuxtLink to="/signup">
-            <button class="text-secondary hover:text-secondary-dark hover:underline">Sign Up</button>
-          </NuxtLink>
+          <button @click="navigateTo('/signup')" class="text-primary hover:text-primary-dark hover:underline">Sign
+            Up</button>
         </NBCardFooter>
       </NBCard>
     </div>

@@ -7,9 +7,8 @@
             Sign Up for Verve HR
           </NBText>
         </NBCardHeader>
-        <!-- Form -->
+        <!-- ----------------------------------------- -->
         <form class="w-full flex flex-col justify-center items-center gap-4" @submit.prevent="submitForm">
-          <!-- Email Field -->
           <NBFormField>
             <template v-slot:icon>
               <Icon name="material-symbols:attach-email-outline" />
@@ -17,7 +16,7 @@
             <input type="email" v-model="email" class="h-8 w-full focus:outline-none px-1" maxlength="256"
               placeholder="Email Address" required />
           </NBFormField>
-          <!-- Password Field -->
+
           <NBFormField>
             <template v-slot:icon>
               <Icon name="material-symbols:lock-outline" />
@@ -32,16 +31,15 @@
             <input type="password" v-model="confirmPassword" class="h-10 w-full focus:outline-none px-1" maxlength="256"
               name="confirmPassword" placeholder="Repeat Password" required />
           </NBFormField>
-          <!-- Sign Up Button -->
-          <NBButtonSquare class="w-full bg-secondary hover:bg-secondary-dark text-white">
+          <NBButtonSquare class="w-full bg-primary hover:bg-primary-dark text-white">
             Sign Up
           </NBButtonSquare>
         </form>
+        <!-- ----------------------------------------- -->
         <NBCardFooter>
           Already have an account?
-          <NuxtLink to="/signin">
-            <button class="text-secondary hover:text-secondary-dark hover:underline">Sign In</button>
-          </NuxtLink>
+          <button @click="navigateTo('/signin')" class="text-primary hover:text-primary-dark hover:underline">Sign
+            In</button>
         </NBCardFooter>
       </NBCard>
     </div>

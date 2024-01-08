@@ -22,6 +22,9 @@ definePageMeta({
     layout: 'default',
     middleware: ['auth-check', 'user-data-check'],
 });
-const userStore = useUserStore();
 
+const userStore = useUserStore();
+onBeforeMount(() => {
+    userStore.fetchCurrentUserData();
+});
 </script>

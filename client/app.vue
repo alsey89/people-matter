@@ -1,5 +1,5 @@
 <template>
-  <Message />
+  <AppMessage />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

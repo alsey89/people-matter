@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-center w-full min-h-screen bg-primary">
+    <div class="flex justify-center w-full min-h-screen bg-primary-bg">
         <!-- Container with max-width and centered -->
         <div class="flex w-full max-w-[1550px]">
             <!-- Sidebar -->
