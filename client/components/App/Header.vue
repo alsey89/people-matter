@@ -7,17 +7,7 @@
                     <AppAvatar />
                 </template>
                 <template v-slot:content>
-                    <NBMenu hoverStyle="bg-gray-100">
-                        <NBMenuItemNavigation navigateTo="/">
-                            Home
-                        </NBMenuItemNavigation>
-                        <NBMenuItemNavigation navigateTo="/signin">
-                            Sign In
-                        </NBMenuItemNavigation>
-                        <NBMenuItem @click="userStore.signout">
-                            Signout
-                        </NBMenuItem>
-                    </NBMenu>
+                    <AppPopoverMenu hoverStyle="bg-red-500" />
                 </template>
             </NBPopover>
         </div>
@@ -25,6 +15,5 @@
 </template>
 
 <script setup>
-const userStore = useUserStore()
 
 </script>

@@ -3,9 +3,11 @@
         <div @click="showPopover = !showPopover">
             <slot name="trigger"></slot>
         </div>
-        <div @click="closePopover" v-if="showPopover" class="absolute right-8 top-6">
-            <slot name="content"></slot>
-        </div>
+        <NBAnimationPop>
+            <div @click="closePopover" v-if="showPopover" class="absolute right-8 top-6">
+                <slot name="content"></slot>
+            </div>
+        </NBAnimationPop>
     </div>
 </template>
 
@@ -15,7 +17,5 @@ const showPopover = ref(false)
 const closePopover = () => {
     showPopover.value = false
 }
-
 </script>
-
 

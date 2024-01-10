@@ -6,16 +6,6 @@
 </template>
   
 <script setup>
-
-const { hoverStyle } = defineProps({
-    hoverStyle: {
-        type: String,
-        default: ""
-    }
-});
-
-provide('hoverStyle', hoverStyle)
-
 </script>
   
  

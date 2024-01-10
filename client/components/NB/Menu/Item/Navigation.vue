@@ -1,16 +1,15 @@
 <template>
-    <NuxtLink :to="navigateTo" :class="`w-full hover:${hoverStyle} px-1 rounded-sm`">
+    <NuxtLink :to="navigateTo" class="px-1 rounded-sm">
         <slot></slot>
     </NuxtLink>
 </template>
   
 <script setup>
-const props = defineProps({
+const { navigateTo } = defineProps({
     navigateTo: {
         type: String,
         required: true
     },
 });
-const hoverStyle = inject('hoverStyle')
 </script>
   
