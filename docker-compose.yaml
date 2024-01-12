@@ -6,8 +6,8 @@ services:
       - "3001:3001"
     volumes:
       - ./server:/app
-    depends_on:
-      - postgres
+    # depends_on:
+    # - postgres
 
   client:
     build: ./client
@@ -18,16 +18,16 @@ services:
       - /app/node_modules
     depends_on:
       - server
-      - postgres
+      # - postgres
 
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: verve
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
-      # - ./database/data:/var/lib/postgresql/data #todo: uncomment this line to persist data
+  # postgres:
+  #   image: postgres:latest
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: verve
+  #   volumes:
+  #     - ./database:/docker-entrypoint-initdb.d
+  #     - ./database/data:/var/lib/postgresql/data

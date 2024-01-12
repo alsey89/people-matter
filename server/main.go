@@ -57,12 +57,19 @@ func main() {
 		CookieHTTPOnly: true,
 		// CookieSameSite: http.SameSiteStrictMode, //todo: enable in production
 	}))
-
-	jwtMiddleware := echojwt.WithConfig(echojwt.Config{
+	e.Use(echojwt.WithConfig(echojwt.Config{
+		Skipper: func(c echo.Context) bool {
+			if c.Request().URL.Path == "/api/v1/auth/signin" ||
+				c.Request().URL.Path == "/api/v1/auth/signup" ||
+				c.Request().URL.Path == "/api/v1/auth/password/reset" {
+				return true
+			}
+			return false
+		},
 		SigningKey:    []byte(viper.GetString("JWT_SECRET")),
 		SigningMethod: "HS256",
 		TokenLookup:   "cookie:jwt",
-	})
+	}))
 
 	//! swagger routes
 	e.Static("/swagger", "docs")
@@ -81,12 +88,14 @@ func main() {
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
-	authRoutes.GET("/check", authHandler.CheckAuth, jwtMiddleware)
+	authRoutes.GET("/check", authHandler.CheckAuth)
 
 	userRoutes := e.Group("api/v1/user")
-	userRoutes.GET("/all", userHandler.GetAllUsers, jwtMiddleware) //mw.AdminMiddleware
-	userRoutes.GET("/data", userHandler.GetUser, jwtMiddleware)
-	userRoutes.PUT("/data", userHandler.EditUser, jwtMiddleware)
+	userRoutes.GET("", userHandler.GetUser)
+	userRoutes.PUT("", userHandler.EditUser)
+
+	adminRoutes := e.Group("api/v1/admin")
+	adminRoutes.GET("/user/all", userHandler.GetAllUsers)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

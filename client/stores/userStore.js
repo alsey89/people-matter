@@ -117,17 +117,14 @@ export const useUserStore = defineStore("user-store", {
     async fetchCurrentUserData(store) {
       this.isLoading = true;
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/user/data",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        this.userData = response.data.data;
+        const response = await axios.get("http://localhost:3001/api/v1/user", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
+        this.currentUserData = response.data.data;
         this.firstName = response.data.data.firstName;
         this.lastName = response.data.data.lastName;
         this.middleName = response.data.data.middleName;
@@ -165,7 +162,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/user/all",
+          "http://localhost:3001/api/v1/admin/user/all",
           {
             headers: {
               "Content-Type": "application/json",
@@ -199,7 +196,7 @@ export const useUserStore = defineStore("user-store", {
             return navigateTo("/signin");
           case 403:
             messageStore.setError("Access denied.");
-            return navigateTo("/signin");
+            return navigateTo("/");
           case 404:
             messageStore.setError("Data not found.");
           case 409:

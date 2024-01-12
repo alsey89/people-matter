@@ -2,7 +2,7 @@
     <div class="w-full flex justify-center items-center">
         <NBCard class="min-w-full">
             <div class="flex flex-col gap-4">
-                <div v-for="(value, key) in userStore.getUserData" :key="key">
+                <div v-for="(value, key) in userStore.getCurrentUserData" :key="key">
                     <NBText class="text-center">
                         {{ key }}: {{ value }}
                     </NBText>

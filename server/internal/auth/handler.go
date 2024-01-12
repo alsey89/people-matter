@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -161,8 +160,6 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 		}
 	}
 
-	log.Println("type of existingUser.ID: ", reflect.TypeOf(existingUser.ID))
-
 	claims := Claims{
 		ID:      existingUser.ID, // Store the ObjectId
 		IsAdmin: existingUser.IsAdmin,
@@ -171,8 +168,6 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	}
-
-	log.Println("type of claims ID: ", reflect.TypeOf(claims.ID))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
