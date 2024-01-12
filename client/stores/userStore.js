@@ -30,7 +30,7 @@ export const useUserStore = defineStore("user-store", {
   },
   actions: {
     //! Auth API Calls
-    async signin({ store, email, password }) {
+    async signin({ email, password }) {
       const messageStore = useMessageStore();
       try {
         const response = await axios.post(
@@ -47,18 +47,16 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        console.log("Response Data:", response.data);
-        this.userData = response.data.data;
-        this.lastFetch = Date.now();
         if (response.status === 200) {
           messageStore.setMessage("Successfully signed in.");
+          this.userData = response.data.data;
           return navigateTo("/");
         }
       } catch (error) {
         this.handleError(error);
       }
     },
-    async signup({ store, username, email, password, confirmPassword }) {
+    async signup({ username, email, password, confirmPassword }) {
       const messageStore = useMessageStore();
       try {
         const response = await axios.post(
@@ -77,10 +75,9 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        this.userData = response.data.data;
-        this.lastFetch = Date.now();
         if (response.status === 200) {
           messageStore.setMessage("Successfully signed up.");
+          this.userData = response.data.data;
           return navigateTo("/");
         }
       } catch (error) {
@@ -199,10 +196,13 @@ export const useUserStore = defineStore("user-store", {
             return navigateTo("/");
           case 404:
             messageStore.setError("Data not found.");
+            break;
           case 409:
             messageStore.setError("Data already exists.");
+            break;
           case 500:
             messageStore.setError("Server error.");
+            break;
           default:
             messageStore.setError("Something went wrong.");
             return navigateTo("/");

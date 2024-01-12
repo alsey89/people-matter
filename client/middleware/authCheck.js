@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export default defineNuxtRouteMiddleware(async (to, from) => {
   if (process.server) {
     //* skip serverside, no cookies there

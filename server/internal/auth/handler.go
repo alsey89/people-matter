@@ -38,7 +38,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	creds := new(SignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
-		log.Printf("error binding credentials: %v", err)
+		log.Printf("auth.h.signup: error binding credentials: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -65,7 +65,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 
 	newUser, err := ah.authService.Signup(email, password)
 	if err != nil {
-		log.Printf("h.signup: %v", err)
+		log.Printf("auth.h.signup: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "email not available",
@@ -90,7 +90,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
-		log.Printf("Error signing jwt with claims: %v", err)
+		log.Printf("auth.h.signup:Error signing jwt with claims: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -141,7 +141,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 
 	existingUser, err := ah.authService.Signin(email, password)
 	if err != nil {
-		log.Printf("h.signin: %v", err)
+		log.Printf("auth.h.signin: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",
@@ -172,7 +172,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
-		log.Printf("error signing jwt with claims: %v", err)
+		log.Printf("auth.h.signin: error signing jwt with claims: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
