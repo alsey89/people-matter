@@ -27,4 +27,4 @@ logs
 tmp
 .air.toml
 
-mongo/data
+database/data
