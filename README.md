@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project aims to develop an open-source HRMS that not only streamlines HR operations but also focuses on enhancing employee engagement through an interactive and fun employee portal. The core HRMS will manage essential HR tasks while the employee portal will include features such as a radio, an internal social feed, gamification, and more.
+This project aims to develop an open-source HRMS that not only streamlines HR operations but also focuses on enhancing employee engagement. The core HRMS will manage essential HR tasks while the employee portal will include self-service features, and fun elements like an internal social feed, radio, and gamification.
 
 FEATURE LIST: [click here](./docs/features.md)
 
