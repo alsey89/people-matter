@@ -28,3 +28,5 @@ tmp
 .air.toml
 
 database/data
+
+.vscode
