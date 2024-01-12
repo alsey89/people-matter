@@ -20,7 +20,7 @@
 definePageMeta({
     title: 'Home',
     layout: 'default',
-    middleware: ['auth-check', 'user-data-check'],
+    middleware: ['auth-check'],
 });
 
 const userStore = useUserStore();

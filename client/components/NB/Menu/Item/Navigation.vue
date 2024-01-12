@@ -1,5 +1,5 @@
 <template>
-    <NuxtLink :to="navigateTo" class="px-1 rounded-sm">
+    <NuxtLink :to="navigateTo" class="px-1">
         <slot></slot>
     </NuxtLink>
 </template>

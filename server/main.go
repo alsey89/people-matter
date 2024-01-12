@@ -64,7 +64,7 @@ func main() {
 		TokenLookup:   "cookie:jwt",
 	})
 
-	//swagger routes
+	//! swagger routes
 	e.Static("/swagger", "docs")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -84,6 +84,7 @@ func main() {
 	authRoutes.GET("/check", authHandler.CheckAuth, jwtMiddleware)
 
 	userRoutes := e.Group("api/v1/user")
+	userRoutes.GET("/all", userHandler.GetAllUsers, jwtMiddleware) //mw.AdminMiddleware
 	userRoutes.GET("/data", userHandler.GetUser, jwtMiddleware)
 	userRoutes.PUT("/data", userHandler.EditUser, jwtMiddleware)
 

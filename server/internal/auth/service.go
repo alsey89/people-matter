@@ -24,9 +24,11 @@ func (as *AuthService) Signup(email string, password string) (*schema.User, erro
 	}
 
 	newUser := schema.User{
-		Email:    email,
-		Password: string(hashedPassword),
-		IsAdmin:  false,
+		FirstName: "New",
+		LastName:  "User",
+		Email:     email,
+		Password:  string(hashedPassword),
+		IsAdmin:   false,
 	}
 
 	createdUser, err := as.userService.CreateNewAccount(&newUser) //* this adds the ID to newUser

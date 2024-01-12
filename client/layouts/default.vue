@@ -1,14 +1,18 @@
 <template>
     <div class="w-full h-full min-h-screen inset-0 flex justify-center bg-primary-bg">
-        <div class="w-full max-w-[1280px] flex flex-col gap-4 p-2">
-            <div class="w-full h-12">
+        <div class="w-full max-w-[1280px] flex flex-col py-2 gap-4">
+            <!-- Header -->
+            <div class="w-full h-12 z-10 px-2">
                 <AppHeader />
             </div>
-            <div class="w-full h-full flex gap-4" style="max-height: calc(100vh - 5rem)">
-                <div class="w-32 min-h-full">
+            <!-- Body -->
+            <div class="w-full h-full flex" style="max-height: calc(100vh - 5rem)">
+                <!-- Sidebar -->
+                <div class="hidden md:block w-32 min-h-full md:pl-2">
                     <AppSidebar />
                 </div>
-                <div class="flex flex-grow overflow-y-auto">
+                <!-- Content -->
+                <div class="flex flex-grow overflow-y-auto px-2">
                     <router-view></router-view>
                 </div>
             </div>

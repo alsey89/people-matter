@@ -2,6 +2,8 @@ import axios from "axios";
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
+    currentUserData: null,
+    allUsersData: null,
     userData: null,
     //* user data
     firstName: null,
@@ -17,13 +19,14 @@ export const useUserStore = defineStore("user-store", {
   }),
   getters: {
     //* all user data
-    getUserData: (state) => state.userData,
-    getAvatarUrl: (state) => state.userData?.avatarUrl,
-    getFullName: (state) =>
-      state.userData?.firstName + " " + state.userData?.lastName,
-    getUserId: (state) => state.userData?.userId,
-    getEmail: (state) => state.userData?.email,
-    getIsAdmin: (state) => state.userData?.isAdmin,
+    getCurrentUserData: (state) => state.currentUserData,
+    getAllUsersData: (state) => state.allUsersData,
+    getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
+    getCurrentUserFullName: (state) =>
+      state.userData?.firstName + " " + state.currentUserData?.lastName,
+    getCurrentUserUserId: (state) => state.currentUserData?.userId,
+    getCurrentUserEmail: (state) => state.currentUserData?.email,
+    getCurrentUserIsAdmin: (state) => state.currentUserData?.isAdmin,
   },
   actions: {
     //! Auth API Calls
@@ -138,8 +141,48 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
-
-    //! Untilities
+    async fetchOneUserData(userId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "`http://localhost:3001/api/v1/user/${userId}",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.userData = response.data.data;
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchAllUsersData(store) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/v1/user/all",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.allUsersData = response.data.data;
+        this.lastFetch = Date.now();
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    //! Utilities
     shouldFetchUserData() {
       const THRESHOLD = 5 * 60 * 1000; //* 5 minutes
       if (!this.lastFetch) return true;
@@ -159,16 +202,13 @@ export const useUserStore = defineStore("user-store", {
             return navigateTo("/signin");
           case 404:
             messageStore.setError("Data not found.");
-            return navigateTo("/signin");
           case 409:
             messageStore.setError("Data already exists.");
-            return navigateTo("/signin");
           case 500:
             messageStore.setError("Server error.");
-            return navigateTo("/signin");
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/signin");
+            return navigateTo("/");
         }
       } else if (error.request) {
         // The request was made but no response was received
@@ -182,7 +222,7 @@ export const useUserStore = defineStore("user-store", {
       console.log(error.config);
     },
   },
-  persist: {
-    storage: persistedState.sessionStorage,
-  },
+  // persist: {
+  //   storage: persistedState.sessionStorage,
+  // },
 });

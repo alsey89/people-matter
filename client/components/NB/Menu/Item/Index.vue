@@ -1,5 +1,5 @@
 <template>
-    <div class="px-1 rounded-sm hover:cursor-pointer">
+    <div class="px-1 hover:cursor-pointer">
         <slot></slot>
     </div>
 </template>

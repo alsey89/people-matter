@@ -19,6 +19,25 @@ func NewUserHandler(userService *UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
+func (uh *UserHandler) GetAllUsers(c echo.Context) error {
+
+	log.Printf("we are at user.h.get_all_users")
+
+	users, err := uh.userService.GetAllUsers()
+	if err != nil {
+		log.Printf("user.h.get_all_users: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "users data has been retrieved",
+		Data:    users,
+	})
+}
+
 func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
