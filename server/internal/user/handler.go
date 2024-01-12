@@ -19,6 +19,25 @@ func NewUserHandler(userService *UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
+func (uh *UserHandler) GetAllUsers(c echo.Context) error {
+
+	log.Printf("we are at user.h.get_all_users")
+
+	users, err := uh.userService.GetAllUsers()
+	if err != nil {
+		log.Printf("user.h.get_all_users: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "users data has been retrieved",
+		Data:    users,
+	})
+}
+
 func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
@@ -34,16 +53,18 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 		})
 	}
 
-	ID, ok := claims["ID"].(uint)
+	ID, ok := claims["id"].(float64)
 	if !ok {
-		log.Printf("user.h.get_user: error asserting id: %v", claims["ID"])
+		log.Printf("user.h.get_user: error asserting id: %v", claims["id"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "admin status not found",
+			Message: "id not found",
 			Data:    nil,
 		})
 	}
 
-	userData, err := uh.userService.GetUserByID(ID)
+	uintID := uint(ID)
+
+	userData, err := uh.userService.GetUserByID(uintID)
 	if err != nil {
 		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -73,14 +94,16 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 		})
 	}
 
-	ID, ok := claims["ID"].(uint)
+	ID, ok := claims["id"].(float64)
 	if !ok {
-		log.Printf("user.h.edit_user: error asserting id: %v", claims["ID"])
+		log.Printf("user.h.edit_user: error asserting id: %v", claims["id"])
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "admin status not found",
 			Data:    nil,
 		})
 	}
+
+	uintID := uint(ID)
 
 	var updateData schema.User
 	err := c.Bind(&updateData)
@@ -92,7 +115,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 		})
 	}
 
-	updatedUser, err := uh.userService.UpdateUser(ID, updateData)
+	updatedUser, err := uh.userService.UpdateUser(uintID, updateData)
 	if err != nil {
 		log.Printf("user.h.edit_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{

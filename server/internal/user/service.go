@@ -22,6 +22,15 @@ func (us *UserService) CreateNewAccount(newUser *schema.User) (*schema.User, err
 	return createdUser, nil
 }
 
+func (us *UserService) GetAllUsers() ([]*schema.User, error) {
+	users, err := us.userRepository.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
+	}
+
+	return users, nil
+}
+
 func (us *UserService) GetUserByEmail(email string) (*schema.User, error) {
 	user, err := us.userRepository.ReadByEmail(email)
 	if err != nil {

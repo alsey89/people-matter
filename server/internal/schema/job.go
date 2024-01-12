@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -11,8 +13,8 @@ type JobInfo struct {
 	TitleID      uint `json:"titleId"`      // Foreign key for Title
 	LocationID   uint `json:"locationId"`   // Foreign key for Location
 
-	StartDate string `json:"startDate"`
-	EndDate   string `json:"endDate"`
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
 
 	// Hierarchy
 	Superiors    []Superior    `gorm:"foreignKey:JobInfoID"`

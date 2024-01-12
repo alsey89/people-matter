@@ -2,7 +2,6 @@ package setup
 
 import (
 	"fmt"
-	"verve-hrms/internal/schema"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -37,32 +36,34 @@ func GetClient() *gorm.DB {
 		pgDB = "verve"
 	}
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
+
+	supabaseDSN := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "db.ehpdytlwkuavpscqllsr.supabase.co", "postgres", "bljZcr1sQsIDpreR", "postgres", "5432")
 
 	var err error
-	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	client, err = gorm.Open(postgres.Open(supabaseDSN), &gorm.Config{
 		TranslateError: true, // ! this is needed to translate postgres errors to gorm errors
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = client.AutoMigrate(
-		&schema.User{},
-		&schema.ContactInfo{},
-		&schema.EmergencyContact{},
-		&schema.Superior{},
-		&schema.Subordinate{},
-		&schema.Title{},
-		&schema.Department{},
-		&schema.Location{},
-		&schema.JobInfo{},
-		&schema.SalaryInfo{},
-		&schema.SalaryPayment{},
-	)
-	if err != nil {
-		panic(err)
-	}
+	// err = client.AutoMigrate(
+	// 	&schema.User{},
+	// 	&schema.ContactInfo{},
+	// 	&schema.EmergencyContact{},
+	// 	&schema.Superior{},
+	// 	&schema.Subordinate{},
+	// 	&schema.Title{},
+	// 	&schema.Department{},
+	// 	&schema.Location{},
+	// 	&schema.JobInfo{},
+	// 	&schema.SalaryInfo{},
+	// 	&schema.SalaryPayment{},
+	// )
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	fmt.Println("Connected to PostgreSQL!")
 

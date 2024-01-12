@@ -33,6 +33,16 @@ func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
 	return newUser, nil
 }
 
+func (ur UserRepository) ReadAll() ([]*schema.User, error) {
+	var users []*schema.User
+	result := ur.client.Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
+	}
+
+	return users, nil
+}
+
 func (ur UserRepository) Read(UserID uint) (*schema.User, error) {
 	var user schema.User
 	result := ur.client.First(&user, "id = ?", UserID)

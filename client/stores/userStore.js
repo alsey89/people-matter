@@ -2,18 +2,31 @@ import axios from "axios";
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
+    currentUserData: null,
+    allUsersData: null,
     userData: null,
+    //* user data
+    firstName: null,
+    middleName: null,
+    lastName: null,
+    nickName: null,
+    //* account data
+    email: null,
+    avatarUrl: null,
+    //* store
     isLoading: false,
     lastFetch: null,
   }),
   getters: {
     //* all user data
-    getUserData: (state) => state.userData,
-    getAvatarUrl: (state) => state.userData?.avatarUrl,
-    getUsername: (state) => state.userData?.username,
-    getUserId: (state) => state.userData?.userId,
-    getEmail: (state) => state.userData?.email,
-    getIsAdmin: (state) => state.userData?.isAdmin,
+    getCurrentUserData: (state) => state.currentUserData,
+    getAllUsersData: (state) => state.allUsersData,
+    getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
+    getCurrentUserFullName: (state) =>
+      state.userData?.firstName + " " + state.currentUserData?.lastName,
+    getCurrentUserUserId: (state) => state.currentUserData?.userId,
+    getCurrentUserEmail: (state) => state.currentUserData?.email,
+    getCurrentUserIsAdmin: (state) => state.currentUserData?.isAdmin,
   },
   actions: {
     //! Auth API Calls
@@ -67,6 +80,7 @@ export const useUserStore = defineStore("user-store", {
         this.userData = response.data.data;
         this.lastFetch = Date.now();
         if (response.status === 200) {
+          messageStore.setMessage("Successfully signed up.");
           return navigateTo("/");
         }
       } catch (error) {
@@ -103,8 +117,32 @@ export const useUserStore = defineStore("user-store", {
     async fetchCurrentUserData(store) {
       this.isLoading = true;
       try {
+        const response = await axios.get("http://localhost:3001/api/v1/user", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
+        this.currentUserData = response.data.data;
+        this.firstName = response.data.data.firstName;
+        this.lastName = response.data.data.lastName;
+        this.middleName = response.data.data.middleName;
+        this.nickName = response.data.data.nickName;
+        this.email = response.data.data.email;
+        this.avatarUrl = response.data.data.avatarUrl;
+        this.lastFetch = Date.now();
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchOneUserData(userId) {
+      this.isLoading = true;
+      try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/user/data",
+          "`http://localhost:3001/api/v1/user/${userId}",
           {
             headers: {
               "Content-Type": "application/json",
@@ -114,6 +152,26 @@ export const useUserStore = defineStore("user-store", {
           }
         );
         this.userData = response.data.data;
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchAllUsersData(store) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/v1/admin/user/all",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.allUsersData = response.data.data;
         this.lastFetch = Date.now();
       } catch (error) {
         this.handleError(error);
@@ -121,6 +179,7 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
+    //! Utilities
     shouldFetchUserData() {
       const THRESHOLD = 5 * 60 * 1000; //* 5 minutes
       if (!this.lastFetch) return true;
@@ -137,19 +196,16 @@ export const useUserStore = defineStore("user-store", {
             return navigateTo("/signin");
           case 403:
             messageStore.setError("Access denied.");
-            return navigateTo("/signin");
+            return navigateTo("/");
           case 404:
             messageStore.setError("Data not found.");
-            return navigateTo("/signin");
           case 409:
             messageStore.setError("Data already exists.");
-            return navigateTo("/signin");
           case 500:
             messageStore.setError("Server error.");
-            return navigateTo("/signin");
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/signin");
+            return navigateTo("/");
         }
       } else if (error.request) {
         // The request was made but no response was received
@@ -163,7 +219,7 @@ export const useUserStore = defineStore("user-store", {
       console.log(error.config);
     },
   },
-  persist: {
-    storage: persistedState.sessionStorage,
-  },
+  // persist: {
+  //   storage: persistedState.sessionStorage,
+  // },
 });

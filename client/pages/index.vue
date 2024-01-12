@@ -1,8 +1,8 @@
 <template>
-    <div class="flex justify-center items-center">
-        <NBCard>
+    <div class="w-full flex justify-center items-center">
+        <NBCard class="min-w-full">
             <div class="flex flex-col gap-4">
-                <div v-for="(value, key) in userStore.getUserData" :key="key">
+                <div v-for="(value, key) in userStore.getCurrentUserData" :key="key">
                     <NBText class="text-center">
                         {{ key }}: {{ value }}
                     </NBText>
@@ -20,9 +20,11 @@
 definePageMeta({
     title: 'Home',
     layout: 'default',
-    middleware: ['auth-check', 'user-data-check'],
+    middleware: ['auth-check'],
 });
-const userStore = useUserStore();
 
-const showUserData = ref(false);
+const userStore = useUserStore();
+onBeforeMount(() => {
+    userStore.fetchCurrentUserData();
+});
 </script>
