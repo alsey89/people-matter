@@ -5,7 +5,9 @@
                 <Icon name="material-symbols:add" class="h-8 w-8" />
             </NBButtonSquare>
         </div>
-        <div v-for="user in userStore.getAllUsersData" class="w-full">
+
+        <div v-if="userStore.getAllUsersData" v-for="(user, index) in userStore.getAllUsersData" :key="user.id"
+            class="w-full">
             <div class="w-full flex bg-secondary-bg">
                 <NBCard>
                     <div class="flex flex-wrap justify-between">
@@ -18,10 +20,10 @@
                             <p>{{ user.department }}</p>
                         </div>
                     </div>
-
                 </NBCard>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -35,4 +37,6 @@ const userStore = useUserStore();
 onBeforeMount(() => {
     userStore.fetchAllUsersData();
 });
+
 </script>
+

@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type JobInfo struct {
+type Job struct {
 	gorm.Model
 	UserID       uint `json:"userId"`
 	DepartmentID uint `json:"departmentId"` // Foreign key for Department
@@ -17,40 +17,40 @@ type JobInfo struct {
 	EndDate   time.Time `json:"endDate"`
 
 	// Hierarchy
-	Superiors    []Superior    `gorm:"foreignKey:JobInfoID"`
-	Subordinates []Subordinate `gorm:"foreignKey:JobInfoID"`
+	Superiors    []Superior    `gorm:"foreignKey:JobID"`
+	Subordinates []Subordinate `gorm:"foreignKey:JobID"`
 
-	Location Location `gorm:"foreignKey:LocationID"` // One-to-one relationship with Location
+	Location Location `gorm:"foreignKey:LocationID"`
 }
 
 type Superior struct {
 	gorm.Model
-	JobInfoID uint `json:"jobInfoId"` // References JobInfo
-	UserID    uint `json:"userId"`    // References the superior's User
+	JobID  uint `json:"jobId"`
+	UserID uint `json:"userId"`
 }
 
 type Subordinate struct {
 	gorm.Model
-	JobInfoID uint `json:"jobInfoId"` // References JobInfo
-	UserID    uint `json:"userId"`    // References the subordinate's User
+	JobID  uint `json:"jobId"`
+	UserID uint `json:"userId"`
 }
 
 type Title struct {
 	gorm.Model
 	Name        string `json:"name"`
-	Description string `json:"description"` // Optional: More details about the title/role
+	Description string `json:"description"`
 
 	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
+	Job []Job `json:"job"`
 }
 
 type Department struct {
 	gorm.Model
 	Name        string `json:"name"`
-	Description string `json:"description"` // Optional: More details about the department
+	Description string `json:"description"`
 
 	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
+	Job []Job `json:"job"`
 }
 
 type Location struct {
@@ -62,11 +62,11 @@ type Location struct {
 	PostalCode string `json:"postalCode"`
 
 	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
+	Job []Job `json:"job"`
 }
 
 // callback function to sync title and department
-func (j *JobInfo) AfterSave(tx *gorm.DB) (err error) {
+func (j *Job) AfterSave(tx *gorm.DB) (err error) {
 	// Fetch the associated user
 	var user User
 	if err := tx.First(&user, j.UserID).Error; err != nil {

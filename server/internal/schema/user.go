@@ -23,17 +23,21 @@ type User struct {
 	MiddleName       *string           `json:"middleName"`
 	LastName         string            `json:"lastName"`
 	Nickname         *string           `json:"nickname"`
-	ContactInfo      *ContactInfo      `json:"contactInfo"`
-	EmergencyContact *EmergencyContact `json:"emergencyContact"`
+	ContactInfo      *ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
+	EmergencyContact *EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
 
 	//*job information
-	Title      string   `json:"title"      gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
-	Department string   `json:"department" gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
-	JobInfo    *JobInfo `json:"jobInfo"`
+	Title      string `json:"title"      gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
+	Department string `json:"department" gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
+	Job        *Job   `json:"job"    gorm:"foreignKey:UserID"`
 
 	//* salary information
-	SalaryInfoID  uint            `json:"salaryInfoId"`
-	SalaryPayment []SalaryPayment `json:"salaryPayment"`
+	SalaryID uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
+	Payments []Payment `json:"Payments" gorm:"foreignKey:UserID"`
+
+	//* leave & attendance
+	Leave      []Leave      `json:"leave"`
+	Attendance []Attendance `json:"attendance"`
 }
 
 type ContactInfo struct {
@@ -57,15 +61,4 @@ type EmergencyContact struct {
 	Relation   string  `json:"relation"`
 	Mobile     string  `json:"mobile"`
 	Email      string  `json:"email"`
-}
-
-type Job struct {
-	gorm.Model
-	UserID     uint   `json:"userId"`
-	JobTitle   string `json:"jobTitle"`
-	Department string `json:"department"`
-	Location   string `json:"location"`
-	Manager    string `json:"manager"`
-	StartDate  string `json:"startDate"`
-	EndDate    string `json:"endDate"`
 }

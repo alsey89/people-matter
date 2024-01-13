@@ -37,7 +37,10 @@ func GetClient() *gorm.DB {
 		pgDB = "verve"
 	}
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
+	//! local postgres
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
+	//!supabase for easy visualization
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "db.ehpdytlwkuavpscqllsr.supabase.co", "postgres", "bljZcr1sQsIDpreR", "postgres", "5432")
 
 	var err error
 	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -56,9 +59,11 @@ func GetClient() *gorm.DB {
 		&schema.Title{},
 		&schema.Department{},
 		&schema.Location{},
-		&schema.JobInfo{},
-		&schema.SalaryInfo{},
-		&schema.SalaryPayment{},
+		&schema.Job{},
+		&schema.Salary{},
+		&schema.Payment{},
+		&schema.Leave{},
+		&schema.Attendance{},
 	)
 	if err != nil {
 		panic(err)

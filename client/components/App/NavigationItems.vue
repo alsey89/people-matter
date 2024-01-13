@@ -7,14 +7,14 @@
         class="hover:bg-secondary-bg">
         User
     </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/job" :class="{ 'border-l-2 border-l-primary': activeRoute === '/job' }"
+    <NBMenuItemNavigation navigateTo="/company" :class="{ 'border-l-2 border-l-primary': activeRoute === '/job' }"
         class="hover:bg-secondary-bg">
-        Job
+        Company
     </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
+    <!-- <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
         class="hover:bg-secondary-bg">
         Salary
-    </NBMenuItemNavigation>
+    </NBMenuItemNavigation> -->
     <NBMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
         Signout
     </NBMenuItem>

@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type SalaryInfo struct {
+type Salary struct {
 	gorm.Model
 	UserID        uint      `json:"userId"` // Foreign key for User
 	Amount        float64   `json:"amount"`
@@ -14,10 +14,10 @@ type SalaryInfo struct {
 	EffectiveDate time.Time `json:"effectiveDate"` // Date from which the current salary is effective
 }
 
-type SalaryPayment struct {
+type Payment struct {
 	gorm.Model
 	UserID        uint      `json:"userId"`        // Foreign key for User
-	SalaryInfoID  uint      `json:"salaryInfoId"`  // Foreign key for SalaryInfo
+	SalaryID      uint      `json:"salaryId"`      // Foreign key for Salary
 	PaymentDate   string    `json:"paymentDate"`   // Date of payment
 	Amount        float64   `json:"amount"`        // Total amount paid
 	PaymentMethod string    `json:"paymentMethod"` // Method of payment
@@ -29,9 +29,9 @@ type SalaryPayment struct {
 	Notes         string    `json:"notes"`         // Additional notes
 }
 
-func (salaryInfo *SalaryInfo) AfterCreate(tx *gorm.DB) (err error) {
-	// Update User's SalaryInfoID field
-	err = tx.Model(&User{}).Where("id = ?", salaryInfo.UserID).Update("current_salary_info_id", salaryInfo.ID).Error
+func (salary *Salary) AfterCreate(tx *gorm.DB) (err error) {
+	// Update User's SalaryID field
+	err = tx.Model(&User{}).Where("id = ?", salary.UserID).Update("current_salary_info_id", salary.ID).Error
 	if err != nil {
 		return err
 	}

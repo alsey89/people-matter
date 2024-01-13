@@ -1,5 +1,5 @@
 <template>
-    <transition name="pop">
+    <transition name="pop" appear>
         <slot> </slot>
     </transition>
 </template>
