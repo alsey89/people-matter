@@ -48,7 +48,7 @@ func (cr CompanyRepository) CompanyRead(CompanyID uint) (*schema.Company, error)
 
 func (cr CompanyRepository) CompanyReadAndExpand(CompanyID uint) (*schema.Company, error) {
 	var company schema.Company
-	result := cr.client.Preload("Title").Preload("Department").Preload("Location").First(&company, CompanyID)
+	result := cr.client.Preload("Titles").Preload("Departments").Preload("Locations").First(&company, CompanyID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.read_and_expand: %w", result.Error)
 	}
@@ -71,7 +71,7 @@ func (cr CompanyRepository) CompanyReadAll() ([]*schema.Company, error) {
 
 func (cr CompanyRepository) CompanyReadAllAndExpand() ([]*schema.Company, error) {
 	var companies []*schema.Company
-	result := cr.client.Preload("Title").Preload("Department").Preload("Location").Find(&companies)
+	result := cr.client.Preload("Titles").Preload("Departments").Preload("Locations").Find(&companies)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.read_all_and_expand: %w", result.Error)
 	}

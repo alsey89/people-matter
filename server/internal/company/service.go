@@ -26,8 +26,8 @@ func (cs *CompanyService) CreateNewCompanyAndReturnList(newCompany *schema.Compa
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
-		companyList:     companies,
-		expandedCompany: createdCompany,
+		CompanyList:     companies,
+		ExpandedCompany: createdCompany,
 	}
 
 	return CompanyInterfaceData, nil
@@ -51,8 +51,8 @@ func (cs *CompanyService) GetCompanyListAndExpandDefault() (*CompanyInterfaceDat
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
-		companyList:     companies,
-		expandedCompany: expandedCompany,
+		CompanyList:     companies,
+		ExpandedCompany: expandedCompany,
 	}
 
 	return CompanyInterfaceData, nil
@@ -71,8 +71,8 @@ func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyI
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
-		companyList:     companies,
-		expandedCompany: expandedCompany,
+		CompanyList:     companies,
+		ExpandedCompany: expandedCompany,
 	}
 
 	return CompanyInterfaceData, nil

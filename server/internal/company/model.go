@@ -3,6 +3,6 @@ package company
 import "verve-hrms/internal/schema"
 
 type CompanyInterfaceData struct {
-	companyList     []*schema.Company
-	expandedCompany *schema.Company
+	CompanyList     []*schema.Company `json:"companyList"`
+	ExpandedCompany *schema.Company   `json:"expandedCompany"`
 }
