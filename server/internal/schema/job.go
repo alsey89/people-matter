@@ -8,61 +8,16 @@ import (
 
 type Job struct {
 	gorm.Model
-	UserID       uint `json:"userId"`
-	DepartmentID uint `json:"departmentId"` // Foreign key for Department
-	TitleID      uint `json:"titleId"`      // Foreign key for Title
-	LocationID   uint `json:"locationId"`   // Foreign key for Location
+	UserID       uint  `json:"userId"`
+	DepartmentID uint  `json:"departmentId"`
+	TitleID      uint  `json:"titleId"`
+	LocationID   uint  `json:"locationId"`
+	ManagerID    *uint `json:"managerId"`
 
 	StartDate time.Time `json:"startDate"`
 	EndDate   time.Time `json:"endDate"`
 
-	// Hierarchy
-	Superiors    []Superior    `gorm:"foreignKey:JobID"`
-	Subordinates []Subordinate `gorm:"foreignKey:JobID"`
-
-	Location Location `gorm:"foreignKey:LocationID"`
-}
-
-type Superior struct {
-	gorm.Model
-	JobID  uint `json:"jobId"`
-	UserID uint `json:"userId"`
-}
-
-type Subordinate struct {
-	gorm.Model
-	JobID  uint `json:"jobId"`
-	UserID uint `json:"userId"`
-}
-
-type Title struct {
-	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"`
-
-	// Relationships
-	Job []Job `json:"job"`
-}
-
-type Department struct {
-	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"`
-
-	// Relationships
-	Job []Job `json:"job"`
-}
-
-type Location struct {
-	gorm.Model
-	Address    string `json:"address"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Country    string `json:"country"`
-	PostalCode string `json:"postalCode"`
-
-	// Relationships
-	Job []Job `json:"job"`
+	DirectReports []Job `gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
 }
 
 // callback function to sync title and department

@@ -13,6 +13,7 @@ import (
 
 	_ "verve-hrms/docs"
 	"verve-hrms/internal/auth"
+	"verve-hrms/internal/company"
 	"verve-hrms/internal/user"
 	"verve-hrms/setup"
 )
@@ -84,6 +85,11 @@ func main() {
 	authService := auth.NewAuthService(userService)
 	authHandler := auth.NewAuthHandler(authService)
 
+	//*Instantiate Company Domain
+	companyRepository := company.NewCompanyRepository(client)
+	companyService := company.NewCompanyService(companyRepository)
+	companyHandler := company.NewCompanyHandler(companyService)
+
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
@@ -93,9 +99,14 @@ func main() {
 	userRoutes := e.Group("api/v1/user")
 	userRoutes.GET("", userHandler.GetUser)
 	userRoutes.PUT("", userHandler.EditUser)
+	//user admin routes
+	userRoutes.GET("/all", userHandler.GetAllUsers)
 
-	adminRoutes := e.Group("api/v1/admin")
-	adminRoutes.GET("/user/all", userHandler.GetAllUsers)
+	companyRoutes := e.Group("api/v1/company")
+	// company admin routes
+	companyRoutes.GET("", companyHandler.GetCompanyDataExpandDefault)
+	companyRoutes.POST("", companyHandler.CreateCompany)
+	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

@@ -159,7 +159,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/admin/user/all",
+          "http://localhost:3001/api/v1/user/all",
           {
             headers: {
               "Content-Type": "application/json",
