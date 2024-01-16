@@ -78,6 +78,32 @@ func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyI
 	return CompanyInterfaceData, nil
 }
 
+func (cs *CompanyService) UpdateCompanyAndReturnListAndExpandUpdated(companyId uint, newData *schema.Company) (*CompanyInterfaceData, error) {
+
+	updatedCompany, err := cs.CompanyRepository.CompanyUpdate(companyId, newData)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.update_company: %w", err)
+	}
+
+	expandedAndUpdatedCompany, err := cs.CompanyRepository.CompanyReadAndExpand(updatedCompany.ID)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+	}
+
+	var existingCompanies []*schema.Company
+	existingCompanies, err = cs.CompanyRepository.CompanyReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+	}
+
+	CompanyInterfaceData := &CompanyInterfaceData{
+		CompanyList:     existingCompanies,
+		ExpandedCompany: expandedAndUpdatedCompany,
+	}
+
+	return CompanyInterfaceData, nil
+}
+
 func (cs *CompanyService) DeleteCompanyAndReturnListAndExpandDefault(companyID uint) (*CompanyInterfaceData, error) {
 
 	err := cs.CompanyRepository.CompanyDelete(companyID)

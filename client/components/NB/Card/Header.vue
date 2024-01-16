@@ -1,3 +1,5 @@
 <template v-slot:header class="w-full">
-    <slot> </slot>
+    <div class=" text-lg font-bold">
+        <slot> </slot>
+    </div>
 </template>

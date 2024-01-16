@@ -107,6 +107,8 @@ func main() {
 	companyRoutes.GET("", companyHandler.GetCompanyDataExpandDefault)
 	companyRoutes.POST("", companyHandler.CreateCompany)
 	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
+	companyRoutes.PUT("/:company_id", companyHandler.UpdateCompany)
+	companyRoutes.DELETE("/:company_id", companyHandler.DeleteCompany)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

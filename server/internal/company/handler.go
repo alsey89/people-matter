@@ -112,8 +112,47 @@ func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 }
 
 func (ch *CompanyHandler) UpdateCompany(c echo.Context) error {
-	log.Println("company.h.update_company: not implemented")
-	return nil
+	stringCompanyID := c.Param("company_id")
+
+	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	if err != nil {
+		log.Printf("company.h.update_company: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing company id",
+			Data:    nil,
+		})
+	}
+
+	dataToUpdate := new(schema.Company)
+
+	err = c.Bind(dataToUpdate)
+	if err != nil {
+		log.Printf("company.h.update_company: error binding company data: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	companyData, err := ch.companyService.UpdateCompanyAndReturnListAndExpandUpdated(companyID, dataToUpdate)
+	if err != nil {
+		log.Printf("company.h.update_company: %v", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(http.StatusNotFound, common.APIResponse{
+				Message: "no company data",
+				Data:    nil,
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error updating company data",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "company data has been updated",
+		Data:    companyData,
+	})
 }
 
 func (ch *CompanyHandler) DeleteCompany(c echo.Context) error {

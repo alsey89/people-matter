@@ -6,12 +6,12 @@ export const useCompanyStore = defineStore("company-store", {
     companyData: null,
     //* company data
     companyId: null,
-    companyName: null,
-    companyLogoUrl: null,
-    companyEmail: null,
-    companyAddress: null,
-    companyPhone: null,
-    companyWebsite: null,
+    companyName: "No Data",
+    companyLogoUrl: "defaultLogo.png",
+    companyEmail: "No Data",
+    companyAddress: "No Data",
+    companyPhone: "No Data",
+    companyWebsite: "No Data",
     //* related data
     companyDepartments: [],
     companyTitles: [],
@@ -39,6 +39,11 @@ export const useCompanyStore = defineStore("company-store", {
       state.companyData?.country +
       " " +
       state.companyData?.postalCode,
+    getCompanyAddress: (state) => state.companyData?.address,
+    getCompanyCity: (state) => state.companyData?.city,
+    getCompanyState: (state) => state.companyData?.state,
+    getCompanyCountry: (state) => state.companyData?.country,
+    getCompanyPostalCode: (state) => state.companyData?.postalCode,
     getCompanyPhone: (state) => state.companyData?.phone,
     getCompanyWebsite: (state) => state.companyData?.website,
     //* related data
@@ -48,10 +53,27 @@ export const useCompanyStore = defineStore("company-store", {
   },
   actions: {
     //! Company API Calls
-    async fetchCompanyData() {
+    async fetchDefaultCompanyData() {
       try {
         const response = await axios.get(
           "http://localhost:3001/api/v1/company",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.handleSuccess(response);
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async fetchOneCompanyData(companyId) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/v1/company/${companyId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -74,7 +96,7 @@ export const useCompanyStore = defineStore("company-store", {
       companyState = null,
       companyCountry = null,
       companyPostalCode = null,
-      companyLogoUrl = null,
+      companyLogoUrl = "defaultLogo.png",
     }) {
       const messageStore = useMessageStore();
       try {
@@ -102,6 +124,70 @@ export const useCompanyStore = defineStore("company-store", {
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteCompany(companyId) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Company deleted.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateCompany({
+      companyId,
+      companyName,
+      companyPhone = null,
+      companyWebsite = null,
+      companyAddress = null,
+      companyCity = null,
+      companyState = null,
+      companyCountry = null,
+      companyPostalCode = null,
+      companyLogoUrl = null,
+    }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/company/${companyId}`,
+          {
+            name: companyName,
+            phone: companyPhone,
+            website: companyWebsite,
+            address: companyAddress,
+            city: companyCity,
+            state: companyState,
+            country: companyCountry,
+            postalCode: companyPostalCode,
+            logoUrl: companyLogoUrl,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Company updated.");
         }
       } catch (error) {
         this.handleError(error);
