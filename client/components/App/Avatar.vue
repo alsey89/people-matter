@@ -9,6 +9,6 @@ const userStore = useUserStore()
 
 // Computed property to determine the avatar URL
 const avatarUrl = computed(() => {
-    return userStore.getAvatarUrl || '/defaultAvatar.jpg';
+    return userStore.avatarUrl || '/defaultAvatar.jpg';
 });
 </script>

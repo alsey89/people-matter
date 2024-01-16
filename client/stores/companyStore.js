@@ -5,6 +5,7 @@ export const useCompanyStore = defineStore("company-store", {
     companyList: [],
     companyData: null,
     //* company data
+    companyId: null,
     companyName: null,
     companyLogoUrl: null,
     companyEmail: null,
@@ -24,6 +25,7 @@ export const useCompanyStore = defineStore("company-store", {
     getCompanyList: (state) => state.companyList,
     getCompanyData: (state) => state.companyData,
     //* company data
+    getCompanyId: (state) => state.companyData?.ID,
     getCompanyName: (state) => state.companyData?.name,
     getCompanyLogoUrl: (state) => state.companyData?.logoUrl,
     getCompanyEmail: (state) => state.companyData?.email,
@@ -47,7 +49,6 @@ export const useCompanyStore = defineStore("company-store", {
   actions: {
     //! Company API Calls
     async fetchCompanyData() {
-      const messageStore = useMessageStore();
       try {
         const response = await axios.get(
           "http://localhost:3001/api/v1/company",
@@ -59,17 +60,100 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        if (response.status === 200) {
-          // messageStore.setMessage("Successfully fetched company data.");
-          this.companyList = response.data.data.companyList;
-          this.companyData = response.data.data.expandedCompany;
-          this.companyDepartments =
-            response.data.data.expandedCompany?.departments;
-          this.companyTitles = response.data.data.expandedCompany?.titles;
-          this.companyLocations = response.data.data.expandedCompany?.locations;
+        this.handleSuccess(response);
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async createCompany({
+      companyName,
+      companyPhone = null,
+      companyWebsite = null,
+      companyAddress = null,
+      companyCity = null,
+      companyState = null,
+      companyCountry = null,
+      companyPostalCode = null,
+      companyLogoUrl = null,
+    }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/api/v1/company",
+          {
+            name: companyName,
+            phone: companyPhone,
+            website: companyWebsite,
+            address: companyAddress,
+            city: companyCity,
+            state: companyState,
+            country: companyCountry,
+            postalCode: companyPostalCode,
+            logoUrl: companyLogoUrl,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Company created.");
         }
       } catch (error) {
         this.handleError(error);
+      }
+    },
+    handleError(error) {
+      const messageStore = useMessageStore();
+
+      if (error.response) {
+        console.log(error.response.data);
+        switch (error.response.status) {
+          case 401:
+            messageStore.setError("Invalid credentials.");
+            return navigateTo("/signin");
+          case 403:
+            messageStore.setError("Access denied.");
+            return navigateTo("/");
+          case 404:
+            messageStore.setError("Data not found.");
+            break;
+          case 409:
+            messageStore.setError("Data already exists.");
+            break;
+          case 500:
+            messageStore.setError("Server error.");
+            break;
+          default:
+            messageStore.setError("Something went wrong.");
+            return navigateTo("/");
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error(error.request);
+        messageStore.setError("No response was received.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error("Error", error.message);
+        messageStore.setError("Something went wrong.");
+      }
+      console.error(error.config);
+    },
+    handleSuccess(response) {
+      if (response.status >= 200 && response.status < 300) {
+        this.companyList = response.data.data.companyList;
+        this.companyData = response.data.data.expandedCompany;
+        this.companyDepartments =
+          response.data.data.expandedCompany?.departments;
+        this.companyTitles = response.data.data.expandedCompany?.titles;
+        this.companyLocations = response.data.data.expandedCompany?.locations;
+        return true;
+      } else {
+        return false;
       }
     },
   },

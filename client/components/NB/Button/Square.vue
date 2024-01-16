@@ -1,14 +1,18 @@
 <template>
     <button
-        :class="`py-${height} border-black border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none rounded-sm`">
+        :class="`py-${height} text-${textSize} font-bold border-black border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none rounded-sm`">
         <slot></slot>
     </button>
 </template>
 
 <script setup>
 
-const { size } = defineProps({
+const { size, textSize } = defineProps({
     size: {
+        type: String,
+        default: "md",
+    },
+    textSize: {
         type: String,
         default: "md",
     },

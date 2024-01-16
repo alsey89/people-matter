@@ -32,7 +32,9 @@ func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
 		})
 	}
 
-	createdCompany, err := ch.companyService.CreateNewCompanyAndReturnList(newCompany)
+	log.Printf("company.h.create_company: newCompany: %v", newCompany)
+
+	companyData, err := ch.companyService.CreateNewCompanyAndReturnList(newCompany)
 	if err != nil {
 		log.Printf("company.h.create_company: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -49,7 +51,7 @@ func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "company data has been created",
-		Data:    createdCompany,
+		Data:    companyData,
 	})
 }
 

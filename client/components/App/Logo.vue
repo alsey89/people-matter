@@ -1,16 +1,24 @@
 <template>
-    <div class="w-full h-auto">
-        <img :src="src" alt="Logo">
-    </div>
+    <img :src="src" alt="Logo" :class="{
+        'object-cover': true,
+        'rounded-full': shape === 'circle',
+        'rounded-md': shape === 'square'
+    }">
 </template>
-  
+
 <script setup>
-const { src } = defineProps({
+const { src, shape } = defineProps({
     src: {
         type: String,
         required: true
+    },
+    shape: {
+        type: String,
+        default: 'square'
     }
-})
+});
 </script>
+
+  
   
   

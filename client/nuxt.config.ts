@@ -16,5 +16,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-icon",
     "@pinia-plugin-persistedstate/nuxt",
+    "@formkit/auto-animate/nuxt",
   ],
 });

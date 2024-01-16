@@ -14,19 +14,19 @@ func NewCompanyService(CompanyRepository *CompanyRepository) *CompanyService {
 }
 
 func (cs *CompanyService) CreateNewCompanyAndReturnList(newCompany *schema.Company) (*CompanyInterfaceData, error) {
-	var companies []*schema.Company
-	companies, err := cs.CompanyRepository.CompanyReadAll()
-	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
-	}
-
 	createdCompany, err := cs.CompanyRepository.CompanyCreate(newCompany)
 	if err != nil {
 		return nil, fmt.Errorf("company.s.create_company: %w", err)
 	}
 
+	var existingCompanies []*schema.Company
+	existingCompanies, err = cs.CompanyRepository.CompanyReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+	}
+
 	CompanyInterfaceData := &CompanyInterfaceData{
-		CompanyList:     companies,
+		CompanyList:     existingCompanies,
 		ExpandedCompany: createdCompany,
 	}
 
@@ -34,15 +34,15 @@ func (cs *CompanyService) CreateNewCompanyAndReturnList(newCompany *schema.Compa
 }
 
 func (cs *CompanyService) GetCompanyListAndExpandDefault() (*CompanyInterfaceData, error) {
-	var companies []*schema.Company
-	companies, err := cs.CompanyRepository.CompanyReadAll()
+	var existingCompanies []*schema.Company
+	existingCompanies, err := cs.CompanyRepository.CompanyReadAll()
 	if err != nil {
 		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
 	}
 
 	// Define the Default Company to expand
 	var targetCompanyID uint
-	targetCompanyID = companies[0].ID
+	targetCompanyID = existingCompanies[0].ID
 
 	// Fetch details for the targeted company
 	expandedCompany, err := cs.CompanyRepository.CompanyReadAndExpand(targetCompanyID)
@@ -51,7 +51,7 @@ func (cs *CompanyService) GetCompanyListAndExpandDefault() (*CompanyInterfaceDat
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
-		CompanyList:     companies,
+		CompanyList:     existingCompanies,
 		ExpandedCompany: expandedCompany,
 	}
 
@@ -59,8 +59,8 @@ func (cs *CompanyService) GetCompanyListAndExpandDefault() (*CompanyInterfaceDat
 }
 
 func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyInterfaceData, error) {
-	var companies []*schema.Company
-	companies, err := cs.CompanyRepository.CompanyReadAll()
+	var existingCompanies []*schema.Company
+	existingCompanies, err := cs.CompanyRepository.CompanyReadAll()
 	if err != nil {
 		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_by_id: %w", err)
 	}
@@ -71,7 +71,7 @@ func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyI
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
-		CompanyList:     companies,
+		CompanyList:     existingCompanies,
 		ExpandedCompany: expandedCompany,
 	}
 

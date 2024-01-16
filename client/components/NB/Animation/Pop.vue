@@ -4,7 +4,7 @@
     </transition>
 </template>
 
-<style scoped>
+<style>
 .pop-enter-active,
 .pop-leave-active {
     transition: opacity 0.3s ease, transform 0.3s ease;

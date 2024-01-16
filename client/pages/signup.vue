@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen">
-    <div class="w-80 flex flex-col justify-center items-center">
-      <NBCard class="bg-gray-100">
+    <div v-auto-animate class="w-80 flex flex-col justify-center items-center">
+      <NBCard v-if="showForm" class="bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
           <NBCardHeader>
             <NBText>
@@ -14,7 +14,7 @@
               <template v-slot:icon>
                 <Icon name="material-symbols:attach-email-outline" />
               </template>
-              <input type="email" v-model="email" class="h-8 w-full focus:outline-none px-1" maxlength="256"
+              <input type="email" v-model="email" class="h-8 w-full focus:outline-primary px-1" maxlength="256"
                 placeholder="Email Address" required />
             </NBFormField>
 
@@ -22,15 +22,15 @@
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
-              <input type="password" v-model="password" class="h-10 w-full focus:outline-none px-1" maxlength="256"
+              <input type="password" v-model="password" class="h-10 w-full focus:outline-primary px-1" maxlength="256"
                 name="password" placeholder="Password (min 6 characters)" required />
             </NBFormField>
             <NBFormField>
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
-              <input type="password" v-model="confirmPassword" class="h-10 w-full focus:outline-none px-1" maxlength="256"
-                name="confirmPassword" placeholder="Repeat Password" required />
+              <input type="password" v-model="confirmPassword" class="h-10 w-full focus:outline-primary px-1"
+                maxlength="256" name="confirmPassword" placeholder="Repeat Password" required />
             </NBFormField>
             <NBButtonSquare size="lg" class="w-full bg-primary hover:bg-primary-dark text-white">
               Sign Up
@@ -93,4 +93,10 @@ const submitForm = async () => {
     messageStore.setError("Something went wrong.");
   }
 };
+
+// render form on mounted, to trigger animation
+const showForm = ref(false);
+onMounted(() => {
+  showForm.value = true;
+});
 </script>
