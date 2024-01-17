@@ -65,7 +65,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        this.handleSuccess(response);
+        this.handleCompanySuccess(response);
       } catch (error) {
         this.handleError(error);
       }
@@ -82,7 +82,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        this.handleSuccess(response);
+        this.handleCompanySuccess(response);
       } catch (error) {
         this.handleError(error);
       }
@@ -90,13 +90,14 @@ export const useCompanyStore = defineStore("company-store", {
     async createCompany({
       companyName,
       companyPhone = null,
+      companyEmail = null,
       companyWebsite = null,
       companyAddress = null,
       companyCity = null,
       companyState = null,
       companyCountry = null,
       companyPostalCode = null,
-      companyLogoUrl = "defaultLogo.png",
+      companyLogoUrl = null,
     }) {
       const messageStore = useMessageStore();
       try {
@@ -105,6 +106,7 @@ export const useCompanyStore = defineStore("company-store", {
           {
             name: companyName,
             phone: companyPhone,
+            email: companyEmail,
             website: companyWebsite,
             address: companyAddress,
             city: companyCity,
@@ -121,7 +123,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        const isSuccess = this.handleSuccess(response);
+        const isSuccess = this.handleCompanySuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company created.");
         }
@@ -142,7 +144,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        const isSuccess = this.handleSuccess(response);
+        const isSuccess = this.handleCompanySuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company deleted.");
         }
@@ -154,6 +156,7 @@ export const useCompanyStore = defineStore("company-store", {
       companyId,
       companyName,
       companyPhone = null,
+      companyEmail = null,
       companyWebsite = null,
       companyAddress = null,
       companyCity = null,
@@ -169,6 +172,7 @@ export const useCompanyStore = defineStore("company-store", {
           {
             name: companyName,
             phone: companyPhone,
+            email: companyEmail,
             website: companyWebsite,
             address: companyAddress,
             city: companyCity,
@@ -185,7 +189,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        const isSuccess = this.handleSuccess(response);
+        const isSuccess = this.handleCompanySuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company updated.");
         }
@@ -193,6 +197,102 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
+    handleCompanySuccess(response) {
+      if (response.status >= 200 && response.status < 300) {
+        this.companyList = response.data.data.companyList;
+        this.companyData = response.data.data.expandedCompany;
+        this.companyDepartments =
+          response.data.data.expandedCompany?.departments;
+        this.companyTitles = response.data.data.expandedCompany?.titles;
+        this.companyLocations = response.data.data.expandedCompany?.locations;
+        return true;
+      } else {
+        return false;
+      }
+    },
+    //! Department API Calls
+    async createDepartment({ companyId, departmentFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.post(
+          `http://localhost:3001/api/v1/company/${companyId}/department`,
+          {
+            companyId: companyId,
+            name: departmentFormData.name,
+            description: departmentFormData.description,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        if (response.status >= 200 && response.status < 300) {
+          this.fetchOneCompanyData(companyId);
+          messageStore.setMessage("Department created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateDepartment({ companyId, departmentFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentId}`,
+          {
+            companyId: companyId,
+            name: departmentFormData.name,
+            description: departmentFormData.description,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        if (response.status >= 200 && response.status < 300) {
+          this.fetchOneCompanyData(companyId);
+          messageStore.setMessage("Department updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteDepartment({ companyId, departmentId }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        if (response.status >= 200 && response.status < 300) {
+          this.fetchOneCompanyData(companyId);
+          messageStore.setMessage("department deleted");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    handleDepartmentSuccess(response) {
+      if (response.status >= 200 && response.status < 300) {
+        this.companyDepartments = response.data.data;
+        return true;
+      } else {
+        return false;
+      }
+    },
+    //! Common
     handleError(error) {
       const messageStore = useMessageStore();
 
@@ -228,19 +328,6 @@ export const useCompanyStore = defineStore("company-store", {
         messageStore.setError("Something went wrong.");
       }
       console.error(error.config);
-    },
-    handleSuccess(response) {
-      if (response.status >= 200 && response.status < 300) {
-        this.companyList = response.data.data.companyList;
-        this.companyData = response.data.data.expandedCompany;
-        this.companyDepartments =
-          response.data.data.expandedCompany?.departments;
-        this.companyTitles = response.data.data.expandedCompany?.titles;
-        this.companyLocations = response.data.data.expandedCompany?.locations;
-        return true;
-      } else {
-        return false;
-      }
     },
   },
   // persist: {

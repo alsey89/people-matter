@@ -2,7 +2,7 @@
     <div v-auto-animate class="w-full h-full flex flex-col gap-4">
         <!-- !Confirmation Modal -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
-            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full h-44" />
+            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full h-30" />
         <!-- !Company -->
         <div class="w-full flex flex-col gap-2">
             <div class="flex justify-between items-center border-b-2 border-black py-2">
@@ -65,6 +65,11 @@
                                         class="focus:outline-primary p-1" />
                                 </div>
                                 <div class="flex flex-col">
+                                    <label for="email">Email</label>
+                                    <input v-model="companyEmail" type="email" name="email" id="email"
+                                        class="focus:outline-primary p-1" />
+                                </div>
+                                <div class="flex flex-col">
                                     <label for="website"> Website </label>
                                     <input v-model="companyWebsite" type="text" name="name" id="website"
                                         class="focus:outline-primary p-1" />
@@ -78,8 +83,8 @@
                                         Upload Photo
                                     </div>
                                 </NBButtonSquare>
-                                <AppLogo src="https://static.thenounproject.com/png/4974686-200.png" shape="square"
-                                    class="hidden md:block w-32 border-2 border-black hover:cursor-pointer" />
+                                <AppLogo :src="`${companyLogoUrl}`" shape="square"
+                                    class="hidden md:block w-full border-2 border-black hover:cursor-pointer" />
                             </div>
                         </div>
                         <div class="flex flex-col">
@@ -116,7 +121,7 @@
                         <div class="w-full flex justify-end">
                             <NBButtonSquare type="submit" size="sm" textSize="md"
                                 class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
-                                Save
+                                Submit
                             </NBButtonSquare>
                         </div>
                     </form>
@@ -135,7 +140,6 @@
                         </div>
                     </div>
                 </NBCard>
-
             </div>
         </div>
         <div class="pb-2">
@@ -143,27 +147,45 @@
             <div v-auto-animate class="w-full flex flex-col gap-2">
                 <div class="flex justify-between items-center border-b-2 border-black py-2">
                     <h1 class="text-lg font-bold"> Departments </h1>
-                    <NBButtonSquare @click="showDepartmentForm = !showDepartmentForm" size="sm">
-                        <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
-                        <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                    </NBButtonSquare>
+                    <div v-auto-animate class="flex gap-4">
+                        <!-- !toggle department action buttons -->
+                        <NBButtonSquare
+                            v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments.length > 0"
+                            @click="handleShowDepartmentActionButtonClick" size="sm">
+                            <Icon v-if="showCompanyList" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                        </NBButtonSquare>
+                        <!-- !add department button -->
+                        <NBButtonSquare @click="handleAddDepartmentButtonClick" size="sm">
+                            <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
+                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+                        </NBButtonSquare>
+                    </div>
                 </div>
-                <div v-if="showDepartmentForm">
-                    <NBCard>
-                        <template v-slot:header>
-                            <div class="flex justify-between">
-                                Add New Department
-                            </div>
-                        </template>
-                        <form action="submit.prevent">
-                            FORM
-                        </form>
-                    </NBCard>
+                <!-- !department form -->
+                <div v-auto-animate>
+                    <AppCompanyDetailsForm v-if="showDepartmentForm" :formData="departmentFormData" />
                 </div>
+                <!-- !department list -->
                 <div v-if="companyStore.companyDepartments" v-for="department in companyStore.companyDepartments"
                     :key="department.ID">
-                    <NBCard>
-                        <h1> {{ department.name }} </h1>
+                    <NBCard v-auto-animate>
+                        <NBCardHeader>
+                            <div v-auto-animate class="flex justify-between px-2">
+                                {{ department.name }}
+                                <div v-if="showDepartmentActions" class="flex gap-4">
+                                    <NBButtonSquare size="sm" @click.stop="handleEditDepartmentButtonClick(department)">
+                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                    <NBButtonSquare size="sm" @click.stop="handleDeleteDepartmentButtonClick(department)">
+                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                </div>
+                            </div>
+                        </NBCardHeader>
+                        <div v-if="showDepartmentActions" class="px-2">
+                            {{ department.description }}
+                        </div>
                     </NBCard>
                 </div>
                 <div v-else>
@@ -243,15 +265,14 @@ const messageStore = useMessageStore()
 //! Company -----------------------------
 const showCompanyForm = ref(false)
 const showCompanyList = ref(false)
-const showConfirmationModal = ref(false)
-const confirmationModalMessage = ref("")
 //form refs/ v-models
-const formType = ref(null)
+const companyFormType = ref(null)
 const companyId = ref(null)
 const companyName = ref(null)
 const companyPhone = ref(null)
+const companyEmail = ref(null)
 const companyWebsite = ref(null)
-const companyLogoUrl = ref(null)
+const companyLogoUrl = ref("defaultLogo.png")
 const companyAddress = ref(null)
 const companyCity = ref(null)
 const companyState = ref(null)
@@ -259,36 +280,27 @@ const companyCountry = ref(null)
 const companyPostalCode = ref(null)
 //methods
 const handleCompanyFormSubmit = async () => {
-    const companyData = {};
+    const companyData = {
+        companyId: companyId.value,
+        companyName: companyName.value,
+        companyPhone: companyPhone.value,
+        companyEmail: companyEmail.value,
+        companyWebsite: companyWebsite.value,
+        companyLogoUrl: companyLogoUrl.value,
+        companyAddress: companyAddress.value,
+        companyCity: companyCity.value,
+        companyState: companyState.value,
+        companyCountry: companyCountry.value,
+        companyPostalCode: companyPostalCode.value
+    };
 
-    // List of all company fields
-    const fields = [
-        { ref: companyId, key: 'companyId' },
-        { ref: companyName, key: 'companyName' },
-        { ref: companyPhone, key: 'companyPhone' },
-        { ref: companyWebsite, key: 'companyWebsite' },
-        { ref: companyLogoUrl, key: 'companyLogoUrl' },
-        { ref: companyAddress, key: 'companyAddress' },
-        { ref: companyCity, key: 'companyCity' },
-        { ref: companyState, key: 'companyState' },
-        { ref: companyCountry, key: 'companyCountry' },
-        { ref: companyPostalCode, key: 'companyPostalCode' },
-    ];
-
-    // Add field to the companyData object only if it has a value
-    fields.forEach(({ ref, key }) => {
-        if (ref.value) {
-            companyData[key] = ref.value;
-        }
-    });
-
-    if (formType.value === "edit") {
+    if (companyFormType.value === "edit") {
         await companyStore.updateCompany(companyData);
-    } else if (formType.value === "add") {
+    } else if (companyFormType.value === "add") {
         await companyStore.createCompany(companyData);
     }
 
-    showCompanyForm.value = false;
+    showCompanyForm.value = null;
 };
 const handleSelectCompany = async (company) => {
     const companyId = company.ID
@@ -300,11 +312,11 @@ const handleSelectCompany = async (company) => {
     await companyStore.fetchOneCompanyData(companyId)
     showCompanyList.value = false
     showCompanyForm.value = false
-}
+};
 const handleModalConfirmEvent = ref(null) //! stored function to be called when confirmation modal is confirmed
 const handleModalCancelEvent = () => {
     showConfirmationModal.value = false
-}
+};
 const handleDeleteCompanyButtonClick = (company) => {
     const companyId = company.ID
     if (!companyId) {
@@ -315,46 +327,49 @@ const handleDeleteCompanyButtonClick = (company) => {
     confirmationModalMessage.value = `Are you sure you want to delete ${company.name}? This action cannot be undone.`
     showConfirmationModal.value = true
 
-    // store the function to be called when confirmation modal is confirmed, along with its arguments
+    //* store the function to be called when confirmation modal is confirmed, along with its arguments
     handleModalConfirmEvent.value = async () => {
         showConfirmationModal.value = false;
-        // showCompanyList.value = false;
         showCompanyForm.value = false;
         await companyStore.deleteCompany(companyId);
+        // if there is only one company left, hide the company list
+        if (companyStore.getCompanyList.length == 1) {
+            showCompanyList.value = false
+        }
         handleModalConfirmEvent.value = null;
     };
-}
+};
 const handleShowCompanyListButtonClick = () => {
     showCompanyForm.value = false
     showCompanyList.value = !showCompanyList.value
-}
+};
 const handleAddCompanyButtonClick = () => {
-    clearForm()
-    formType.value = "add"
-    showCompanyList.value = false
+    clearCompanyForm();
+    companyFormType.value = "add"
     showCompanyForm.value = !showCompanyForm.value
-}
+};
 const handleEditCompanyButtonClick = (company) => {
-    populateForm(company)
-    formType.value = "edit"
+    populateCompanyForm(company)
+    companyFormType.value = "edit"
     showCompanyList.value = false
     showCompanyForm.value = true
-}
-const clearForm = () => {
+};
+const clearCompanyForm = () => {
     companyName.value = ''
     companyPhone.value = ''
     companyWebsite.value = ''
-    companyLogoUrl.value = ''
+    companyLogoUrl.value = 'defaultLogo.png'
     companyAddress.value = ''
     companyCity.value = ''
     companyState.value = ''
     companyCountry.value = ''
     companyPostalCode.value = ''
-}
-const populateForm = (company) => {
+};
+const populateCompanyForm = (company) => {
     companyId.value = company.ID
     companyName.value = company.name
     companyPhone.value = company.phone
+    companyEmail.value = company.email
     companyWebsite.value = company.website
     companyLogoUrl.value = company.logoUrl
     companyAddress.value = company.address
@@ -362,16 +377,72 @@ const populateForm = (company) => {
     companyState.value = company.state
     companyCountry.value = company.country
     companyPostalCode.value = company.postalCode
-}
+};
 
 
 //! Department -----------------------------
 const showDepartmentForm = ref(false)
+const showDepartmentActions = ref(false)
+// form refs/ v-models
+const departmentFormData = reactive({
+    departmentFormType: null,
+    departmentId: null,
+    departmentName: null,
+    departmentDescription: null,
+})
+// methods
+const handleDepartmentFormSubmit = async () => {
+    if (departmentFormData.departmentFormType.value === "edit") {
+        await companyStore.updateDepartment(companyStore.getCompanyId, departmentFormData);
+    } else if (departmentFormData.departmentFormType === "add") {
+        await companyStore.createDepartment(companyStore.getCompanyId, departmentFormData);
+    }
+    showDepartmentForm.value = false;
+};
+const handleShowDepartmentActionButtonClick = () => {
+    showDepartmentForm.value = false
+    showDepartmentActions.value = !showDepartmentActions.value
+};
+const handleAddDepartmentButtonClick = () => {
+    showDepartmentActions.value = false
+    clearDepartmentForm()
+    departmentFormData.departmentFormType = "add"
+    showDepartmentForm.value = !showDepartmentForm.value
+};
+const handleEditDepartmentButtonClick = (department) => {
+    showDepartmentForm.value = false
+    populateDepartmentForm(department)
+    departmentFormData.departmentFormType = "edit"
+    showDepartmentForm.value = true
+};
+
+const clearDepartmentForm = () => {
+    departmentFormData.departmentId = null
+    departmentFormData.departmentName = ''
+    departmentFormData.departmentDescription = ''
+};
+const populateDepartmentForm = (department) => {
+    departmentFormData.departmentId = department.ID
+    departmentFormData.departmentName = department.name
+    departmentFormData.departmentDescription = department.description
+};
 
 
 const showTitleForm = ref(false)
 const showLocationForm = ref(false)
 
+//! common
+const showConfirmationModal = ref(false)
+const confirmationModalMessage = ref("")
+//! methods
+const closeAllForms = () => {
+    showCompanyForm.value = false
+    showCompanyList.value = false
+    showDepartmentForm.value = false
+    showDepartmentActions.value = false
+    showTitleForm.value = false
+    showLocationForm.value = false
+}
 
 //! meta & loading -----------------------------
 definePageMeta({
