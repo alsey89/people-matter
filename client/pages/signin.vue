@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center justify-center h-screen">
-    <div v-auto-animate class="w-80 flex flex-col justfiy-center items-center">
-      <NBCard v-if="showForm" class="bg-gray-100">
+  <div class="w-full h-screen flex items-center justify-center">
+    <div v-auto-animate class="w-full flex flex-col justfiy-center items-center">
+      <NBCard v-if="showForm" class="w-1/5 bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
           <NBCardHeader>
             <NBText>
@@ -30,9 +30,11 @@
           </form>
           <!-- ----------------------------------------- -->
           <NBCardFooter>
-            Already have an account?
-            <button @click="navigateTo('/signup')" class="text-primary hover:text-primary-dark hover:underline">Sign
-              Up</button>
+            <div class="flex gap-2">
+              Already have an account?
+              <button @click="navigateTo('/signup')" class="text-primary hover:text-primary-dark hover:underline">Sign
+                Up</button>
+            </div>
           </NBCardFooter>
         </div>
       </NBCard>

@@ -7,7 +7,7 @@
             {{ confirmationModalMessage }}
         </div>
         <NBCardFooter>
-            <div class="flex justify-end gap-2">
+            <div class="flex justify-end gap-2 pb-4">
                 <NBButtonSquare @click=handleConfirmButtonClick size="md" class="px-2 hover:bg-secondary-bg">
                     Confirm
                 </NBButtonSquare>

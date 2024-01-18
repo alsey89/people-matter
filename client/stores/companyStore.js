@@ -65,7 +65,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        this.handleCompanySuccess(response);
+        this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
       }
@@ -82,7 +82,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        this.handleCompanySuccess(response);
+        this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
       }
@@ -123,30 +123,9 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        const isSuccess = this.handleCompanySuccess(response);
+        const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company created.");
-        }
-      } catch (error) {
-        this.handleError(error);
-      }
-    },
-    async deleteCompany(companyId) {
-      const messageStore = useMessageStore();
-      try {
-        const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        const isSuccess = this.handleCompanySuccess(response);
-        if (isSuccess) {
-          messageStore.setMessage("Company deleted.");
         }
       } catch (error) {
         this.handleError(error);
@@ -189,7 +168,7 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        const isSuccess = this.handleCompanySuccess(response);
+        const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Company updated.");
         }
@@ -197,40 +176,48 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    handleCompanySuccess(response) {
-      if (response.status >= 200 && response.status < 300) {
-        this.companyList = response.data.data.companyList;
-        this.companyData = response.data.data.expandedCompany;
-        this.companyDepartments =
-          response.data.data.expandedCompany?.departments;
-        this.companyTitles = response.data.data.expandedCompany?.titles;
-        this.companyLocations = response.data.data.expandedCompany?.locations;
-        return true;
-      } else {
-        return false;
-      }
-    },
-    //! Department API Calls
-    async createDepartment({ companyId, departmentFormData }) {
+    async deleteCompany(companyId) {
       const messageStore = useMessageStore();
       try {
-        const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/department`,
-          {
-            companyId: companyId,
-            name: departmentFormData.name,
-            description: departmentFormData.description,
-          },
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}`,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json",
               Accept: "application/json",
             },
             withCredentials: true,
           }
         );
-        if (response.status >= 200 && response.status < 300) {
-          this.fetchOneCompanyData(companyId);
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Company deleted.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    //! Department API Calls
+    async createDepartment({ companyId, departmentFormData }) {
+      const messageStore = useMessageStore();
+      console.log("department form data: ", departmentFormData);
+      try {
+        const response = await axios.post(
+          `http://localhost:3001/api/v1/company/${companyId}/department`,
+          {
+            name: departmentFormData.departmentName,
+            description: departmentFormData.departmentDescription,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
           messageStore.setMessage("Department created.");
         }
       } catch (error) {
@@ -241,22 +228,21 @@ export const useCompanyStore = defineStore("company-store", {
       const messageStore = useMessageStore();
       try {
         const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentId}`,
+          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentFormData.departmentId}`,
           {
-            companyId: companyId,
-            name: departmentFormData.name,
-            description: departmentFormData.description,
+            name: departmentFormData.departmentName,
+            description: departmentFormData.departmentDescription,
           },
           {
             headers: {
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json",
               Accept: "application/json",
             },
             withCredentials: true,
           }
         );
-        if (response.status >= 200 && response.status < 300) {
-          this.fetchOneCompanyData(companyId);
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
           messageStore.setMessage("Department updated.");
         }
       } catch (error) {
@@ -276,23 +262,186 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        if (response.status >= 200 && response.status < 300) {
-          this.fetchOneCompanyData(companyId);
-          messageStore.setMessage("department deleted");
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Department deleted.");
         }
       } catch (error) {
         this.handleError(error);
       }
     },
-    handleDepartmentSuccess(response) {
+    //! Title API Calls
+    async createTitle({ companyId, titleFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.post(
+          `http://localhost:3001/api/v1/company/${companyId}/title`,
+          {
+            name: titleFormData.titleName,
+            description: titleFormData.titleDescription,
+            departmentId: titleFormData.departmentId,
+            departmentName: titleFormData.departmentName,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Title created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateTitle({ companyId, titleFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/company/${companyId}/title/${titleFormData.titleId}`,
+          {
+            name: titleFormData.titleName,
+            description: titleFormData.titleDescription,
+            departmentId: titleFormData.departmentId,
+            departmentName: titleFormData.departmentName,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Title updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteTitle({ companyId, titleId }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}/title/${titleId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Title deleted.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    //! Location API Calls
+    async createLocation({ companyId, locationFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.post(
+          `http://localhost:3001/api/v1/company/${companyId}/location`,
+          {
+            name: locationFormData.locationName,
+            description: locationFormData.locationDescription,
+            address: locationFormData.locationAddress,
+            city: locationFormData.locationCity,
+            state: locationFormData.locationState,
+            country: locationFormData.locationCountry,
+            postalCode: locationFormData.locationPostalCode,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Location created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateLocation({ companyId, locationFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/company/${companyId}/location/${locationFormData.locationId}`,
+          {
+            name: locationFormData.locationName,
+            description: locationFormData.locationDescription,
+            address: locationFormData.locationAddress,
+            city: locationFormData.locationCity,
+            state: locationFormData.locationState,
+            country: locationFormData.locationCountry,
+            postalCode: locationFormData.locationPostalCode,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Location updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteLocation({ companyId, locationId }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}/location/${locationId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Location deleted.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    //! Common
+    handleSuccess(response) {
       if (response.status >= 200 && response.status < 300) {
-        this.companyDepartments = response.data.data;
+        this.companyList = response.data.data.companyList;
+        this.companyData = response.data.data.expandedCompany;
+        this.companyDepartments =
+          response.data.data.expandedCompany?.departments;
+        this.companyTitles = response.data.data.expandedCompany?.titles;
+        this.companyLocations = response.data.data.expandedCompany?.locations;
         return true;
       } else {
         return false;
       }
     },
-    //! Common
     handleError(error) {
       const messageStore = useMessageStore();
 

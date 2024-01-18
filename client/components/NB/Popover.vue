@@ -1,14 +1,12 @@
 <template>
     <button v-if="showPopover" @click="showPopover = false" class="fixed inset-0 z-5"></button>
-    <div class="relative">
+    <div v-auto-animate class="relative">
         <div @click="showPopover = !showPopover">
             <slot name="trigger"></slot>
         </div>
-        <NBAnimationPop>
-            <div @click="showPopover = false" v-if="showPopover" :class="`absolute ${popoverPosition}`">
-                <slot name="content"></slot>
-            </div>
-        </NBAnimationPop>
+        <div @click="showPopover = false" v-if="showPopover" :class="`absolute ${popoverPosition}`">
+            <slot name="content"></slot>
+        </div>
     </div>
 </template>
 

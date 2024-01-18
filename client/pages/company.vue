@@ -2,15 +2,14 @@
     <div v-auto-animate class="w-full h-full flex flex-col gap-4">
         <!-- !Confirmation Modal -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
-            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full h-30" />
+            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full max-h-32" />
         <!-- !Company -->
         <div class="w-full flex flex-col gap-2">
             <div class="flex justify-between items-center border-b-2 border-black py-2">
                 <h1 class="text-lg font-bold"> Company </h1>
                 <div v-auto-animate class="flex gap-4">
                     <!-- !switch company button -->
-                    <NBButtonSquare v-if="companyStore.getCompanyList.length > 1" @click="handleShowCompanyListButtonClick"
-                        size="sm">
+                    <NBButtonSquare @click="handleShowCompanyListButtonClick" size="sm">
                         <Icon v-if="showCompanyList" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                         <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                     </NBButtonSquare>
@@ -42,8 +41,13 @@
                                 <NBButtonSquare size="sm" @click.stop="handleEditCompanyButtonClick(company)">
                                     <Icon name="material-symbols:edit" class="h-6 w-6" />
                                 </NBButtonSquare>
-                                <NBButtonSquare size="sm" @click.stop="handleDeleteCompanyButtonClick(company)">
+                                <NBButtonSquare v-if="companyStore.getCompanyList.length > 1" size="sm"
+                                    @click.stop="handleDeleteCompanyButtonClick(company)">
                                     <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                </NBButtonSquare>
+                                <NBButtonSquare v-else size="sm"
+                                    @click.stop="messageStore.setError('Cannot delete last company!')">
+                                    <Icon name="material-symbols:delete" class="h-6 w-6 text-gray-400" />
                                 </NBButtonSquare>
                             </div>
                         </div>
@@ -145,8 +149,8 @@
         <div class="pb-2">
             <!-- !Department -->
             <div v-auto-animate class="w-full flex flex-col gap-2">
-                <div class="flex justify-between items-center border-b-2 border-black py-2">
-                    <h1 class="text-lg font-bold"> Departments </h1>
+                <div class="flex justify-between border-b-2 border-black py-2">
+                    <div class=" items-center  text-lg font-bold"> Departments </div>
                     <div v-auto-animate class="flex gap-4">
                         <!-- !toggle department action buttons -->
                         <NBButtonSquare
@@ -164,7 +168,8 @@
                 </div>
                 <!-- !department form -->
                 <div v-auto-animate>
-                    <AppCompanyDetailsForm v-if="showDepartmentForm" :formData="departmentFormData" />
+                    <AppCompanyDepartmentForm @submit="handleDepartmentFormSubmit" v-if="showDepartmentForm"
+                        :formData="departmentFormData" />
                 </div>
                 <!-- !department list -->
                 <div v-if="companyStore.companyDepartments" v-for="department in companyStore.companyDepartments"
@@ -196,62 +201,90 @@
             <div v-auto-animate class="w-full flex flex-col gap-2">
                 <div class="flex justify-between items-center border-b-2 border-black py-2">
                     <h1 class="text-lg font-bold"> Titles </h1>
-                    <NBButtonSquare @click="showTitleForm = !showTitleForm" size="sm">
-                        <Icon v-if="showTitleForm" name="material-symbols:close" class="h-6 w-6" />
-                        <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                    </NBButtonSquare>
+                    <div v-auto-animate class="flex gap-4">
+                        <!-- !toggle title actions button -->
+                        <NBButtonSquare v-if="companyStore.getCompanyTitles && companyStore.getCompanyTitles.length > 0"
+                            @click="handleShowTitleActionButtonClick" size="sm">
+                            <Icon v-if="showTitleForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                        </NBButtonSquare>
+                        <!-- !add title button -->
+                        <NBButtonSquare @click="handleAddTitleButtonClick" size="sm">
+                            <Icon v-if="showTitleForm" name="material-symbols:close" class="h-6 w-6" />
+                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+                        </NBButtonSquare>
+                    </div>
                 </div>
-                <div v-if="showTitleForm">
-                    <NBCard>
-                        <template v-slot:header>
-                            <div class="flex justify-between">
-                                Add New Title
-                            </div>
-                        </template>
-                        <form action="submit.prevent">
-                            FORM
-                        </form>
-                    </NBCard>
+                <!-- !title form -->
+                <div v-auto-animate>
+                    <AppCompanyTitleForm @submit="handleTitleFormSubmit" v-if="showTitleForm" :formData="titleFormData" />
                 </div>
+                <!-- !title list -->
                 <div v-if="companyStore.companyTitles" v-for="title in companyStore.companyTitles" :key="title.ID">
-                    <NBCard>
-                        <h1> {{ title.name }} </h1>
+                    <NBCard v-auto-animate>
+                        <NBCardHeader>
+                            <div v-auto-animate class="flex justify-between px-2">
+                                {{ title.name }}
+                                <div v-if="showTitleActions" class="flex gap-4">
+                                    <NBButtonSquare size="sm" @click.stop="handleEditTitleButtonClick(title)">
+                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                    <NBButtonSquare size="sm" @click.stop="handleDeleteTitleButtonClick(title)">
+                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                </div>
+                            </div>
+                        </NBCardHeader>
+                        <div v-if="showTitleActions" class="px-2">
+                            {{ title.description }}
+                        </div>
                     </NBCard>
-                </div>
-                <div v-else>
-                    No Data
                 </div>
             </div>
             <!-- !Location -->
             <div v-auto-animate class="w-full flex flex-col gap-2">
                 <div class="flex justify-between items-center border-b-2 border-black py-2">
                     <h1 class="text-lg font-bold"> Locations </h1>
-                    <NBButtonSquare @click="showLocationForm = !showLocationForm" size="sm">
-                        <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
-                        <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                    </NBButtonSquare>
+                    <div v-auto-animate class="flex gap-4">
+                        <!-- !toggle location actions button -->
+                        <NBButtonSquare
+                            v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations.length > 0"
+                            @click="handleShowLocationActionButtonClick" size="sm">
+                            <Icon v-if="showLocationForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                        </NBButtonSquare>
+                        <!-- !add location button -->
+                        <NBButtonSquare @click="handleAddLocationButtonClick" size="sm">
+                            <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
+                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+                        </NBButtonSquare>
+                    </div>
                 </div>
-
+                <!-- !location form -->
                 <div v-if="showLocationForm">
-                    <NBCard>
-                        <template v-slot:header>
-                            <div class="flex justify-between">
-                                Add New Location
-                            </div>
-                        </template>
-                        <form action="submit.prevent">
-                            FORM
-                        </form>
-                    </NBCard>
+                    <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
                 </div>
+                <!-- !location list -->
                 <div v-if="companyStore.companyLocations" v-for="location in companyStore.companyLocations"
                     :key="location.ID">
-                    <NBCard>
-                        <h1> {{ location.name }} </h1>
+                    <NBCard v-auto-animate>
+                        <NBCardHeader>
+                            <div v-auto-animate class="flex justify-between px-2">
+                                {{ location.name }}
+                                <div v-if="showLocationActions" class="flex gap-4">
+                                    <NBButtonSquare size="sm" @click.stop="handleEditLocationButtonClick(location)">
+                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                    <NBButtonSquare size="sm" @click.stop="handleDeleteLocationButtonClick(location)">
+                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                    </NBButtonSquare>
+                                </div>
+                            </div>
+                        </NBCardHeader>
+                        <div v-if="showLocationActions" class="px-2">
+                            {{ location.description }}
+                        </div>
                     </NBCard>
-                </div>
-                <div v-else>
-                    No Data
                 </div>
             </div>
         </div>
@@ -313,10 +346,6 @@ const handleSelectCompany = async (company) => {
     showCompanyList.value = false
     showCompanyForm.value = false
 };
-const handleModalConfirmEvent = ref(null) //! stored function to be called when confirmation modal is confirmed
-const handleModalCancelEvent = () => {
-    showConfirmationModal.value = false
-};
 const handleDeleteCompanyButtonClick = (company) => {
     const companyId = company.ID
     if (!companyId) {
@@ -336,7 +365,7 @@ const handleDeleteCompanyButtonClick = (company) => {
         if (companyStore.getCompanyList.length == 1) {
             showCompanyList.value = false
         }
-        handleModalConfirmEvent.value = null;
+        handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
 const handleShowCompanyListButtonClick = () => {
@@ -392,10 +421,14 @@ const departmentFormData = reactive({
 })
 // methods
 const handleDepartmentFormSubmit = async () => {
-    if (departmentFormData.departmentFormType.value === "edit") {
-        await companyStore.updateDepartment(companyStore.getCompanyId, departmentFormData);
-    } else if (departmentFormData.departmentFormType === "add") {
-        await companyStore.createDepartment(companyStore.getCompanyId, departmentFormData);
+    if (departmentFormData.departmentFormType == "edit") {
+        await companyStore.updateDepartment({ companyId: companyStore.getCompanyId, departmentFormData: departmentFormData });
+    } else if (departmentFormData.departmentFormType == "add") {
+        await companyStore.createDepartment({ companyId: companyStore.getCompanyId, departmentFormData: departmentFormData });
+    } else {
+        console.error("No department form type")
+        messageStore.setError("Error submitting department form")
+        return
     }
     showDepartmentForm.value = false;
 };
@@ -410,11 +443,31 @@ const handleAddDepartmentButtonClick = () => {
     showDepartmentForm.value = !showDepartmentForm.value
 };
 const handleEditDepartmentButtonClick = (department) => {
-    showDepartmentForm.value = false
-    populateDepartmentForm(department)
     departmentFormData.departmentFormType = "edit"
-    showDepartmentForm.value = true
+    populateDepartmentForm(department)
+    showDepartmentForm.value = !showDepartmentForm.value
 };
+const handleDeleteDepartmentButtonClick = (department) => {
+    const departmentId = department.ID
+    if (!departmentId) {
+        console.error("No department ID")
+        messageStore.setError("Error deleting department")
+        return
+    }
+
+    closeAllForms()
+
+    confirmationModalMessage.value = `Are you sure you want to delete ${department.name}? This action cannot be undone.`
+    showConfirmationModal.value = true
+
+    //* store the function to be called when confirmation modal is confirmed, along with its arguments
+    handleModalConfirmEvent.value = async () => {
+        showConfirmationModal.value = false;
+        showDepartmentForm.value = false;
+        await companyStore.deleteDepartment({ companyId: companyStore.getCompanyId, departmentId: departmentId });
+        handleModalConfirmEvent.value = null; //! clear the stored function
+    };
+}
 
 const clearDepartmentForm = () => {
     departmentFormData.departmentId = null
@@ -427,14 +480,161 @@ const populateDepartmentForm = (department) => {
     departmentFormData.departmentDescription = department.description
 };
 
-
+//! Titles -----------------------------
 const showTitleForm = ref(false)
+const showTitleActions = ref(false)
+
+// v-refs / v-models
+const titleFormData = reactive({
+    titleFormType: null,
+    titleId: null,
+    titleName: null,
+    titleDescription: null,
+})
+
+// methods
+const handleTitleFormSubmit = async () => {
+    if (titleFormData.titleFormType == "edit") {
+        await companyStore.updateTitle({ companyId: companyStore.getCompanyId, titleFormData: titleFormData });
+    } else if (titleFormData.titleFormType == "add") {
+        await companyStore.createTitle({ companyId: companyStore.getCompanyId, titleFormData: titleFormData });
+    } else {
+        console.error("No title form type")
+        messageStore.setError("Error submitting title form")
+        return
+    }
+    showTitleForm.value = false;
+};
+const handleShowTitleActionButtonClick = () => {
+    showTitleForm.value = false
+    showTitleActions.value = !showTitleActions.value
+};
+const handleAddTitleButtonClick = () => {
+    showTitleActions.value = false
+    clearTitleForm()
+    titleFormData.titleFormType = "add"
+    showTitleForm.value = !showTitleForm.value
+};
+const handleEditTitleButtonClick = (title) => {
+    titleFormData.titleFormType = "edit"
+    populateTitleForm(title)
+    showTitleForm.value = !showTitleForm.value
+};
+const handleDeleteTitleButtonClick = (title) => {
+    const titleId = title.ID
+    if (!titleId) {
+        console.error("No title ID")
+        messageStore.setError("Error deleting title")
+        return
+    }
+
+    closeAllForms()
+
+    confirmationModalMessage.value = `Are you sure you want to delete ${title.name}? This action cannot be undone.`
+    showConfirmationModal.value = true
+
+    //* store the function to be called when confirmation modal is confirmed, along with its arguments
+    handleModalConfirmEvent.value = async () => {
+        showConfirmationModal.value = false;
+        showTitleForm.value = false;
+        await companyStore.deleteTitle({ companyId: companyStore.getCompanyId, titleId: titleId });
+        handleModalConfirmEvent.value = null; //! clear the stored function
+    };
+
+}
+const populateTitleForm = (title) => {
+    titleFormData.titleId = title.ID
+    titleFormData.titleName = title.name
+    titleFormData.titleDescription = title.description
+};
+const clearTitleForm = () => {
+    titleFormData.titleId = null
+    titleFormData.titleName = ''
+    titleFormData.titleDescription = ''
+};
+
+//! Locations -----------------------------
 const showLocationForm = ref(false)
+const showLocationActions = ref(false)
+
+// form refs/ v-models
+const locationFormData = reactive({
+    locationFormType: null,
+    locationId: null,
+    locationName: null,
+    locationDescription: null,
+})
+
+// methods
+const handleLocationFormSubmit = async () => {
+    if (locationFormData.locationFormType === "edit") {
+        await companyStore.updateLocation({ companyId: companyStore.getCompanyId, locationFormData: locationFormData });
+    } else if (locationFormData.locationFormType === "add") {
+        await companyStore.createLocation({ companyId: companyStore.getCompanyId, locationFormData: locationFormData });
+    } else {
+        console.error("No location form type")
+        messageStore.setError("Error submitting location form")
+        return
+    }
+    showLocationForm.value = false;
+};
+const handleShowLocationActionButtonClick = () => {
+    showLocationForm.value = false
+    showLocationActions.value = !showLocationActions.value
+};
+const handleAddLocationButtonClick = () => {
+    showLocationActions.value = false
+    clearLocationForm()
+    locationFormData.locationFormType = "add"
+    showLocationForm.value = !showLocationForm.value
+};
+const handleEditLocationButtonClick = (location) => {
+    locationFormData.locationFormType = "edit"
+    populateLocationForm(location)
+    showLocationForm.value = !showLocationForm.value
+};
+const handleDeleteLocationButtonClick = (location) => {
+    const locationId = location.ID
+    if (!locationId) {
+        console.error("No location ID")
+        messageStore.setError("Error deleting location")
+        return
+    }
+
+    closeAllForms()
+
+    confirmationModalMessage.value = `Are you sure you want to delete ${location.name}? This action cannot be undone.`
+    showConfirmationModal.value = true
+
+    //* store the function to be called when confirmation modal is confirmed, along with its arguments
+    handleModalConfirmEvent.value = async () => {
+        showConfirmationModal.value = false;
+        showLocationForm.value = false;
+        await companyStore.deleteLocation({ companyId: companyStore.getCompanyId, locationId: locationId });
+        handleModalConfirmEvent.value = null; //! clear the stored function
+    };
+};
+const populateLocationForm = (location) => {
+    locationFormData.locationId = location.ID;
+    locationFormData.locationName = location.name;
+    locationFormData.locationDescription = location.description;
+};
+const clearLocationForm = () => {
+    locationFormData.locationId = null;
+    locationFormData.locationName = '';
+    locationFormData.locationDescription = '';
+};
+
+
 
 //! common
 const showConfirmationModal = ref(false)
 const confirmationModalMessage = ref("")
+const handleModalConfirmEvent = ref(null) //! stored function to be called when confirmation modal is confirmed
 //! methods
+const handleModalCancelEvent = () => {
+    showConfirmationModal.value = false
+};
 const closeAllForms = () => {
     showCompanyForm.value = false
     showCompanyList.value = false
