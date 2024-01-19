@@ -25,25 +25,26 @@
                 <NBCard v-if="showCompanyList && !showCompanyForm" class="w-full">
                     <div v-if="companyStore.getCompanyList" v-for="company in companyStore.getCompanyList"
                         :key="company.ID">
-                        <div @click="handleSelectCompany(company)"
-                            class="flex justify-between items-center p-2 hover:cursor-pointer hover:bg-secondary-bg">
-                            <div class="w-full flex gap-4 items-center">
-                                <AppLogo :src="company.logoUrl" shape="square" class="w-16 h-16" />
-                                <div class="flex flex-col">
-                                    <h1 class="text-lg font-bold"> {{ company.name }} </h1>
-                                    <p> {{ company.phone }} </p>
-                                    <p> {{ company.address }} </p>
+                        <div class="flex justify-between items-center p-2">
+                            <div class="flex gap-4 items-center">
+                                <AppLogo :src="company.logoUrl" shape="square" class="w-12 h-12" />
+                                <div class="flex flex-col overflow-x-hidden">
+                                    <h1 class="text-sm md:text-lg text-nowrap font-bold"> {{ company.name }} </h1>
+                                    <p class="text-sm md:text-lg text-nowrap"> {{ company.website }} </p>
                                 </div>
                                 <div class="border-b-2 border-black">
                                 </div>
                             </div>
-                            <div class="flex gap-4">
+                            <div class="flex gap-2 md:gap-4">
+                                <NBButtonSquare size="sm" @click.stop="handleSelectCompany(company)">
+                                    <Icon name="material-symbols:check" class="h-6 w-6 hover:text-primary" />
+                                </NBButtonSquare>
                                 <NBButtonSquare size="sm" @click.stop="handleEditCompanyButtonClick(company)">
-                                    <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                    <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                 </NBButtonSquare>
                                 <NBButtonSquare v-if="companyStore.getCompanyList?.length > 1" size="sm"
                                     @click.stop="handleDeleteCompanyButtonClick(company)">
-                                    <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                    <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                 </NBButtonSquare>
                                 <NBButtonSquare v-else size="sm"
                                     @click.stop="messageStore.setError('Cannot delete last company!')">
@@ -60,10 +61,10 @@
                 <div v-else>
                     <NBCard v-if="companyStore.getCompanyData">
                         <div class="relative flex flex-wrap">
-                            <div class="w-full md:w-3/12 flex justify-center items-center p-4">
-                                <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-40 h-40" />
+                            <div class="w-full md:w-2/12 flex justify-center items-center p-4">
+                                <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-24 h-24" />
                             </div>
-                            <div class="w-full md:w-9/12 my-auto flex flex-col gap-2 text-center md:text-left ">
+                            <div class="w-full md:w-10/12 my-auto flex flex-col gap-2 text-center md:text-left ">
                                 <h1 class="text-lg font-bold"> {{ companyStore.getCompanyName }} </h1>
                                 <p>phone: {{ companyStore.getCompanyPhone }}</p>
                                 <p>email: {{ companyStore.getCompanyEmail }}</p>
@@ -88,8 +89,8 @@
                         <!-- !toggle department action buttons -->
                         <NBButtonSquare
                             v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments?.length > 0"
-                            @click="handleShowDepartmentActionButtonClick" size="sm">
-                            <Icon v-if="showCompanyList" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            @click="handleExpandDepartmentButtonClick" size="sm">
+                            <Icon v-if="expandDepartment" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                         </NBButtonSquare>
                         <!-- !add department button -->
@@ -109,19 +110,19 @@
                     v-for="department in companyStore.companyDepartments" :key="department.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between px-2">
-                                {{ department.name }}
-                                <div v-if="showDepartmentActions" class="flex gap-4">
+                            <div v-auto-animate class="flex justify-between items-center px-2">
+                                <p> {{ department.name }} </p>
+                                <div v-if="expandDepartment" class="flex gap-4">
                                     <NBButtonSquare size="sm" @click.stop="handleEditDepartmentButtonClick(department)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                     <NBButtonSquare size="sm" @click.stop="handleDeleteDepartmentButtonClick(department)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                 </div>
                             </div>
                         </NBCardHeader>
-                        <div v-if="showDepartmentActions" class="px-2">
+                        <div v-if="expandDepartment" class="px-2">
                             {{ department.description }}
                         </div>
                     </NBCard>
@@ -141,8 +142,8 @@
                     <div v-auto-animate class="flex gap-4">
                         <!-- !toggle title actions button -->
                         <NBButtonSquare v-if="companyStore.getCompanyTitles && companyStore.getCompanyTitles?.length > 0"
-                            @click="handleShowTitleActionButtonClick" size="sm">
-                            <Icon v-if="showTitleForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            @click="handleExpandTitleButtonClick" size="sm">
+                            <Icon v-if="expandTitle" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                         </NBButtonSquare>
                         <!-- !add title button -->
@@ -161,19 +162,19 @@
                     :key="title.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between px-2">
+                            <div v-auto-animate class="flex justify-between items-center px-2">
                                 {{ title.name }}
-                                <div v-if="showTitleActions" class="flex gap-4">
+                                <div v-if="expandTitle" class="flex gap-4">
                                     <NBButtonSquare size="sm" @click.stop="handleEditTitleButtonClick(title)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                     <NBButtonSquare size="sm" @click.stop="handleDeleteTitleButtonClick(title)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                 </div>
                             </div>
                         </NBCardHeader>
-                        <div v-if="showTitleActions" class="px-2">
+                        <div v-if="expandTitle" class="px-2">
                             {{ title.description }}
                         </div>
                     </NBCard>
@@ -194,8 +195,8 @@
                         <!-- !toggle location actions button -->
                         <NBButtonSquare
                             v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations?.length > 0"
-                            @click="handleShowLocationActionButtonClick" size="sm">
-                            <Icon v-if="showLocationForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                            @click="handleExpandLocationButtonClick" size="sm">
+                            <Icon v-if="expandLocation" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                         </NBButtonSquare>
                         <!-- !add location button -->
@@ -214,19 +215,19 @@
                     :key="location.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between px-2">
+                            <div v-auto-animate class="flex justify-between items-center px-2">
                                 <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
-                                <div v-if="showLocationActions" class="flex gap-4">
+                                <div v-if="expandLocation" class="flex gap-4">
                                     <NBButtonSquare size="sm" @click.stop="handleEditLocationButtonClick(location)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6" />
+                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                     <NBButtonSquare size="sm" @click.stop="handleDeleteLocationButtonClick(location)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6" />
+                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                 </div>
                             </div>
                         </NBCardHeader>
-                        <div v-if="showLocationActions" class="px-2">
+                        <div v-if="expandLocation" class="px-2">
                             <p>Phone: {{ location.phone || "No number listed" }}</p>
                             <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
                                 location.country }} {{
@@ -353,7 +354,7 @@ const populateCompanyForm = (company) => {
 
 //! Department -----------------------------
 const showDepartmentForm = ref(false)
-const showDepartmentActions = ref(false)
+const expandDepartment = ref(false)
 // form refs/ v-models
 const departmentFormData = reactive({
     departmentFormType: null,
@@ -374,12 +375,12 @@ const handleDepartmentFormSubmit = async () => {
     }
     showDepartmentForm.value = false;
 };
-const handleShowDepartmentActionButtonClick = () => {
+const handleExpandDepartmentButtonClick = () => {
     showDepartmentForm.value = false
-    showDepartmentActions.value = !showDepartmentActions.value
+    expandDepartment.value = !expandDepartment.value
 };
 const handleAddDepartmentButtonClick = () => {
-    showDepartmentActions.value = false
+    expandDepartment.value = false
     clearDepartmentForm()
     departmentFormData.departmentFormType = "add"
     showDepartmentForm.value = !showDepartmentForm.value
@@ -424,7 +425,7 @@ const populateDepartmentForm = (department) => {
 
 //! Titles -----------------------------
 const showTitleForm = ref(false)
-const showTitleActions = ref(false)
+const expandTitle = ref(false)
 
 // refs / v-models
 const titleFormData = reactive({
@@ -447,12 +448,12 @@ const handleTitleFormSubmit = async () => {
     }
     showTitleForm.value = false;
 };
-const handleShowTitleActionButtonClick = () => {
+const handleExpandTitleButtonClick = () => {
     showTitleForm.value = false
-    showTitleActions.value = !showTitleActions.value
+    expandTitle.value = !expandTitle.value
 };
 const handleAddTitleButtonClick = () => {
-    showTitleActions.value = false
+    expandTitle.value = false
     clearTitleForm()
     titleFormData.titleFormType = "add"
     showTitleForm.value = !showTitleForm.value
@@ -497,7 +498,7 @@ const clearTitleForm = () => {
 
 //! Locations -----------------------------
 const showLocationForm = ref(false)
-const showLocationActions = ref(false)
+const expandLocation = ref(false)
 
 // form refs/ v-models
 const locationFormData = reactive({
@@ -526,12 +527,12 @@ const handleLocationFormSubmit = async () => {
     }
     showLocationForm.value = false;
 };
-const handleShowLocationActionButtonClick = () => {
+const handleExpandLocationButtonClick = () => {
     showLocationForm.value = false
-    showLocationActions.value = !showLocationActions.value
+    expandLocation.value = !expandLocation.value
 };
 const handleAddLocationButtonClick = () => {
-    showLocationActions.value = false
+    expandLocation.value = false
     clearLocationForm()
     locationFormData.locationFormType = "add"
     showLocationForm.value = !showLocationForm.value
@@ -599,7 +600,7 @@ const closeAllForms = () => {
     showCompanyForm.value = false
     showCompanyList.value = false
     showDepartmentForm.value = false
-    showDepartmentActions.value = false
+    expandDepartment.value = false
     showTitleForm.value = false
     showLocationForm.value = false
 }

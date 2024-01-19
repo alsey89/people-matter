@@ -2,7 +2,6 @@ package company
 
 import (
 	"fmt"
-	"log"
 	"verve-hrms/internal/schema"
 
 	"gorm.io/gorm"
@@ -102,14 +101,15 @@ func (cr CompanyRepository) CompanyReadAndExpandAll() ([]*schema.Company, error)
 
 func (cr CompanyRepository) CompanyUpdate(CompanyID uint, updateData *schema.Company) (*schema.Company, error) {
 	var company schema.Company
-	result := cr.client.First(&company, CompanyID)
+
+	result := cr.client.Model(&company).Where("ID = ?", CompanyID).Updates(updateData)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.company_update: %w", result.Error)
 	}
 
-	result = cr.client.Model(&company).Updates(updateData)
-	if result.Error != nil {
-		return nil, fmt.Errorf("company.r.company_update: %w", result.Error)
+	// Check if any row was affected, if not, the company does not exist.
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("company.r.company_update: %w", gorm.ErrRecordNotFound)
 	}
 
 	return &company, nil
@@ -161,14 +161,15 @@ func (cr CompanyRepository) DepartmentReadAll() ([]*schema.Department, error) {
 
 func (cr CompanyRepository) DepartmentUpdate(DepartmentID uint, updateData *schema.Department) (*schema.Department, error) {
 	var department schema.Department
-	result := cr.client.First(&department, DepartmentID)
+
+	result := cr.client.Model(&department).Where("ID = ?", DepartmentID).Updates(updateData)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.department_update: %w", result.Error)
 	}
 
-	result = cr.client.Model(&department).Updates(updateData)
-	if result.Error != nil {
-		return nil, fmt.Errorf("company.r.department_update_update: %w", result.Error)
+	// Check if any row was affected, if not, the department does not exist.
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("company.r.department_update: %w", gorm.ErrRecordNotFound)
 	}
 
 	return &department, nil
@@ -220,14 +221,15 @@ func (cr CompanyRepository) TitleReadAll() ([]*schema.Title, error) {
 
 func (cr CompanyRepository) TitleUpdate(TitleID uint, updateData *schema.Title) (*schema.Title, error) {
 	var title schema.Title
-	result := cr.client.First(&title, TitleID)
+
+	result := cr.client.Model(&title).Where("ID = ?", TitleID).Updates(updateData)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.title_update: %w", result.Error)
 	}
 
-	result = cr.client.Model(&title).Updates(updateData)
-	if result.Error != nil {
-		return nil, fmt.Errorf("company.r.title_update_update: %w", result.Error)
+	// Check if any row was affected, if not, the title does not exist.
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("company.r.title_update: %w", gorm.ErrRecordNotFound)
 	}
 
 	return &title, nil
@@ -275,19 +277,16 @@ func (cr CompanyRepository) LocationReadAll() ([]*schema.Location, error) {
 }
 
 func (cr CompanyRepository) LocationUpdate(locationID uint, updateData *schema.Location) (*schema.Location, error) {
-	log.Printf("locationID: %v", locationID)
-	log.Printf("updateData: %v", updateData.IsHeadOffice)
-
 	var location schema.Location
-	result := cr.client.First(&location, locationID)
+
+	result := cr.client.Model(&location).Where("ID = ?", locationID).Select("IsHeadOffice").Updates(updateData)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_update: %w", result.Error)
 	}
 
-	// Explicitly select fields to update, including IsHeadOffice
-	result = cr.client.Model(&location).Select("IsHeadOffice").Updates(updateData)
-	if result.Error != nil {
-		return nil, fmt.Errorf("company.r.location_update_update: %w", result.Error)
+	// Check if any row was affected, if not, the location does not exist.
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("company.r.location_update: %w", gorm.ErrRecordNotFound)
 	}
 
 	return &location, nil

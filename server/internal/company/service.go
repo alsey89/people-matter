@@ -25,7 +25,7 @@ func (cs *CompanyService) CreateNewCompanyAndReturnList(newCompany *schema.Compa
 	var existingCompanies []*schema.Company
 	existingCompanies, err = cs.CompanyRepository.CompanyReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+		return nil, fmt.Errorf("company.s.create_company: %w", err)
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
@@ -40,17 +40,23 @@ func (cs *CompanyService) GetCompanyListAndExpandDefault() (*CompanyInterfaceDat
 	var existingCompanies []*schema.Company
 	existingCompanies, err := cs.CompanyRepository.CompanyReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+		return nil, fmt.Errorf("company.s.get_company_list_and_expand_default: %w", err)
 	}
 
 	// Define the Default Company to expand
 	var targetCompanyID uint
+	// smallest id among the existing companies
 	targetCompanyID = existingCompanies[0].ID
+	for _, company := range existingCompanies {
+		if company.ID < targetCompanyID {
+			targetCompanyID = company.ID
+		}
+	}
 
 	// Fetch details for the targeted company
 	expandedCompany, err := cs.CompanyRepository.CompanyReadAndExpand(targetCompanyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_default: %w", err)
+		return nil, fmt.Errorf("company.s.get_company_list_and_expand_default: %w", err)
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
@@ -65,13 +71,13 @@ func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyI
 
 	expandedCompany, err := cs.CompanyRepository.CompanyReadAndExpand(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_by_id: %w", err)
+		return nil, fmt.Errorf("company.s.get_company_list_and_expand_by_id: %w", err)
 	}
 
 	var existingCompanies []*schema.Company
 	existingCompanies, err = cs.CompanyRepository.CompanyReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("company.s.fetch_company_list_and_expand_by_id: %w", err)
+		return nil, fmt.Errorf("company.s.get_company_list_and_expand_by_id: %w", err)
 	}
 
 	CompanyInterfaceData := &CompanyInterfaceData{
@@ -82,18 +88,16 @@ func (cs *CompanyService) GetCompanyListAndExpandByID(companyID uint) (*CompanyI
 	return CompanyInterfaceData, nil
 }
 
-func (cs *CompanyService) UpdateCompanyAndReturnCompanyListAndExpandID(companyId uint, newData *schema.Company) (*CompanyInterfaceData, error) {
+func (cs *CompanyService) UpdateCompanyAndReturnCompanyListAndExpandID(companyID uint, newData *schema.Company) (*CompanyInterfaceData, error) {
 
-	updatedCompany, err := cs.CompanyRepository.CompanyUpdate(companyId, newData)
+	_, err := cs.CompanyRepository.CompanyUpdate(companyID, newData)
 	if err != nil {
 		return nil, fmt.Errorf("company.s.update_company: %w", err)
 	}
 
-	companyID := updatedCompany.ID
-
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_company: %w", err)
 	}
 
 	return companyData, nil
@@ -103,12 +107,12 @@ func (cs *CompanyService) DeleteCompanyAndReturnCompanyListAndExpandDefault(comp
 
 	err := cs.CompanyRepository.CompanyDelete(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_company_by_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_company: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandDefault()
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_company_by_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_company: %w", err)
 	}
 
 	return companyData, nil
@@ -121,12 +125,12 @@ func (cs *CompanyService) CreateNewDepartmentAndReturnCompanyListAndExpandID(com
 
 	_, err := cs.CompanyRepository.DepartmentCreate(newDepartment)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_department_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_department: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_title: %w", err)
 	}
 
 	return companyData, nil
@@ -137,12 +141,12 @@ func (cs *CompanyService) UpdateDepartmentAndReturnCompanyListAndExpandID(compan
 
 	_, err := cs.CompanyRepository.DepartmentUpdate(departmentID, dataToUpdate)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.update_department_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_department: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_department: %w", err)
 	}
 
 	return companyData, nil
@@ -151,12 +155,12 @@ func (cs *CompanyService) UpdateDepartmentAndReturnCompanyListAndExpandID(compan
 func (cs *CompanyService) DeleteDepartmentAndReturnCompanyListAndExpandID(companyID uint, departmentID uint) (*CompanyInterfaceData, error) {
 	err := cs.CompanyRepository.DepartmentDelete(departmentID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_department_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_department: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_department: %w", err)
 	}
 
 	return companyData, nil
@@ -169,12 +173,12 @@ func (cs *CompanyService) CreateNewTitleAndReturnCompanyListAndExpandID(companyI
 
 	_, err := cs.CompanyRepository.TitleCreate(newTitle)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_title: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_title: %w", err)
 	}
 
 	return companyData, nil
@@ -185,12 +189,12 @@ func (cs *CompanyService) UpdateTitleAndReturnCompanyListAndExpandID(companyID u
 
 	_, err := cs.CompanyRepository.TitleUpdate(titleID, dataToUpdate)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.update_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_title: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_title: %w", err)
 	}
 
 	return companyData, nil
@@ -199,12 +203,12 @@ func (cs *CompanyService) UpdateTitleAndReturnCompanyListAndExpandID(companyID u
 func (cs *CompanyService) DeleteTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint) (*CompanyInterfaceData, error) {
 	err := cs.CompanyRepository.TitleDelete(titleID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_title: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_title: %w", err)
 	}
 
 	return companyData, nil
@@ -219,12 +223,12 @@ func (cs *CompanyService) CreateNewLocationAndReturnCompanyListAndExpandID(compa
 
 	_, err := cs.CompanyRepository.LocationCreate(newLocation)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_location: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.create_location: %w", err)
 	}
 
 	return companyData, nil
@@ -235,12 +239,12 @@ func (cs *CompanyService) UpdateLocationAndReturnCompanyListAndExpandID(companyI
 
 	_, err := cs.CompanyRepository.LocationUpdate(locationID, dataToUpdate)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.update_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_location: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.update_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.update_location: %w", err)
 	}
 
 	return companyData, nil
@@ -249,12 +253,12 @@ func (cs *CompanyService) UpdateLocationAndReturnCompanyListAndExpandID(companyI
 func (cs *CompanyService) DeleteLocationAndReturnCompanyListAndExpandID(companyID uint, locationID uint) (*CompanyInterfaceData, error) {
 	err := cs.CompanyRepository.LocationDelete(locationID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_location: %w", err)
 	}
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_location_and_return_company_list_and_expand_id: %w", err)
+		return nil, fmt.Errorf("company.s.delete_location: %w", err)
 	}
 
 	return companyData, nil
