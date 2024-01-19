@@ -2,6 +2,7 @@ package company
 
 import (
 	"fmt"
+	"log"
 	"verve-hrms/internal/schema"
 
 	"gorm.io/gorm"
@@ -273,14 +274,18 @@ func (cr CompanyRepository) LocationReadAll() ([]*schema.Location, error) {
 	return locations, nil
 }
 
-func (cr CompanyRepository) LocationUpdate(LocationID uint, updateData *schema.Location) (*schema.Location, error) {
+func (cr CompanyRepository) LocationUpdate(locationID uint, updateData *schema.Location) (*schema.Location, error) {
+	log.Printf("locationID: %v", locationID)
+	log.Printf("updateData: %v", updateData.IsHeadOffice)
+
 	var location schema.Location
-	result := cr.client.First(&location, LocationID)
+	result := cr.client.First(&location, locationID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_update: %w", result.Error)
 	}
 
-	result = cr.client.Model(&location).Updates(updateData)
+	// Explicitly select fields to update, including IsHeadOffice
+	result = cr.client.Model(&location).Select("IsHeadOffice").Updates(updateData)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_update_update: %w", result.Error)
 	}

@@ -2,6 +2,7 @@ package company
 
 import (
 	"fmt"
+	"log"
 	"verve-hrms/internal/schema"
 )
 
@@ -213,6 +214,8 @@ func (cs *CompanyService) DeleteTitleAndReturnCompanyListAndExpandID(companyID u
 
 func (cs *CompanyService) CreateNewLocationAndReturnCompanyListAndExpandID(companyID uint, newLocation *schema.Location) (*CompanyInterfaceData, error) {
 	newLocation.CompanyID = companyID
+
+	log.Printf("newLocation: %v", newLocation)
 
 	_, err := cs.CompanyRepository.LocationCreate(newLocation)
 	if err != nil {

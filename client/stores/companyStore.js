@@ -354,6 +354,8 @@ export const useCompanyStore = defineStore("company-store", {
           `http://localhost:3001/api/v1/company/${companyId}/location`,
           {
             name: locationFormData.locationName,
+            phone: locationFormData.locationPhone,
+            isHeadOffice: locationFormData.locationIsHeadOffice,
             description: locationFormData.locationDescription,
             address: locationFormData.locationAddress,
             city: locationFormData.locationCity,
@@ -384,6 +386,8 @@ export const useCompanyStore = defineStore("company-store", {
           `http://localhost:3001/api/v1/company/${companyId}/location/${locationFormData.locationId}`,
           {
             name: locationFormData.locationName,
+            phone: locationFormData.locationPhone,
+            isHeadOffice: locationFormData.locationIsHeadOffice,
             description: locationFormData.locationDescription,
             address: locationFormData.locationAddress,
             city: locationFormData.locationCity,

@@ -131,22 +131,29 @@
                     </form>
                 </NBCard>
                 <!-- !Company Data -->
-                <NBCard v-else>
-                    <div v-if="companyStore.getCompanyData" class="relative flex flex-wrap">
-                        <div class="w-full md:w-3/12 flex justify-center items-center p-4">
-                            <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-40 h-40" />
+                <div v-else>
+                    <NBCard v-if="companyStore.getCompanyData">
+                        <div class="relative flex flex-wrap">
+                            <div class="w-full md:w-3/12 flex justify-center items-center p-4">
+                                <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-40 h-40" />
+                            </div>
+                            <div class="w-full md:w-9/12 my-auto flex flex-col gap-2 text-center md:text-left ">
+                                <h1 class="text-lg font-bold"> {{ companyStore.getCompanyName }} </h1>
+                                <p>phone: {{ companyStore.getCompanyPhone }}</p>
+                                <p>email: {{ companyStore.getCompanyEmail }}</p>
+                                <p>{{ companyStore.getFullAddress }}</p>
+                            </div>
                         </div>
-                        <div class="w-full md:w-9/12 my-auto flex flex-col gap-2 text-center md:text-left ">
-                            <h1 class="text-lg font-bold"> {{ companyStore.getCompanyName }} </h1>
-                            <p>phone: {{ companyStore.getCompanyPhone }}</p>
-                            <p>email: {{ companyStore.getCompanyEmail }}</p>
-                            <p>{{ companyStore.getFullAddress }}</p>
+                    </NBCard>
+                    <NBCard v-else>
+                        <div class="flex justify-center items-center">
+                            No Data
                         </div>
-                    </div>
-                </NBCard>
+                    </NBCard>
+                </div>
             </div>
         </div>
-        <div class="pb-2">
+        <div class="flex flex-col gap-4 pb-2">
             <!-- !Department -->
             <div v-auto-animate class="w-full flex flex-col gap-2">
                 <div class="flex justify-between border-b-2 border-black py-2">
@@ -172,8 +179,8 @@
                         :formData="departmentFormData" />
                 </div>
                 <!-- !department list -->
-                <div v-if="companyStore.companyDepartments" v-for="department in companyStore.companyDepartments"
-                    :key="department.ID">
+                <div v-if="companyStore.getCompanyDepartments.length > 0"
+                    v-for="department in companyStore.companyDepartments" :key="department.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
                             <div v-auto-animate class="flex justify-between px-2">
@@ -194,7 +201,11 @@
                     </NBCard>
                 </div>
                 <div v-else>
-                    No Data
+                    <NBCard>
+                        <div class="flex justify-center items-center">
+                            No Data
+                        </div>
+                    </NBCard>
                 </div>
             </div>
             <!-- !Title -->
@@ -220,7 +231,8 @@
                     <AppCompanyTitleForm @submit="handleTitleFormSubmit" v-if="showTitleForm" :formData="titleFormData" />
                 </div>
                 <!-- !title list -->
-                <div v-if="companyStore.companyTitles" v-for="title in companyStore.companyTitles" :key="title.ID">
+                <div v-if="companyStore.getCompanyTitles.length > 0" v-for="title in companyStore.companyTitles"
+                    :key="title.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
                             <div v-auto-animate class="flex justify-between px-2">
@@ -237,6 +249,13 @@
                         </NBCardHeader>
                         <div v-if="showTitleActions" class="px-2">
                             {{ title.description }}
+                        </div>
+                    </NBCard>
+                </div>
+                <div v-else>
+                    <NBCard>
+                        <div class="flex justify-center items-center">
+                            No Data
                         </div>
                     </NBCard>
                 </div>
@@ -265,12 +284,12 @@
                     <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
                 </div>
                 <!-- !location list -->
-                <div v-if="companyStore.companyLocations" v-for="location in companyStore.companyLocations"
+                <div v-if="companyStore.getCompanyLocations.length > 0" v-for="location in companyStore.companyLocations"
                     :key="location.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
                             <div v-auto-animate class="flex justify-between px-2">
-                                {{ location.name }}
+                                <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
                                 <div v-if="showLocationActions" class="flex gap-4">
                                     <NBButtonSquare size="sm" @click.stop="handleEditLocationButtonClick(location)">
                                         <Icon name="material-symbols:edit" class="h-6 w-6" />
@@ -282,7 +301,17 @@
                             </div>
                         </NBCardHeader>
                         <div v-if="showLocationActions" class="px-2">
-                            {{ location.description }}
+                            <p>Phone: {{ location.phone || "No number listed" }}</p>
+                            <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
+                                location.country }} {{
+        location.postalCode }}</p>
+                        </div>
+                    </NBCard>
+                </div>
+                <div v-else>
+                    <NBCard>
+                        <div class="flex justify-center items-center">
+                            No Data
                         </div>
                     </NBCard>
                 </div>
@@ -298,7 +327,7 @@ const messageStore = useMessageStore()
 //! Company -----------------------------
 const showCompanyForm = ref(false)
 const showCompanyList = ref(false)
-//form refs/ v-models
+//refs/ v-models
 const companyFormType = ref(null)
 const companyId = ref(null)
 const companyName = ref(null)
@@ -383,6 +412,7 @@ const handleEditCompanyButtonClick = (company) => {
     showCompanyList.value = false
     showCompanyForm.value = true
 };
+
 const clearCompanyForm = () => {
     companyName.value = ''
     companyPhone.value = ''
@@ -407,7 +437,6 @@ const populateCompanyForm = (company) => {
     companyCountry.value = company.country
     companyPostalCode.value = company.postalCode
 };
-
 
 //! Department -----------------------------
 const showDepartmentForm = ref(false)
@@ -484,7 +513,7 @@ const populateDepartmentForm = (department) => {
 const showTitleForm = ref(false)
 const showTitleActions = ref(false)
 
-// v-refs / v-models
+// refs / v-models
 const titleFormData = reactive({
     titleFormType: null,
     titleId: null,
@@ -562,7 +591,13 @@ const locationFormData = reactive({
     locationFormType: null,
     locationId: null,
     locationName: null,
-    locationDescription: null,
+    locationIsHeadOffice: false,
+    locationPhone: null,
+    locationAddress: null,
+    locationCity: null,
+    locationState: null,
+    locationCountry: null,
+    locationPostalCode: null,
 })
 
 // methods
@@ -617,12 +652,24 @@ const handleDeleteLocationButtonClick = (location) => {
 const populateLocationForm = (location) => {
     locationFormData.locationId = location.ID;
     locationFormData.locationName = location.name;
-    locationFormData.locationDescription = location.description;
+    locationFormData.locationIsHeadOffice = location.isHeadOffice;
+    locationFormData.locationPhone = location.phone;
+    locationFormData.locationAddress = location.address;
+    locationFormData.locationCity = location.city
+    locationFormData.locationState = location.state
+    locationFormData.locationCountry = location.country
+    locationFormData.locationPostalCode = location.postalCode
 };
 const clearLocationForm = () => {
     locationFormData.locationId = null;
     locationFormData.locationName = '';
-    locationFormData.locationDescription = '';
+    locationFormData.locationIsHeadOffice = false;
+    locationFormData.locationPhone = null;
+    locationFormData.locationAddress = null;
+    locationFormData.locationCity = null;
+    locationFormData.locationState = null;
+    locationFormData.locationCountry = null;
+    locationFormData.locationPostalCode = null;
 };
 
 

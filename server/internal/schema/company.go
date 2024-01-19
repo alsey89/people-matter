@@ -45,14 +45,15 @@ type Department struct {
 
 type Location struct {
 	gorm.Model
-	CompanyID  uint   `json:"companyId"`
-	Name       string `json:"name"`
-	HeadOffice bool   `json:"headOffice"`
-	Address    string `json:"address"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Country    string `json:"country"`
-	PostalCode string `json:"postalCode"`
+	CompanyID    uint   `json:"companyId"`
+	Name         string `json:"name"`
+	IsHeadOffice bool   `json:"isHeadOffice"`
+	Phone        string `json:"phone"`
+	Address      string `json:"address"`
+	City         string `json:"city"`
+	State        string `json:"state"`
+	Country      string `json:"country"`
+	PostalCode   string `json:"postalCode"`
 
 	// Relationships
 	Job []Job `json:"job"`
