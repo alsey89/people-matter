@@ -13,9 +13,9 @@ export const useCompanyStore = defineStore("company-store", {
     companyPhone: "No Data",
     companyWebsite: "No Data",
     //* related data
-    companyDepartments: [],
-    companyTitles: [],
-    companyLocations: [],
+    companyDepartments: null,
+    companyTitles: null,
+    companyLocations: null,
     //* store
     isLoading: false,
     lastFetch: null,
@@ -87,33 +87,22 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    async createCompany({
-      companyName,
-      companyPhone = null,
-      companyEmail = null,
-      companyWebsite = null,
-      companyAddress = null,
-      companyCity = null,
-      companyState = null,
-      companyCountry = null,
-      companyPostalCode = null,
-      companyLogoUrl = null,
-    }) {
+    async createCompany({ companyFormData }) {
       const messageStore = useMessageStore();
       try {
         const response = await axios.post(
           "http://localhost:3001/api/v1/company",
           {
-            name: companyName,
-            phone: companyPhone,
-            email: companyEmail,
-            website: companyWebsite,
-            address: companyAddress,
-            city: companyCity,
-            state: companyState,
-            country: companyCountry,
-            postalCode: companyPostalCode,
-            logoUrl: companyLogoUrl,
+            name: companyFormData.companyName,
+            phone: companyFormData.companyPhone,
+            email: companyFormData.companyEmail,
+            website: companyFormData.companyWebsite,
+            address: companyFormData.companyAddress,
+            city: companyFormData.companyCity,
+            state: companyFormData.companyState,
+            country: companyFormData.companyCountry,
+            postalCode: companyFormData.companyPostalCode,
+            logoUrl: companyFormData.companyLogoUrl,
           },
           {
             headers: {
@@ -131,34 +120,23 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    async updateCompany({
-      companyId,
-      companyName,
-      companyPhone = null,
-      companyEmail = null,
-      companyWebsite = null,
-      companyAddress = null,
-      companyCity = null,
-      companyState = null,
-      companyCountry = null,
-      companyPostalCode = null,
-      companyLogoUrl = null,
-    }) {
+    async updateCompany({ companyFormData }) {
       const messageStore = useMessageStore();
+      const companyId = companyFormData.companyId;
       try {
         const response = await axios.put(
           `http://localhost:3001/api/v1/company/${companyId}`,
           {
-            name: companyName,
-            phone: companyPhone,
-            email: companyEmail,
-            website: companyWebsite,
-            address: companyAddress,
-            city: companyCity,
-            state: companyState,
-            country: companyCountry,
-            postalCode: companyPostalCode,
-            logoUrl: companyLogoUrl,
+            name: companyFormData.companyName,
+            phone: companyFormData.companyPhone,
+            email: companyFormData.companyEmail,
+            website: companyFormData.companyWebsite,
+            address: companyFormData.companyAddress,
+            city: companyFormData.companyCity,
+            state: companyFormData.companyState,
+            country: companyFormData.companyCountry,
+            postalCode: companyFormData.companyPostalCode,
+            logoUrl: companyFormData.companyLogoUrl,
           },
           {
             headers: {

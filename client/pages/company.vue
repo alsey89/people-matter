@@ -41,7 +41,7 @@
                                 <NBButtonSquare size="sm" @click.stop="handleEditCompanyButtonClick(company)">
                                     <Icon name="material-symbols:edit" class="h-6 w-6" />
                                 </NBButtonSquare>
-                                <NBButtonSquare v-if="companyStore.getCompanyList.length > 1" size="sm"
+                                <NBButtonSquare v-if="companyStore.getCompanyList?.length > 1" size="sm"
                                     @click.stop="handleDeleteCompanyButtonClick(company)">
                                     <Icon name="material-symbols:delete" class="h-6 w-6" />
                                 </NBButtonSquare>
@@ -54,82 +54,8 @@
                     </div>
                 </NBCard>
                 <!-- !New Company Form -->
-                <NBCard v-else-if="showCompanyForm && !showCompanyList" class="w-full">
-                    <form @submit.prevent="handleCompanyFormSubmit" class="w-full flex flex-col gap-4 p-2">
-                        <div class="flex flex-wrap md:flex-nowrap justify-between gap-4">
-                            <div class="w-full md:w-3/4 flex-flex-col gap-4">
-                                <div class="flex flex-col">
-                                    <label for="name">Name*</label>
-                                    <input v-model="companyName" type="text" name="name" id="name"
-                                        class="focus:outline-primary p-1" required />
-                                </div>
-                                <div class="flex flex-col">
-                                    <label for="phone">Phone</label>
-                                    <input v-model="companyPhone" type="text" name="phone" id="phone"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                                <div class="flex flex-col">
-                                    <label for="email">Email</label>
-                                    <input v-model="companyEmail" type="email" name="email" id="email"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                                <div class="flex flex-col">
-                                    <label for="website"> Website </label>
-                                    <input v-model="companyWebsite" type="text" name="name" id="website"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                            </div>
-                            <div class="w-full md:w-1/4 flex justify-center">
-                                <!-- todo: logo upload -->
-                                <NBButtonSquare type="button" size="sm" textSize="sm" class="w-full block md:hidden">
-                                    <div class="flex justify-center items-center gap-2">
-                                        <Icon name="material-symbols:upload" class="h-6 w-6" />
-                                        Upload Photo
-                                    </div>
-                                </NBButtonSquare>
-                                <AppLogo :src="`${companyLogoUrl}`" shape="square"
-                                    class="hidden md:block w-full border-2 border-black hover:cursor-pointer" />
-                            </div>
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="address">Address</label>
-                            <input v-model="companyAddress" type="text" name="address" id="address"
-                                class="focus:outline-primary p-1" />
-                        </div>
-                        <div class="flex flex-wrap md:flex-nowrap gap-2 md:gap-4">
-                            <div class="w-full md:w-1/2 flex flex-col gap-4">
-                                <div class="flex flex-col">
-                                    <label for="city">City</label>
-                                    <input v-model="companyCity" type="text" name="city" id="city"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                                <div class="flex flex-col">
-                                    <label for="state">State</label>
-                                    <input v-model="companyState" type="text" name="state" id="state"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                            </div>
-                            <div class="w-full md:w-1/2 flex flex-col gap-4">
-                                <div class="flex flex-col">
-                                    <label for="country">Country</label>
-                                    <input v-model="companyCountry" type="text" name="country" id="country"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                                <div class="flex flex-col">
-                                    <label for="postal_code">Postal Code</label>
-                                    <input v-model="companyPostalCode" type="text" name="postal_code" id="postal_code"
-                                        class="focus:outline-primary p-1" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="w-full flex justify-end">
-                            <NBButtonSquare type="submit" size="sm" textSize="md"
-                                class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
-                                Submit
-                            </NBButtonSquare>
-                        </div>
-                    </form>
-                </NBCard>
+                <AppCompanyForm v-else-if="showCompanyForm && !showCompanyList" :formData="companyFormData"
+                    @submit="handleCompanyFormSubmit" />
                 <!-- !Company Data -->
                 <div v-else>
                     <NBCard v-if="companyStore.getCompanyData">
@@ -161,7 +87,7 @@
                     <div v-auto-animate class="flex gap-4">
                         <!-- !toggle department action buttons -->
                         <NBButtonSquare
-                            v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments.length > 0"
+                            v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments?.length > 0"
                             @click="handleShowDepartmentActionButtonClick" size="sm">
                             <Icon v-if="showCompanyList" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
@@ -179,7 +105,7 @@
                         :formData="departmentFormData" />
                 </div>
                 <!-- !department list -->
-                <div v-if="companyStore.getCompanyDepartments.length > 0"
+                <div v-if="companyStore.getCompanyDepartments?.length > 0"
                     v-for="department in companyStore.companyDepartments" :key="department.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
@@ -214,7 +140,7 @@
                     <h1 class="text-lg font-bold"> Titles </h1>
                     <div v-auto-animate class="flex gap-4">
                         <!-- !toggle title actions button -->
-                        <NBButtonSquare v-if="companyStore.getCompanyTitles && companyStore.getCompanyTitles.length > 0"
+                        <NBButtonSquare v-if="companyStore.getCompanyTitles && companyStore.getCompanyTitles?.length > 0"
                             @click="handleShowTitleActionButtonClick" size="sm">
                             <Icon v-if="showTitleForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
@@ -231,7 +157,7 @@
                     <AppCompanyTitleForm @submit="handleTitleFormSubmit" v-if="showTitleForm" :formData="titleFormData" />
                 </div>
                 <!-- !title list -->
-                <div v-if="companyStore.getCompanyTitles.length > 0" v-for="title in companyStore.companyTitles"
+                <div v-if="companyStore.getCompanyTitles?.length > 0" v-for="title in companyStore.companyTitles"
                     :key="title.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
@@ -267,7 +193,7 @@
                     <div v-auto-animate class="flex gap-4">
                         <!-- !toggle location actions button -->
                         <NBButtonSquare
-                            v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations.length > 0"
+                            v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations?.length > 0"
                             @click="handleShowLocationActionButtonClick" size="sm">
                             <Icon v-if="showLocationForm" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
@@ -284,7 +210,7 @@
                     <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
                 </div>
                 <!-- !location list -->
-                <div v-if="companyStore.getCompanyLocations.length > 0" v-for="location in companyStore.companyLocations"
+                <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
                     :key="location.ID">
                     <NBCard v-auto-animate>
                         <NBCardHeader>
@@ -328,40 +254,27 @@ const messageStore = useMessageStore()
 const showCompanyForm = ref(false)
 const showCompanyList = ref(false)
 //refs/ v-models
-const companyFormType = ref(null)
-const companyId = ref(null)
-const companyName = ref(null)
-const companyPhone = ref(null)
-const companyEmail = ref(null)
-const companyWebsite = ref(null)
-const companyLogoUrl = ref("defaultLogo.png")
-const companyAddress = ref(null)
-const companyCity = ref(null)
-const companyState = ref(null)
-const companyCountry = ref(null)
-const companyPostalCode = ref(null)
+const companyFormData = reactive({
+    companyFormType: null,
+    companyId: null,
+    companyName: null,
+    companyPhone: null,
+    companyEmail: null,
+    companyWebsite: null,
+    companyLogoUrl: ref("defaultLogo.png"),
+    companyAddress: null,
+    companyCity: null,
+    companyState: null,
+    companyCountry: null,
+    companyPostalCode: null,
+})
 //methods
 const handleCompanyFormSubmit = async () => {
-    const companyData = {
-        companyId: companyId.value,
-        companyName: companyName.value,
-        companyPhone: companyPhone.value,
-        companyEmail: companyEmail.value,
-        companyWebsite: companyWebsite.value,
-        companyLogoUrl: companyLogoUrl.value,
-        companyAddress: companyAddress.value,
-        companyCity: companyCity.value,
-        companyState: companyState.value,
-        companyCountry: companyCountry.value,
-        companyPostalCode: companyPostalCode.value
-    };
-
-    if (companyFormType.value === "edit") {
-        await companyStore.updateCompany(companyData);
-    } else if (companyFormType.value === "add") {
-        await companyStore.createCompany(companyData);
+    if (companyFormData.companyFormType === "edit") {
+        await companyStore.updateCompany({ companyFormData: companyFormData });
+    } else if (companyFormData.companyFormType === "add") {
+        await companyStore.createCompany({ companyFormData: companyFormData });
     }
-
     showCompanyForm.value = null;
 };
 const handleSelectCompany = async (company) => {
@@ -403,39 +316,39 @@ const handleShowCompanyListButtonClick = () => {
 };
 const handleAddCompanyButtonClick = () => {
     clearCompanyForm();
-    companyFormType.value = "add"
+    companyFormData.companyFormType = "add"
     showCompanyForm.value = !showCompanyForm.value
 };
 const handleEditCompanyButtonClick = (company) => {
     populateCompanyForm(company)
-    companyFormType.value = "edit"
+    companyFormData.companyFormType = "edit"
     showCompanyList.value = false
     showCompanyForm.value = true
 };
 
 const clearCompanyForm = () => {
-    companyName.value = ''
-    companyPhone.value = ''
-    companyWebsite.value = ''
-    companyLogoUrl.value = 'defaultLogo.png'
-    companyAddress.value = ''
-    companyCity.value = ''
-    companyState.value = ''
-    companyCountry.value = ''
-    companyPostalCode.value = ''
+    companyFormData.companyName = ''
+    companyFormData.companyPhone = ''
+    companyFormData.companyWebsite = ''
+    companyFormData.companyLogoUrl = 'defaultLogo.png'
+    companyFormData.companyAddress = ''
+    companyFormData.companyCity = ''
+    companyFormData.companyState = ''
+    companyFormData.companyCountry = ''
+    companyFormData.companyPostalCode = ''
 };
 const populateCompanyForm = (company) => {
-    companyId.value = company.ID
-    companyName.value = company.name
-    companyPhone.value = company.phone
-    companyEmail.value = company.email
-    companyWebsite.value = company.website
-    companyLogoUrl.value = company.logoUrl
-    companyAddress.value = company.address
-    companyCity.value = company.city
-    companyState.value = company.state
-    companyCountry.value = company.country
-    companyPostalCode.value = company.postalCode
+    companyFormData.companyId = company.ID
+    companyFormData.companyName = company.name
+    companyFormData.companyPhone = company.phone
+    companyFormData.companyEmail = company.email
+    companyFormData.companyWebsite = company.website
+    companyFormData.companyLogoUrl = company.logoUrl
+    companyFormData.companyAddress = company.address
+    companyFormData.companyCity = company.city
+    companyFormData.companyState = company.state
+    companyFormData.companyCountry = company.country
+    companyFormData.companyPostalCode = company.postalCode
 };
 
 //! Department -----------------------------
