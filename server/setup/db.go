@@ -2,6 +2,7 @@ package setup
 
 import (
 	"fmt"
+	"verve-hrms/internal/schema"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -49,23 +50,24 @@ func GetClient() *gorm.DB {
 		panic(err)
 	}
 
-	// err = client.AutoMigrate(
-	// 	&schema.User{},
-	// 	&schema.ContactInfo{},
-	// 	&schema.EmergencyContact{},
-	// 	&schema.Company{},
-	// 	&schema.Title{},
-	// 	&schema.Department{},
-	// 	&schema.Location{},
-	// 	&schema.Job{},
-	// 	&schema.Salary{},
-	// 	&schema.Payment{},
-	// 	&schema.Leave{},
-	// 	&schema.Attendance{},
-	// )
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err = client.AutoMigrate(
+		&schema.User{},
+		&schema.ContactInfo{},
+		&schema.EmergencyContact{},
+		&schema.Company{},
+		&schema.Title{},
+		&schema.Department{},
+		&schema.Location{},
+		&schema.Job{},
+		&schema.AssignedJob{},
+		&schema.Salary{},
+		&schema.Payment{},
+		&schema.Leave{},
+		&schema.Attendance{},
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("Connected to PostgreSQL!")
 

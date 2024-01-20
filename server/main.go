@@ -103,21 +103,21 @@ func main() {
 	userRoutes.GET("/all", userHandler.GetAllUsers)
 
 	companyRoutes := e.Group("api/v1/company")
-	// company admin routes
+	// company
 	companyRoutes.POST("", companyHandler.CreateCompany)
 	companyRoutes.GET("", companyHandler.GetCompanyDataExpandDefault)
 	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
 	companyRoutes.PUT("/:company_id", companyHandler.UpdateCompany)
 	companyRoutes.DELETE("/:company_id", companyHandler.DeleteCompany)
-	// department admin routes
+	// department
 	companyRoutes.POST("/:company_id/department", companyHandler.CreateDepartment)
 	companyRoutes.PUT("/:company_id/department/:department_id", companyHandler.UpdateDepartment)
 	companyRoutes.DELETE("/:company_id/department/:department_id", companyHandler.DeleteDepartment)
-	// title admin routes
+	// title
 	companyRoutes.POST("/:company_id/title", companyHandler.CreateTitle)
 	companyRoutes.PUT("/:company_id/title/:title_id", companyHandler.UpdateTitle)
 	companyRoutes.DELETE("/:company_id/title/:title_id", companyHandler.DeleteTitle)
-	// location admin routes
+	// location
 	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
 	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
 	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)

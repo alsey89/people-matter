@@ -34,8 +34,6 @@ func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
 		})
 	}
 
-	log.Printf("company.h.create_company: newCompany: %v", newCompany)
-
 	companyData, err := ch.companyService.CreateNewCompanyAndReturnList(newCompany)
 	if err != nil {
 		log.Printf("company.h.create_company: %v", err)

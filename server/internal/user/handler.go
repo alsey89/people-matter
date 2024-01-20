@@ -19,25 +19,6 @@ func NewUserHandler(userService *UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-func (uh *UserHandler) GetAllUsers(c echo.Context) error {
-
-	log.Printf("we are at user.h.get_all_users")
-
-	users, err := uh.userService.GetAllUsers()
-	if err != nil {
-		log.Printf("user.h.get_all_users: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "users data has been retrieved",
-		Data:    users,
-	})
-}
-
 func (uh *UserHandler) GetUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
@@ -64,7 +45,7 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 
 	uintID := uint(ID)
 
-	userData, err := uh.userService.GetUserByID(uintID)
+	userData, err := uh.userService.GetUserByIDAndExpandRole(uintID)
 	if err != nil {
 		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -76,6 +57,23 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user data has been retrieved",
 		Data:    userData,
+	})
+}
+
+func (uh *UserHandler) GetAllUsers(c echo.Context) error {
+
+	users, err := uh.userService.GetAllUsersAndExpandRoles()
+	if err != nil {
+		log.Printf("user.h.get_all_users: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "users data has been retrieved",
+		Data:    users,
 	})
 }
 
@@ -115,7 +113,7 @@ func (uh *UserHandler) EditUser(c echo.Context) error {
 		})
 	}
 
-	updatedUser, err := uh.userService.UpdateUser(uintID, updateData)
+	updatedUser, err := uh.userService.UpdateAndReturnUserAndExpandRole(uintID, updateData)
 	if err != nil {
 		log.Printf("user.h.edit_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{

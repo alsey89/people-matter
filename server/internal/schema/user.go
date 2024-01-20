@@ -19,17 +19,18 @@ type User struct {
 	LastLogin  *time.Time `json:"lastLogin"  gorm:"default:null"`
 
 	//* personal information
-	FirstName        string            `json:"firstName"`
-	MiddleName       *string           `json:"middleName"`
-	LastName         string            `json:"lastName"`
-	Nickname         *string           `json:"nickname"`
-	ContactInfo      *ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
-	EmergencyContact *EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
+	FirstName        string           `json:"firstName"`
+	MiddleName       string           `json:"middleName"`
+	LastName         string           `json:"lastName"`
+	Nickname         string           `json:"nickname"`
+	ContactInfo      ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
+	EmergencyContact EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
 
 	//*job information
-	Title      string `json:"title"      gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
-	Department string `json:"department" gorm:"default:null"` //! DENORMALIZED DATA WITH SYNC CALLBACK (see job.go)
-	Job        *Job   `json:"job"    gorm:"foreignKey:UserID"`
+	AssignedJob AssignedJob `json:"assignedJob" gorm:"foreignKey:UserID"`
+	// todo: decide whether to use denormalized data with synchronization callbacks
+	// Title       string       `json:"title"      gorm:"default:null"`
+	// Department  string       `json:"department" gorm:"default:null"`
 
 	//* salary information
 	SalaryID uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
