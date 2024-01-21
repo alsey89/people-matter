@@ -18,15 +18,20 @@ export const useUserStore = defineStore("user-store", {
     lastFetch: null,
   }),
   getters: {
-    //* all user data
+    //* complete data
     getCurrentUserData: (state) => state.currentUserData,
     getAllUsersData: (state) => state.allUsersData,
+    //* fields
     getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
     getCurrentUserFullName: (state) =>
       state.userData?.firstName + " " + state.currentUserData?.lastName,
     getCurrentUserUserId: (state) => state.currentUserData?.userId,
     getCurrentUserEmail: (state) => state.currentUserData?.email,
     getCurrentUserIsAdmin: (state) => state.currentUserData?.isAdmin,
+    getCurrentUserTitle: (state) =>
+      state.currentUserData?.assignedJob?.job?.title?.name,
+    getCurrentUserDepartment: (state) =>
+      state.currentUserData?.assignedJob?.job?.department?.name,
   },
   actions: {
     //! Auth API Calls

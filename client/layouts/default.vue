@@ -8,7 +8,7 @@
             <!-- Body -->
             <div class="w-full h-full flex gap-4" style="max-height: calc(100vh - 5rem)">
                 <!-- Sidebar -->
-                <div class="hidden md:block min-w-40 min-h-full md:pl-2">
+                <div class="hidden md:block min-w-48 min-h-full md:pl-2">
                     <AppSidebar />
                 </div>
                 <!-- Content -->

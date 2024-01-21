@@ -13,9 +13,9 @@ type Job struct {
 	DepartmentID uint `json:"departmentId"`
 	LocationID   uint `json:"locationId"`
 
-	Title      Title      `gorm:"foreignKey:TitleID"`      // Relationship to Title
-	Department Department `gorm:"foreignKey:DepartmentID"` // Relationship to Department
-	Location   Location   `gorm:"foreignKey:LocationID"`   // Relationship to Location
+	Title      Title      `json:"title" gorm:"foreignKey:TitleID"`           // Relationship to Title
+	Department Department `json:"department" gorm:"foreignKey:DepartmentID"` // Relationship to Department
+	Location   Location   `json:"location" gorm:"foreignKey:LocationID"`     // Relationship to Location
 
 	Duties         string `json:"duties"`
 	Qualifications string `json:"qualifications"`
@@ -32,7 +32,7 @@ type AssignedJob struct {
 	JobID  uint `json:"jobId"`  // Foreign key
 	UserID uint `json:"userId"` // Foreign key
 
-	Job Job `gorm:"foreignKey:JobID"` // Relationship to Job
+	Job Job `json:"job" gorm:"foreignKey:JobID"` // Relationship to Job
 
 	StartDate time.Time `json:"startDate"`
 	EndDate   time.Time `json:"endDate"`

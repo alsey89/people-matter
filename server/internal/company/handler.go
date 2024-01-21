@@ -66,6 +66,12 @@ func (ch *CompanyHandler) GetCompanyDataExpandDefault(c echo.Context) error {
 				Data:    nil,
 			})
 		}
+		if errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNotFound, common.APIResponse{
+				Message: "table is empty",
+				Data:    nil,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error retrieving company data",
 			Data:    nil,

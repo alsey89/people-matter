@@ -105,7 +105,7 @@ func main() {
 	companyRoutes := e.Group("api/v1/company")
 	// company
 	companyRoutes.POST("", companyHandler.CreateCompany)
-	companyRoutes.GET("", companyHandler.GetCompanyDataExpandDefault)
+	companyRoutes.GET("/default", companyHandler.GetCompanyDataExpandDefault)
 	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
 	companyRoutes.PUT("/:company_id", companyHandler.UpdateCompany)
 	companyRoutes.DELETE("/:company_id", companyHandler.DeleteCompany)

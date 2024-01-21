@@ -28,9 +28,6 @@ type Title struct {
 	CompanyID   uint   `json:"companyId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-
-	// Relationships
-	Job []Job `json:"job"`
 }
 
 type Department struct {
@@ -38,9 +35,6 @@ type Department struct {
 	CompanyID   uint   `json:"companyId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-
-	// Relationships
-	Job []Job `json:"job"`
 }
 
 type Location struct {
@@ -54,7 +48,4 @@ type Location struct {
 	State        string `json:"state"`
 	Country      string `json:"country"`
 	PostalCode   string `json:"postalCode"`
-
-	// Relationships
-	Job []Job `json:"job"`
 }

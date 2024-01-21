@@ -51,8 +51,6 @@ func (cr CompanyRepository) CompanyCreate(newCompany *schema.Company) (*schema.C
 		return nil, fmt.Errorf("company.r.company_create: %w", result.Error)
 	}
 
-	newCompany.ID = uint(result.RowsAffected)
-
 	return newCompany, nil
 }
 
@@ -133,8 +131,6 @@ func (cr CompanyRepository) DepartmentCreate(newDepartment *schema.Department) (
 		return nil, fmt.Errorf("company.r.create: %w", result.Error)
 	}
 
-	newDepartment.ID = uint(result.RowsAffected)
-
 	return newDepartment, nil
 }
 
@@ -193,8 +189,6 @@ func (cr CompanyRepository) TitleCreate(newTitle *schema.Title) (*schema.Title, 
 		return nil, fmt.Errorf("company.r.title_create: %w", result.Error)
 	}
 
-	newTitle.ID = uint(result.RowsAffected)
-
 	return newTitle, nil
 }
 
@@ -252,8 +246,6 @@ func (cr CompanyRepository) LocationCreate(newLocation *schema.Location) (*schem
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_create: %w", result.Error)
 	}
-
-	newLocation.ID = uint(result.RowsAffected)
 
 	return newLocation, nil
 }

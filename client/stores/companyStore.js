@@ -6,12 +6,12 @@ export const useCompanyStore = defineStore("company-store", {
     companyData: null,
     //* company data
     companyId: null,
-    companyName: "No Data",
+    companyName: null,
     companyLogoUrl: "defaultLogo.png",
-    companyEmail: "No Data",
-    companyAddress: "No Data",
-    companyPhone: "No Data",
-    companyWebsite: "No Data",
+    companyEmail: null,
+    companyAddress: null,
+    companyPhone: null,
+    companyWebsite: null,
     //* related data
     companyDepartments: null,
     companyTitles: null,
@@ -25,9 +25,9 @@ export const useCompanyStore = defineStore("company-store", {
     getCompanyList: (state) => state.companyList,
     getCompanyData: (state) => state.companyData,
     //* company data
+    getCompanyName: (state) => state.companyName, //persisted
+    getCompanyLogoUrl: (state) => state.companyLogoUrl, //persisted
     getCompanyId: (state) => state.companyData?.ID,
-    getCompanyName: (state) => state.companyData?.name,
-    getCompanyLogoUrl: (state) => state.companyData?.logoUrl,
     getCompanyEmail: (state) => state.companyData?.email,
     getFullAddress: (state) =>
       state.companyData?.address +
@@ -53,10 +53,11 @@ export const useCompanyStore = defineStore("company-store", {
   },
   actions: {
     //! Company API Calls
-    async fetchDefaultCompanyData() {
+    async fetchCompanyList() {},
+    async fetchCompanyListAndExpandDefault() {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/company",
+          "http://localhost:3001/api/v1/company/default",
           {
             headers: {
               "Content-Type": "application/json",
@@ -70,7 +71,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    async fetchOneCompanyData(companyId) {
+    async fetchCompanyListAndExpandById(companyId) {
       try {
         const response = await axios.get(
           `http://localhost:3001/api/v1/company/${companyId}`,
@@ -415,10 +416,17 @@ export const useCompanyStore = defineStore("company-store", {
       if (response.status >= 200 && response.status < 300) {
         this.companyList = response.data.data.companyList;
         this.companyData = response.data.data.expandedCompany;
+        this.companyId = response.data.data.expandedCompany.ID;
+        this.companyName = response.data.data.expandedCompany.name;
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;
         this.companyTitles = response.data.data.expandedCompany?.titles;
         this.companyLocations = response.data.data.expandedCompany?.locations;
+        //store active company in session
+        persistedState.sessionStorage.setItem(
+          "activeCompanyId",
+          this.companyId
+        );
         return true;
       } else {
         return false;
@@ -437,7 +445,7 @@ export const useCompanyStore = defineStore("company-store", {
             messageStore.setError("Access denied.");
             return navigateTo("/");
           case 404:
-            messageStore.setError("Data not found.");
+            messageStore.setError("No relevant data.");
             break;
           case 409:
             messageStore.setError("Data already exists.");
@@ -461,7 +469,8 @@ export const useCompanyStore = defineStore("company-store", {
       console.error(error.config);
     },
   },
-  // persist: {
-  //   storage: persistedState.sessionStorage,
-  // },
+  persist: {
+    storage: persistedState.sessionStorage,
+    paths: ["companyName", "companyLogoUrl"],
+  },
 });

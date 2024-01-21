@@ -3,13 +3,17 @@
         class="hover:bg-secondary-bg">
         Home
     </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/user" :class="{ 'border-l-2 border-l-primary': activeRoute === '/user' }"
-        class="hover:bg-secondary-bg">
-        User
-    </NBMenuItemNavigation>
     <NBMenuItemNavigation navigateTo="/company" :class="{ 'border-l-2 border-l-primary': activeRoute === '/company' }"
         class="hover:bg-secondary-bg">
         Company
+    </NBMenuItemNavigation>
+    <NBMenuItemNavigation navigateTo="/user" :class="{ 'border-l-2 border-l-primary': activeRoute === '/user' }"
+        class="hover:bg-secondary-bg">
+        Users
+    </NBMenuItemNavigation>
+    <NBMenuItemNavigation navigateTo="/job" :class="{ 'border-l-2 border-l-primary': activeRoute === '/job' }"
+        class="hover:bg-secondary-bg">
+        Jobs
     </NBMenuItemNavigation>
     <!-- <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
         class="hover:bg-secondary-bg">

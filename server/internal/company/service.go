@@ -10,8 +10,8 @@ type CompanyService struct {
 	CompanyRepository *CompanyRepository
 }
 
-func NewCompanyService(CompanyRepository *CompanyRepository) *CompanyService {
-	return &CompanyService{CompanyRepository: CompanyRepository}
+func NewCompanyService(companyRepository *CompanyRepository) *CompanyService {
+	return &CompanyService{CompanyRepository: companyRepository}
 }
 
 //! Company ------------------------------------------------------------

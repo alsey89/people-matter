@@ -285,7 +285,7 @@ const handleSelectCompany = async (company) => {
         messageStore.setError("Error selecting company")
         return
     }
-    await companyStore.fetchOneCompanyData(companyId)
+    await companyStore.fetchCompanyListAndExpandById(companyId)
     showCompanyList.value = false
     showCompanyForm.value = false
 };
@@ -610,8 +610,13 @@ definePageMeta({
     title: 'Company',
     layout: 'default',
 })
+const selectedCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
 onBeforeMount(() => {
-    companyStore.fetchDefaultCompanyData()
+    if (selectedCompanyId) {
+        companyStore.fetchCompanyListAndExpandById(selectedCompanyId)
+        return
+    }
+    companyStore.fetchCompanyListAndExpandDefault()
 })
 
 </script>
