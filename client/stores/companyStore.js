@@ -14,7 +14,6 @@ export const useCompanyStore = defineStore("company-store", {
     companyWebsite: null,
     //* related data
     companyDepartments: null,
-    companyTitles: null,
     companyLocations: null,
     //* store
     isLoading: false,
@@ -27,6 +26,7 @@ export const useCompanyStore = defineStore("company-store", {
     //* company data
     getCompanyName: (state) => state.companyName, //persisted
     getCompanyLogoUrl: (state) => state.companyLogoUrl, //persisted
+
     getCompanyId: (state) => state.companyData?.ID,
     getCompanyEmail: (state) => state.companyData?.email,
     getFullAddress: (state) =>
@@ -250,81 +250,81 @@ export const useCompanyStore = defineStore("company-store", {
       }
     },
     //! Title API Calls
-    async createTitle({ companyId, titleFormData }) {
-      const messageStore = useMessageStore();
-      try {
-        const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/title`,
-          {
-            name: titleFormData.titleName,
-            description: titleFormData.titleDescription,
-            departmentId: titleFormData.departmentId,
-            departmentName: titleFormData.departmentName,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        const isSuccess = this.handleSuccess(response);
-        if (isSuccess) {
-          messageStore.setMessage("Title created.");
-        }
-      } catch (error) {
-        this.handleError(error);
-      }
-    },
-    async updateTitle({ companyId, titleFormData }) {
-      const messageStore = useMessageStore();
-      try {
-        const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}/title/${titleFormData.titleId}`,
-          {
-            name: titleFormData.titleName,
-            description: titleFormData.titleDescription,
-            departmentId: titleFormData.departmentId,
-            departmentName: titleFormData.departmentName,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        const isSuccess = this.handleSuccess(response);
-        if (isSuccess) {
-          messageStore.setMessage("Title updated.");
-        }
-      } catch (error) {
-        this.handleError(error);
-      }
-    },
-    async deleteTitle({ companyId, titleId }) {
-      const messageStore = useMessageStore();
-      try {
-        const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}/title/${titleId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        const isSuccess = this.handleSuccess(response);
-        if (isSuccess) {
-          messageStore.setMessage("Title deleted.");
-        }
-      } catch (error) {
-        this.handleError(error);
-      }
-    },
+    // async createTitle({ companyId, titleFormData }) {
+    //   const messageStore = useMessageStore();
+    //   try {
+    //     const response = await axios.post(
+    //       `http://localhost:3001/api/v1/company/${companyId}/title`,
+    //       {
+    //         name: titleFormData.titleName,
+    //         description: titleFormData.titleDescription,
+    //         departmentId: titleFormData.departmentId,
+    //         departmentName: titleFormData.departmentName,
+    //       },
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Accept: "application/json",
+    //         },
+    //         withCredentials: true,
+    //       }
+    //     );
+    //     const isSuccess = this.handleSuccess(response);
+    //     if (isSuccess) {
+    //       messageStore.setMessage("Title created.");
+    //     }
+    //   } catch (error) {
+    //     this.handleError(error);
+    //   }
+    // },
+    // async updateTitle({ companyId, titleFormData }) {
+    //   const messageStore = useMessageStore();
+    //   try {
+    //     const response = await axios.put(
+    //       `http://localhost:3001/api/v1/company/${companyId}/title/${titleFormData.titleId}`,
+    //       {
+    //         name: titleFormData.titleName,
+    //         description: titleFormData.titleDescription,
+    //         departmentId: titleFormData.departmentId,
+    //         departmentName: titleFormData.departmentName,
+    //       },
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Accept: "application/json",
+    //         },
+    //         withCredentials: true,
+    //       }
+    //     );
+    //     const isSuccess = this.handleSuccess(response);
+    //     if (isSuccess) {
+    //       messageStore.setMessage("Title updated.");
+    //     }
+    //   } catch (error) {
+    //     this.handleError(error);
+    //   }
+    // },
+    // async deleteTitle({ companyId, titleId }) {
+    //   const messageStore = useMessageStore();
+    //   try {
+    //     const response = await axios.delete(
+    //       `http://localhost:3001/api/v1/company/${companyId}/title/${titleId}`,
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Accept: "application/json",
+    //         },
+    //         withCredentials: true,
+    //       }
+    //     );
+    //     const isSuccess = this.handleSuccess(response);
+    //     if (isSuccess) {
+    //       messageStore.setMessage("Title deleted.");
+    //     }
+    //   } catch (error) {
+    //     this.handleError(error);
+    //   }
+    // },
     //! Location API Calls
     async createLocation({ companyId, locationFormData }) {
       const messageStore = useMessageStore();
@@ -420,7 +420,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.companyName = response.data.data.expandedCompany.name;
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;
-        this.companyTitles = response.data.data.expandedCompany?.titles;
+        // this.companyTitles = response.data.data.expandedCompany?.titles;
         this.companyLocations = response.data.data.expandedCompany?.locations;
         //store active company in session
         persistedState.sessionStorage.setItem(

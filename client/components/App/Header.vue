@@ -2,11 +2,13 @@
     <div class="border-black border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-secondary-bg">
         <div class="px-2 gap-2 flex justify-between items-center p-1 md:p-2">
             <button @click="navigateTo('/company')" class="hover:text-primary">
-                <div v-if="companyStore.getCompanyName && companyStore.getCompanyLogoUrl" class="flex gap-2 font-bold">
-                    <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-6 h-6" />
-                    <div>{{ companyStore.getCompanyName }}</div>
-                </div>
-                <Icon v-else name="svg-spinners:bars-fade" class="w-12 h-6 text-primary font-bold" />
+                <ClientOnly>
+                    <div v-if="companyStore.getCompanyName && companyStore.getCompanyLogoUrl" class="flex gap-2 font-bold">
+                        <AppLogo :src="companyStore.getCompanyLogoUrl" shape="square" class="w-6 h-6" />
+                        <div>{{ companyStore.getCompanyName }}</div>
+                    </div>
+                    <Icon v-else name="svg-spinners:bars-fade" class="w-12 h-6 text-primary font-bold" />
+                </ClientOnly>
             </button>
             <NBPopover position="bottom-left">
                 <template v-slot:trigger class="w-10 h-10">

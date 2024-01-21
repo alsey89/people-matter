@@ -55,7 +55,7 @@ func GetClient() *gorm.DB {
 		&schema.ContactInfo{},
 		&schema.EmergencyContact{},
 		&schema.Company{},
-		&schema.Title{},
+		// &schema.Title{},
 		&schema.Department{},
 		&schema.Location{},
 		&schema.Job{},

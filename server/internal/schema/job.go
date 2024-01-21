@@ -9,11 +9,13 @@ import (
 type Job struct {
 	gorm.Model
 
-	TitleID      uint `json:"titleId"`
+	Title string `json:"title"`
+
+	// TitleID      uint `json:"titleId"`
 	DepartmentID uint `json:"departmentId"`
 	LocationID   uint `json:"locationId"`
 
-	Title      Title      `json:"title" gorm:"foreignKey:TitleID"`           // Relationship to Title
+	// Title      Title      `json:"title" gorm:"foreignKey:TitleID"`           // Relationship to Title
 	Department Department `json:"department" gorm:"foreignKey:DepartmentID"` // Relationship to Department
 	Location   Location   `json:"location" gorm:"foreignKey:LocationID"`     // Relationship to Location
 

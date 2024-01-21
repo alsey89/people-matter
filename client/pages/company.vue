@@ -135,58 +135,6 @@
                     </NBCard>
                 </div>
             </div>
-            <!-- !Title -->
-            <div v-auto-animate class="w-full flex flex-col gap-2">
-                <div class="flex justify-between items-center border-b-2 border-black py-2">
-                    <h1 class="text-lg font-bold"> Titles </h1>
-                    <div v-auto-animate class="flex gap-4">
-                        <!-- !toggle title actions button -->
-                        <NBButtonSquare v-if="companyStore.getCompanyTitles && companyStore.getCompanyTitles?.length > 0"
-                            @click="handleExpandTitleButtonClick" size="sm">
-                            <Icon v-if="expandTitle" name="solar:list-arrow-up-bold" class="h-6 w-6" />
-                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                        </NBButtonSquare>
-                        <!-- !add title button -->
-                        <NBButtonSquare @click="handleAddTitleButtonClick" size="sm">
-                            <Icon v-if="showTitleForm" name="material-symbols:close" class="h-6 w-6" />
-                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                        </NBButtonSquare>
-                    </div>
-                </div>
-                <!-- !title form -->
-                <div v-auto-animate>
-                    <AppCompanyTitleForm @submit="handleTitleFormSubmit" v-if="showTitleForm" :formData="titleFormData" />
-                </div>
-                <!-- !title list -->
-                <div v-if="companyStore.getCompanyTitles?.length > 0" v-for="title in companyStore.companyTitles"
-                    :key="title.ID">
-                    <NBCard v-auto-animate>
-                        <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between items-center px-2">
-                                {{ title.name }}
-                                <div v-if="expandTitle" class="flex gap-4">
-                                    <NBButtonSquare size="sm" @click.stop="handleEditTitleButtonClick(title)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                    <NBButtonSquare size="sm" @click.stop="handleDeleteTitleButtonClick(title)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                </div>
-                            </div>
-                        </NBCardHeader>
-                        <div v-if="expandTitle" class="px-2">
-                            {{ title.description }}
-                        </div>
-                    </NBCard>
-                </div>
-                <div v-else>
-                    <NBCard>
-                        <div class="flex justify-center items-center">
-                            No Data
-                        </div>
-                    </NBCard>
-                </div>
-            </div>
             <!-- !Location -->
             <div v-auto-animate class="w-full flex flex-col gap-2">
                 <div class="flex justify-between items-center border-b-2 border-black py-2">

@@ -168,51 +168,51 @@ func (cs *CompanyService) DeleteDepartmentAndReturnCompanyListAndExpandID(compan
 
 //! Title ------------------------------------------------------------
 
-func (cs *CompanyService) CreateNewTitleAndReturnCompanyListAndExpandID(companyID uint, newTitle *schema.Title) (*CompanyInterfaceData, error) {
-	newTitle.CompanyID = companyID
+// func (cs *CompanyService) CreateNewTitleAndReturnCompanyListAndExpandID(companyID uint, newTitle *schema.Title) (*CompanyInterfaceData, error) {
+// 	newTitle.CompanyID = companyID
 
-	_, err := cs.CompanyRepository.TitleCreate(newTitle)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title: %w", err)
-	}
+// 	_, err := cs.CompanyRepository.TitleCreate(newTitle)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.create_title: %w", err)
+// 	}
 
-	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title: %w", err)
-	}
+// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.create_title: %w", err)
+// 	}
 
-	return companyData, nil
-}
+// 	return companyData, nil
+// }
 
-func (cs *CompanyService) UpdateTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint, dataToUpdate *schema.Title) (*CompanyInterfaceData, error) {
-	dataToUpdate.ID = titleID
+// func (cs *CompanyService) UpdateTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint, dataToUpdate *schema.Title) (*CompanyInterfaceData, error) {
+// 	dataToUpdate.ID = titleID
 
-	_, err := cs.CompanyRepository.TitleUpdate(titleID, dataToUpdate)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.update_title: %w", err)
-	}
+// 	_, err := cs.CompanyRepository.TitleUpdate(titleID, dataToUpdate)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.update_title: %w", err)
+// 	}
 
-	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.update_title: %w", err)
-	}
+// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.update_title: %w", err)
+// 	}
 
-	return companyData, nil
-}
+// 	return companyData, nil
+// }
 
-func (cs *CompanyService) DeleteTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint) (*CompanyInterfaceData, error) {
-	err := cs.CompanyRepository.TitleDelete(titleID)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_title: %w", err)
-	}
+// func (cs *CompanyService) DeleteTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint) (*CompanyInterfaceData, error) {
+// 	err := cs.CompanyRepository.TitleDelete(titleID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.delete_title: %w", err)
+// 	}
 
-	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-	if err != nil {
-		return nil, fmt.Errorf("company.s.delete_title: %w", err)
-	}
+// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("company.s.delete_title: %w", err)
+// 	}
 
-	return companyData, nil
-}
+// 	return companyData, nil
+// }
 
 //! Location ------------------------------------------------------------
 

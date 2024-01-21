@@ -114,9 +114,9 @@ func main() {
 	companyRoutes.PUT("/:company_id/department/:department_id", companyHandler.UpdateDepartment)
 	companyRoutes.DELETE("/:company_id/department/:department_id", companyHandler.DeleteDepartment)
 	// title
-	companyRoutes.POST("/:company_id/title", companyHandler.CreateTitle)
-	companyRoutes.PUT("/:company_id/title/:title_id", companyHandler.UpdateTitle)
-	companyRoutes.DELETE("/:company_id/title/:title_id", companyHandler.DeleteTitle)
+	// companyRoutes.POST("/:company_id/title", companyHandler.CreateTitle)
+	// companyRoutes.PUT("/:company_id/title/:title_id", companyHandler.UpdateTitle)
+	// companyRoutes.DELETE("/:company_id/title/:title_id", companyHandler.DeleteTitle)
 	// location
 	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
 	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
