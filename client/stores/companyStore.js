@@ -425,7 +425,7 @@ export const useCompanyStore = defineStore("company-store", {
         //store active company in session
         persistedState.sessionStorage.setItem(
           "activeCompanyId",
-          this.companyId
+          +this.companyId
         );
         return true;
       } else {

@@ -14,6 +14,7 @@ import (
 	_ "verve-hrms/docs"
 	"verve-hrms/internal/auth"
 	"verve-hrms/internal/company"
+	"verve-hrms/internal/job"
 	"verve-hrms/internal/user"
 	"verve-hrms/setup"
 )
@@ -90,6 +91,11 @@ func main() {
 	companyService := company.NewCompanyService(companyRepository)
 	companyHandler := company.NewCompanyHandler(companyService)
 
+	//*Instantiate Job Domain
+	jobRepository := job.NewJobRepository(client)
+	jobService := job.NewJobService(jobRepository)
+	jobHandler := job.NewJobHandler(jobService)
+
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
@@ -113,14 +119,13 @@ func main() {
 	companyRoutes.POST("/:company_id/department", companyHandler.CreateDepartment)
 	companyRoutes.PUT("/:company_id/department/:department_id", companyHandler.UpdateDepartment)
 	companyRoutes.DELETE("/:company_id/department/:department_id", companyHandler.DeleteDepartment)
-	// title
-	// companyRoutes.POST("/:company_id/title", companyHandler.CreateTitle)
-	// companyRoutes.PUT("/:company_id/title/:title_id", companyHandler.UpdateTitle)
-	// companyRoutes.DELETE("/:company_id/title/:title_id", companyHandler.DeleteTitle)
 	// location
 	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
 	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
 	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)
+
+	jobRoutes := e.Group("api/v1/job")
+	jobRoutes.POST("", jobHandler.CreateJob)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

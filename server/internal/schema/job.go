@@ -9,23 +9,29 @@ import (
 type Job struct {
 	gorm.Model
 
-	Title string `json:"title"`
-
-	// TitleID      uint `json:"titleId"`
-	DepartmentID uint `json:"departmentId"`
-	LocationID   uint `json:"locationId"`
-
-	// Title      Title      `json:"title" gorm:"foreignKey:TitleID"`           // Relationship to Title
-	Department Department `json:"department" gorm:"foreignKey:DepartmentID"` // Relationship to Department
-	Location   Location   `json:"location" gorm:"foreignKey:LocationID"`     // Relationship to Location
-
+	// Basic Job Details
+	Title          string `json:"title"`
+	Description    string `json:"description"`
 	Duties         string `json:"duties"`
 	Qualifications string `json:"qualifications"`
+	Experience     string `json:"experience"`
+	MinSalary      int    `json:"minSalary"`
+	MaxSalary      int    `json:"maxSalary"`
 
-	//* hierarchical relationship
-	ManagerID    uint  `json:"managerId"`
-	Subordinates []Job `gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
+	// Foreign Keys
+	DepartmentID *uint `json:"departmentId"`
+	LocationID   *uint `json:"locationId"`
+	CompanyID    *uint `json:"companyId"`
 
+	// Associated Structs
+	Department *Department `json:"department" gorm:"foreignKey:DepartmentID"`
+	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
+
+	// Hierarchical Relationship
+	ManagerID    *uint `json:"managerId"`
+	Subordinates []Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
+
+	// Other Related Data
 	AssignedJobs []AssignedJob `json:"assignedJobs"`
 }
 
