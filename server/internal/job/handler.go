@@ -79,6 +79,12 @@ func (jh *JobHandler) GetAllJobs(c echo.Context) error {
 	jobData, err := jh.JobService.ReturnJobListForCompany(uintCompanyID)
 	if err != nil {
 		log.Printf("job.h.read_all_jobs: %v", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no job data found",
+				Data:    nil,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error reading all job data",
 			Data:    nil,
@@ -92,9 +98,8 @@ func (jh *JobHandler) GetAllJobs(c echo.Context) error {
 }
 
 func (jh *JobHandler) UpdateJob(c echo.Context) error {
-	updatedJob := new(schema.Job)
-
-	err := c.Bind(updatedJob)
+	jobToUpdate := new(schema.Job)
+	err := c.Bind(jobToUpdate)
 	if err != nil {
 		log.Printf("job.h.update_job: error binding job data: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -102,15 +107,40 @@ func (jh *JobHandler) UpdateJob(c echo.Context) error {
 			Data:    nil,
 		})
 	}
-	if updatedJob.ID == 0 {
-		log.Printf("job.h.update_job: company_id is empty")
+	if jobToUpdate == nil {
+		log.Printf("job.h.update_job: error binding job data: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "job_id is required",
+			Message: "invalid update data",
 			Data:    nil,
 		})
 	}
 
-	return nil
+	stringJobId := c.Param("job_id")
+	uintJobID, err := common.ConvertStringOfNumbersToUint(stringJobId)
+	if err != nil {
+		log.Printf("job.h.delete_job: error converting job_id to uint: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	stringCompanyId := c.Param("company_id")
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyId)
+	if err != nil {
+		log.Printf("job.h.delete_job: error converting company_id to uint: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	jobData, err := jh.JobService.UpdateJobAndReturnJobList(uintCompanyID, uintJobID, *jobToUpdate)
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "job data has been updated",
+		Data:    jobData,
+	})
 }
 
 func (jh *JobHandler) DeleteJob(c echo.Context) error {

@@ -9,12 +9,12 @@
                 <h1 class="text-lg font-bold"> Company </h1>
                 <div v-auto-animate class="flex gap-4">
                     <!-- !switch company button -->
-                    <NBButtonSquare @click="handleShowCompanyListButtonClick" size="sm">
+                    <NBButtonSquare @click="handleShowCompanyListButtonClick" size="xs">
                         <Icon v-if="showCompanyList" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                         <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                     </NBButtonSquare>
                     <!-- !add company button -->
-                    <NBButtonSquare @click="handleAddCompanyButtonClick" size="sm">
+                    <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">
                         <Icon v-if="showCompanyForm" name="material-symbols:close" class="h-6 w-6" />
                         <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                     </NBButtonSquare>
@@ -36,17 +36,17 @@
                                 </div>
                             </div>
                             <div class="flex gap-2 md:gap-4">
-                                <NBButtonSquare size="sm" @click.stop="handleSelectCompany(company)">
+                                <NBButtonSquare size="xs" @click.stop="handleSelectCompany(company)">
                                     <Icon name="material-symbols:check" class="h-6 w-6 hover:text-primary" />
                                 </NBButtonSquare>
-                                <NBButtonSquare size="sm" @click.stop="handleEditCompanyButtonClick(company)">
+                                <NBButtonSquare size="xs" @click.stop="handleEditCompanyButtonClick(company)">
                                     <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                 </NBButtonSquare>
-                                <NBButtonSquare v-if="companyStore.getCompanyList?.length > 1" size="sm"
+                                <NBButtonSquare v-if="companyStore.getCompanyList?.length > 1" size="xs"
                                     @click.stop="handleDeleteCompanyButtonClick(company)">
                                     <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                 </NBButtonSquare>
-                                <NBButtonSquare v-else size="sm"
+                                <NBButtonSquare v-else size="xs"
                                     @click.stop="messageStore.setError('Cannot delete last company!')">
                                     <Icon name="material-symbols:delete" class="h-6 w-6 text-gray-400" />
                                 </NBButtonSquare>
@@ -89,12 +89,12 @@
                         <!-- !toggle department action buttons -->
                         <NBButtonSquare
                             v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments?.length > 0"
-                            @click="handleExpandDepartmentButtonClick" size="sm">
+                            @click="handleExpandDepartmentButtonClick" size="xs">
                             <Icon v-if="expandDepartment" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                         </NBButtonSquare>
                         <!-- !add department button -->
-                        <NBButtonSquare @click="handleAddDepartmentButtonClick" size="sm">
+                        <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
                             <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
                             <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                         </NBButtonSquare>
@@ -113,10 +113,10 @@
                             <div v-auto-animate class="flex justify-between items-center px-2">
                                 <p> {{ department.name }} </p>
                                 <div v-if="expandDepartment" class="flex gap-4">
-                                    <NBButtonSquare size="sm" @click.stop="handleEditDepartmentButtonClick(department)">
+                                    <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
                                         <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
-                                    <NBButtonSquare size="sm" @click.stop="handleDeleteDepartmentButtonClick(department)">
+                                    <NBButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
                                         <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                 </div>
@@ -143,12 +143,12 @@
                         <!-- !toggle location actions button -->
                         <NBButtonSquare
                             v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations?.length > 0"
-                            @click="handleExpandLocationButtonClick" size="sm">
+                            @click="handleExpandLocationButtonClick" size="xs">
                             <Icon v-if="expandLocation" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                             <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                         </NBButtonSquare>
                         <!-- !add location button -->
-                        <NBButtonSquare @click="handleAddLocationButtonClick" size="sm">
+                        <NBButtonSquare @click="handleAddLocationButtonClick" size="xs">
                             <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
                             <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                         </NBButtonSquare>
@@ -166,10 +166,10 @@
                             <div v-auto-animate class="flex justify-between items-center px-2">
                                 <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
                                 <div v-if="expandLocation" class="flex gap-4">
-                                    <NBButtonSquare size="sm" @click.stop="handleEditLocationButtonClick(location)">
+                                    <NBButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
                                         <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
-                                    <NBButtonSquare size="sm" @click.stop="handleDeleteLocationButtonClick(location)">
+                                    <NBButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
                                         <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                                     </NBButtonSquare>
                                 </div>

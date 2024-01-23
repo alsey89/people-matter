@@ -28,7 +28,7 @@ type Job struct {
 	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
 
 	// Hierarchical Relationship
-	ManagerID    uint   `json:"managerId"`
+	ManagerID    *uint  `json:"managerId"`                                //* if not reference, will cause foreign key constraint error
 	Subordinates []*Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
 
 	// Other Related Data

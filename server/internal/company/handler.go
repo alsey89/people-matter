@@ -38,7 +38,7 @@ func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
 	if err != nil {
 		log.Printf("company.h.create_company: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "company already exists",
 				Data:    nil,
 			})
@@ -61,14 +61,14 @@ func (ch *CompanyHandler) GetCompanyDataExpandDefault(c echo.Context) error {
 	if err != nil {
 		log.Printf("company.h.get_company_data_expand_default: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
 			})
 		}
 		if errors.Is(err, ErrEmptyTable) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
-				Message: "table is empty",
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no company data",
 				Data:    nil,
 			})
 		}
@@ -100,7 +100,7 @@ func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 	if err != nil {
 		log.Printf("company.h.fetch_company_data_expand_id: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
 			})

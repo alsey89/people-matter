@@ -26,7 +26,7 @@
                 </div>
                 <div class="w-full md:w-1/4 flex justify-center">
                     <!-- todo: logo upload -->
-                    <NBButtonSquare type="button" size="sm" textSize="sm" class="w-full block md:hidden">
+                    <NBButtonSquare type="button" size="xs" textsize="xs" class="w-full block md:hidden">
                         <div class="flex justify-center items-center gap-2">
                             <Icon name="material-symbols:upload" class="h-6 w-6" />
                             Upload Photo
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="w-full flex justify-end">
-                <NBButtonSquare type="submit" size="sm" textSize="md"
+                <NBButtonSquare type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                     Submit
                 </NBButtonSquare>

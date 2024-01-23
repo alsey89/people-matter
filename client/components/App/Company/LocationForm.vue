@@ -62,7 +62,7 @@
             </div>
             <!-- Submit Button -->
             <div class="w-full">
-                <NBButtonSquare type="submit" size="sm" textSize="md"
+                <NBButtonSquare type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                     Submit
                 </NBButtonSquare>

@@ -1,7 +1,7 @@
 <template>
     <div class="relative w-full flex flex-col gap-2">
         <div class="absolute bottom-4 right-4">
-            <NBButtonSquare size="sm">
+            <NBButtonSquare size="xs">
                 <Icon name="material-symbols:add" class="h-8 w-8" />
             </NBButtonSquare>
         </div>

@@ -13,20 +13,21 @@
                     <!-- Dropdown Selector for Department -->
                     <div v-auto-animate class="w-1/2 flex flex-col gap-2">
                         <label for="department"> Department* </label>
-                        <AppDropdown :options="companyStore.getCompanyDepartments" :required="true"
-                            @selected="handleDepartmentSelection" />
+                        <AppDropdown v-model="jobFormData.departmentId" :options="companyStore.getCompanyDepartments"
+                            :required="true" @selected="handleDepartmentSelection" />
                     </div>
                     <!-- Dropdown Selector for Location -->
                     <div v-auto-animate class="w-1/2 flex flex-col gap-2">
                         <label for="location"> Location* </label>
-                        <AppDropdown :options="companyStore.getCompanyLocations" :required="true"
-                            @selected="handleLocationSelection" />
+                        <AppDropdown v-model="jobFormData.locationId" :options="companyStore.getCompanyLocations"
+                            :required="true" @selected="handleLocationSelection" />
                     </div>
                 </div>
                 <!-- Input for Manager -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="manager"> Manager </label>
-                    <AppDropdown :options="jobStore.getAllJobs" :required="false" @selected="handleManagerSelection" />
+                    <AppDropdown v-model="jobFormData.managerId" :options="jobStore.getAllJobs" :required="false"
+                        @selected="handleManagerSelection" />
                 </div>
                 <!-- Input for Salary Range -->
                 <div v-auto-animate class="flex flex-col gap-2">
@@ -87,13 +88,13 @@ const { jobFormData } = defineProps({
 });
 
 const handleDepartmentSelection = (newSelection) => {
-    jobFormData.departmentId = newSelection.ID;
+    jobFormData.departmentId = newSelection;
 };
 const handleLocationSelection = (newSelection) => {
-    jobFormData.locationId = newSelection.ID;
+    jobFormData.locationId = newSelection;
 };
 const handleManagerSelection = (newSelection) => {
-    jobFormData.managerId = newSelection.ID;
+    jobFormData.managerId = newSelection;
 };
 
 const emit = defineEmits(['submit']);

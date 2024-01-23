@@ -62,7 +62,7 @@ func (jr JobRepository) JobReadByCompany(companyID uint) ([]*schema.Job, error) 
 		return nil, fmt.Errorf("job.r.job_read_by_company: %w", result.Error)
 	}
 	if len(jobs) == 0 {
-		return nil, fmt.Errorf("job.r.job_read_by_company: %w", ErrNoRowsFound)
+		return nil, fmt.Errorf("job.r.job_read_by_company: %w", gorm.ErrRecordNotFound)
 	}
 
 	return jobs, nil
@@ -113,7 +113,23 @@ func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Job, error) {
 func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) error {
 	var job *schema.Job
 
-	result := jr.client.Model(&job).Where("ID = ?", jobID).Updates(updateData)
+	//*convert updateData to map[string]interface{}
+
+	updateDataMap := make(map[string]interface{})
+	updateDataMap["Title"] = updateData.Title
+	updateDataMap["Description"] = updateData.Description
+	updateDataMap["Duties"] = updateData.Duties
+	updateDataMap["Qualifications"] = updateData.Qualifications
+	updateDataMap["Experience"] = updateData.Experience
+	updateDataMap["MinSalary"] = updateData.MinSalary
+	updateDataMap["MaxSalary"] = updateData.MaxSalary
+	updateDataMap["DepartmentID"] = updateData.DepartmentID
+	updateDataMap["LocationID"] = updateData.LocationID
+	updateDataMap["CompanyID"] = updateData.CompanyID
+	updateDataMap["ManagerID"] = updateData.ManagerID
+
+	//*Updates only updates non-zero values, need to select nil values explicitly
+	result := jr.client.Model(&job).Where("ID = ?", jobID).Updates(updateDataMap)
 	if result.Error != nil {
 		return fmt.Errorf("company.r.company_update: %w", result.Error)
 	}

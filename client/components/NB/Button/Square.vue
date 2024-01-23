@@ -1,6 +1,6 @@
 <template>
     <button
-        :class="`py-${height} text-${textSize} font-bold border-black border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none rounded-sm`">
+        :class="`py-${height} text-${textSize} border-black border-2 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none rounded-sm`">
         <slot></slot>
     </button>
 </template>
@@ -10,16 +10,18 @@
 const { size, textSize } = defineProps({
     size: {
         type: String,
-        default: "md",
+        default: "xs",
     },
     textSize: {
         type: String,
-        default: "md",
+        default: "",
     },
 });
 
 const height = computed(() => {
     switch (size) {
+        case "xs":
+            return 0.5;
         case "sm":
             return 1;
         case "md":
