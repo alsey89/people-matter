@@ -10,36 +10,40 @@ export const useJobStore = defineStore("job-store", {
   },
   actions: {
     //! Job API Calls
-    async fetchJobList() {
+    async fetchJobList({ companyId }) {
       try {
-        const response = await axios.get("http://localhost:3001/api/v1/job", {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `http://localhost:3001/api/v1/job/company/${companyId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
         this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
       }
     },
-    async createJob({ jobFormData }) {
+    async createJob({ companyId, jobFormData }) {
       const messageStore = useMessageStore();
       try {
         const response = await axios.post(
-          "http://localhost:3001/api/v1/job",
+          `http://localhost:3001/api/v1/job/company/${companyId}`,
           {
             companyId: jobFormData.companyId,
-            name: jobFormData.jobName,
+            title: jobFormData.title,
             departmentId: jobFormData.departmentId,
             locationId: jobFormData.locationId,
             managerId: jobFormData.managerId,
             MinSalary: jobFormData.minSalary,
             MaxSalary: jobFormData.maxSalary,
-            description: jobFormData.jobDescription,
-            duties: jobFormData.jobDuties,
-            qualifications: jobFormData.jobQualifications,
+            description: jobFormData.description,
+            duties: jobFormData.duties,
+            qualifications: jobFormData.qualifications,
+            experience: jobFormData.experience,
           },
           {
             headers: {
@@ -52,6 +56,61 @@ export const useJobStore = defineStore("job-store", {
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
           messageStore.setMessage("Job created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateJob({ companyId, jobId, jobFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/job/company/${companyId}/${jobId}`,
+          {
+            companyId: jobFormData.companyId,
+            title: jobFormData.title,
+            departmentId: jobFormData.departmentId,
+            locationId: jobFormData.locationId,
+            managerId: jobFormData.managerId,
+            MinSalary: jobFormData.minSalary,
+            MaxSalary: jobFormData.maxSalary,
+            description: jobFormData.description,
+            duties: jobFormData.duties,
+            qualifications: jobFormData.qualifications,
+            experience: jobFormData.experience,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Job updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteJob({ companyId, jobId }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/job/company/${companyId}/${jobId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Job deleted.");
         }
       } catch (error) {
         this.handleError(error);

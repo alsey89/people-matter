@@ -19,20 +19,20 @@ type Job struct {
 	MaxSalary      int    `json:"maxSalary"`
 
 	// Foreign Keys
-	DepartmentID *uint `json:"departmentId"`
-	LocationID   *uint `json:"locationId"`
-	CompanyID    *uint `json:"companyId"`
+	DepartmentID uint `json:"departmentId"`
+	LocationID   uint `json:"locationId"`
+	CompanyID    uint `json:"companyId"`
 
 	// Associated Structs
 	Department *Department `json:"department" gorm:"foreignKey:DepartmentID"`
 	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
 
 	// Hierarchical Relationship
-	ManagerID    *uint `json:"managerId"`
-	Subordinates []Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
+	ManagerID    uint   `json:"managerId"`
+	Subordinates []*Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
 
 	// Other Related Data
-	AssignedJobs []AssignedJob `json:"assignedJobs"`
+	AssignedJobs []*AssignedJob `json:"assignedJobs"`
 }
 
 type AssignedJob struct {

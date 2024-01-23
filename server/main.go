@@ -125,7 +125,11 @@ func main() {
 	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)
 
 	jobRoutes := e.Group("api/v1/job")
-	jobRoutes.POST("", jobHandler.CreateJob)
+	// by company
+	jobRoutes.GET("/company/:company_id", jobHandler.GetAllJobs)
+	jobRoutes.POST("/company/:company_id", jobHandler.CreateJob)
+	jobRoutes.PUT("/company/:company_id/:job_id", jobHandler.UpdateJob)
+	jobRoutes.DELETE("/company/:company_id/:job_id", jobHandler.DeleteJob)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

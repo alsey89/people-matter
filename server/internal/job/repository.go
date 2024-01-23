@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"log"
 	"verve-hrms/internal/schema"
 
 	"gorm.io/gorm"
@@ -21,6 +22,8 @@ func NewJobRepository(client *gorm.DB) *JobRepository {
 //! Job     ------------------------------------------------------
 
 func (jr JobRepository) JobCreate(newJob *schema.Job) (*schema.Job, error) {
+	log.Printf("job.r.job_create: newJob: %v", newJob)
+
 	result := jr.client.Create(newJob)
 	if result.Error != nil {
 		return nil, fmt.Errorf("job.r.job_create: %w", result.Error)
@@ -29,10 +32,10 @@ func (jr JobRepository) JobCreate(newJob *schema.Job) (*schema.Job, error) {
 	return newJob, nil
 }
 
-func (jr JobRepository) JobRead(JobID uint) (*schema.Job, error) {
+func (jr JobRepository) JobRead(jobID uint) (*schema.Job, error) {
 	var job schema.Job
 
-	result := jr.client.First(&job, JobID)
+	result := jr.client.First(&job, jobID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("job.r.job_read: %w", result.Error)
 	}
@@ -40,15 +43,43 @@ func (jr JobRepository) JobRead(JobID uint) (*schema.Job, error) {
 	return &job, nil
 }
 
-func (jr JobRepository) ReadAndExpand(JobID uint) (*schema.Job, error) {
+func (jr JobRepository) JobReadAndExpand(jobID uint) (*schema.Job, error) {
 	var job schema.Job
 
-	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").First(&job, JobID)
+	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").First(&job, jobID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("job.r.job_read_and_expand: %w", result.Error)
 	}
 
 	return &job, nil
+}
+
+func (jr JobRepository) JobReadByCompany(companyID uint) ([]*schema.Job, error) {
+	var jobs []*schema.Job
+
+	result := jr.client.Where("company_id = ?", companyID).Find(&jobs)
+	if result.Error != nil {
+		return nil, fmt.Errorf("job.r.job_read_by_company: %w", result.Error)
+	}
+	if len(jobs) == 0 {
+		return nil, fmt.Errorf("job.r.job_read_by_company: %w", ErrNoRowsFound)
+	}
+
+	return jobs, nil
+}
+
+func (jr JobRepository) JobReadByCompanyAndExpand(companyID uint) ([]*schema.Job, error) {
+	var jobs []*schema.Job
+
+	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").Where("company_id = ?", companyID).Find(&jobs)
+	if result.Error != nil {
+		return nil, fmt.Errorf("job.r.job_read_by_company_and_expand: %w", result.Error)
+	}
+	if len(jobs) == 0 {
+		return nil, fmt.Errorf("job.r.job_read_by_company_and_expand: %w", ErrNoRowsFound)
+	}
+
+	return jobs, nil
 }
 
 func (jr JobRepository) JobReadAll() ([]*schema.Job, error) {
@@ -79,21 +110,26 @@ func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Job, error) {
 	return jobs, nil
 }
 
-func (jr JobRepository) JobUpdate(JobID uint, updateData *schema.Job) (*schema.Job, error) {
+func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) error {
 	var job *schema.Job
 
-	result := jr.client.Find(&job)
+	result := jr.client.Model(&job).Where("ID = ?", jobID).Updates(updateData)
 	if result.Error != nil {
-		return nil, fmt.Errorf("job.r.job_update: %w", result.Error)
+		return fmt.Errorf("company.r.company_update: %w", result.Error)
 	}
 
-	return job, nil
+	// Check if any row was affected, if not, the job does not exist.
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("company.r.company_update: %w", gorm.ErrRecordNotFound)
+	}
+
+	return nil
 }
 
-func (jr JobRepository) JobDelete(JobID uint) error {
+func (jr JobRepository) JobDelete(jobID uint) error {
 	var job *schema.Job
 
-	result := jr.client.Delete(&job, JobID)
+	result := jr.client.Delete(&job, jobID)
 	if result.Error != nil {
 		return fmt.Errorf("job.r.job_delete: %w", result.Error)
 	}
@@ -112,10 +148,10 @@ func (jr JobRepository) AssignedJobCreate(newAssignedJob *schema.AssignedJob) (*
 	return newAssignedJob, nil
 }
 
-func (jr JobRepository) AssignedJobRead(AssignedJobID uint) (*schema.AssignedJob, error) {
+func (jr JobRepository) AssignedJobRead(assignedJobID uint) (*schema.AssignedJob, error) {
 	var assignedJob schema.AssignedJob
 
-	result := jr.client.First(&assignedJob, AssignedJobID)
+	result := jr.client.First(&assignedJob, assignedJobID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("job.r.assigned_job_read: %w", result.Error)
 	}
@@ -137,15 +173,20 @@ func (jr JobRepository) AssignedJobReadAll() ([]*schema.AssignedJob, error) {
 	return assignedJobs, nil
 }
 
-func (jr JobRepository) AssignedJobUpdate(AssignedJobID uint, updateData *schema.AssignedJob) (*schema.AssignedJob, error) {
+func (jr JobRepository) AssignedJobUpdate(assignedJobID uint, updateData *schema.AssignedJob) error {
 	var assignedJob *schema.AssignedJob
 
-	result := jr.client.Find(&assignedJob)
+	result := jr.client.Model(&assignedJob).Where("ID = ?", assignedJobID).Updates(updateData)
 	if result.Error != nil {
-		return nil, fmt.Errorf("job.r.assigned_job_update: %w", result.Error)
+		return fmt.Errorf("job.r.assigned_job_update: %w", result.Error)
 	}
 
-	return assignedJob, nil
+	// Check if any row was affected, if not, the assignedJob does not exist.
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("job.r.assigned_job_update: %w", gorm.ErrRecordNotFound)
+	}
+
+	return nil
 }
 
 func (jr JobRepository) AssignedJobDelete(AssignedJobID uint) error {
