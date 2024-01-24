@@ -549,7 +549,6 @@ const closeAllForms = () => {
     showCompanyList.value = false
     showDepartmentForm.value = false
     expandDepartment.value = false
-    showTitleForm.value = false
     showLocationForm.value = false
 }
 

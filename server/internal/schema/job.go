@@ -28,7 +28,7 @@ type Job struct {
 	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
 
 	// Hierarchical Relationship
-	ManagerID    *uint  `json:"managerId"`                                //* if not reference, will cause foreign key constraint error
+	ManagerID    *uint  `json:"managerId"`                                //* if not reference, will cause foreign key constraint error when null
 	Subordinates []*Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
 
 	// Other Related Data
@@ -40,8 +40,9 @@ type AssignedJob struct {
 	JobID  uint `json:"jobId"`  // Foreign key
 	UserID uint `json:"userId"` // Foreign key
 
-	Job Job `json:"job" gorm:"foreignKey:JobID"` // Relationship to Job
+	Job Job `json:"job" gorm:"foreignKey:JobID"`
 
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
+	IsActive  bool       `json:"isActive"`
+	StartDate time.Time  `json:"startDate"`
+	EndDate   *time.Time `json:"endDate"`
 }

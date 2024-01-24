@@ -12,10 +12,10 @@ type User struct {
 	gorm.Model            // This includes fields ID, CreatedAt, UpdatedAt, DeletedAt
 	Email      string     `json:"email"      gorm:"uniqueIndex"`
 	Password   string     `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
-	IsAdmin    bool       `json:"isAdmin"    gorm:"default:false"`
 	AvatarURL  *string    `json:"avatarUrl"  gorm:"type:text"`
+	IsAdmin    bool       `json:"isAdmin"    gorm:"default:false"`
+	IsEmployee bool       `json:"isEmployee" gorm:"default:false"`
 	IsActive   bool       `json:"isActive"   gorm:"default:true"`
-	IsVerified bool       `json:"isVerified" gorm:"default:false"`
 	LastLogin  *time.Time `json:"lastLogin"  gorm:"default:null"`
 
 	//* personal information
@@ -28,17 +28,14 @@ type User struct {
 
 	//*job information
 	AssignedJob AssignedJob `json:"assignedJob" gorm:"foreignKey:UserID"`
-	// todo: decide whether to use denormalized data with synchronization callbacks
-	// Title       string       `json:"title"      gorm:"default:null"`
-	// Department  string       `json:"department" gorm:"default:null"`
 
 	//* salary information
 	SalaryID uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
 	Payments []Payment `json:"Payments" gorm:"foreignKey:UserID"`
 
-	//* leave & attendance
-	Leave      []Leave      `json:"leave"`
-	Attendance []Attendance `json:"attendance"`
+	//* leave & attendance ?? not sure if we need this
+	// Leave      []Leave      `json:"leave"`
+	// Attendance []Attendance `json:"attendance"`
 }
 
 type ContactInfo struct {

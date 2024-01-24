@@ -8,25 +8,27 @@ import (
 
 type Salary struct {
 	gorm.Model
-	UserID        uint      `json:"userId"` // Foreign key for User
-	Amount        float64   `json:"amount"`
-	Currency      string    `json:"currency"`
-	EffectiveDate time.Time `json:"effectiveDate"` // Date from which the current salary is effective
+	UserID          uint      `json:"userId"`
+	Amount          float64   `json:"amount"`
+	Currency        string    `json:"currency"`
+	PaymentInterval string    `json:"paymentInterval"`
+	EffectiveDate   time.Time `json:"effectiveDate"`
+	IsActive        bool      `json:"isActive"`
 }
 
 type Payment struct {
 	gorm.Model
-	UserID        uint      `json:"userId"`        // Foreign key for User
-	SalaryID      uint      `json:"salaryId"`      // Foreign key for Salary
-	PaymentDate   string    `json:"paymentDate"`   // Date of payment
-	Amount        float64   `json:"amount"`        // Total amount paid
-	PaymentMethod string    `json:"paymentMethod"` // Method of payment
-	Status        string    `json:"status"`        // Payment status (e.g., Completed, Pending)
-	PeriodStart   time.Time `json:"periodStart"`   // Start of the pay period
-	PeriodEnd     time.Time `json:"periodEnd"`     // End of the pay period
-	Deductions    float64   `json:"deductions"`    // Deductions, if any
-	Bonuses       float64   `json:"bonuses"`       // Bonuses, if any
-	Notes         string    `json:"notes"`         // Additional notes
+	UserID        uint      `json:"userId"`
+	SalaryID      uint      `json:"salaryId"`
+	PaymentDate   string    `json:"paymentDate"`
+	Amount        float64   `json:"amount"`
+	PaymentMethod string    `json:"paymentMethod"`
+	Status        string    `json:"status"`
+	PeriodStart   time.Time `json:"periodStart"`
+	PeriodEnd     time.Time `json:"periodEnd"`
+	Deductions    float64   `json:"deductions"`
+	Bonuses       float64   `json:"bonuses"`
+	Notes         string    `json:"notes"`
 }
 
 func (salary *Salary) AfterCreate(tx *gorm.DB) (err error) {

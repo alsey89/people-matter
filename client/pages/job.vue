@@ -66,13 +66,11 @@
                                 <MDRender :content="job.experience" />
                             </p>
                         </div>
-                        <!-- Repeat the structure for other fields like departmentId, locationId, etc. -->
                     </div>
                     <div class="mt-4">
                         <p class="font-semibold">Salary Range:</p>
                         <p>{{ job.minSalary }} - {{ job.maxSalary }}</p>
                     </div>
-
                 </div>
             </NBCard>
         </div>
@@ -90,7 +88,14 @@
 const jobStore = useJobStore();
 const messageStore = useMessageStore();
 const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId');
-
+//expand
+const expandJob = ref(false);
+const handleExpandJobButtonClick = () => {
+    showJobForm.value = false;
+    expandJob.value = !expandJob.value;
+};
+// add/edit
+const showJobForm = ref(false);
 const jobFormData = reactive({
     formType: "",
     jobId: null,
@@ -107,22 +112,17 @@ const jobFormData = reactive({
     minSalary: null,
     maxSalary: null,
 });
-
-const showConfirmationModal = ref(false);
-const confirmationModalMessage = ref(null);
-
-const showJobForm = ref(false);
-const expandJob = ref(false);
 const handleAddJobButtonClick = () => {
     clearJobFormData();
     jobFormData.formType = "add";
     showJobForm.value = !showJobForm.value;
 };
-const handleExpandJobButtonClick = () => {
-    showJobForm.value = false;
-    expandJob.value = !expandJob.value;
-};
 const handleEditJobButtonClick = (job) => {
+    scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+    })
     populateJobFormData(job)
     showJobForm.value = !showJobForm.value;
 };
@@ -153,7 +153,18 @@ const clearJobFormData = () => {
     jobFormData.minSalary = null;
     jobFormData.maxSalary = null;
 };
+const handleFormSubmit = () => {
+    if (jobFormData.formType == "add") {
+        jobStore.createJob({ companyId: activeCompanyId, jobFormData: jobFormData });
+    } else if (jobFormData.formType == "edit") {
+        jobStore.updateJob({ companyId: activeCompanyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
+    }
 
+    showJobForm.value = false;
+};
+// delete
+const showConfirmationModal = ref(false);
+const confirmationModalMessage = ref(null);
 const handleModalConfirmEvent = ref(() => { });
 const handleModalCancelEvent = () => {
     showConfirmationModal.value = false;
@@ -180,17 +191,7 @@ const handleDeleteJobButtonClick = (job) => {
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
-
-const handleFormSubmit = () => {
-    if (jobFormData.formType == "add") {
-        jobStore.createJob({ companyId: activeCompanyId, jobFormData: jobFormData });
-    } else if (jobFormData.formType == "edit") {
-        jobStore.updateJob({ companyId: activeCompanyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
-    }
-
-    showJobForm.value = false;
-};
-
+// life cycle functions
 onBeforeMount(() => {
     jobStore.fetchJobList({ companyId: activeCompanyId });
 });
