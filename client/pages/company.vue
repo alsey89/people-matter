@@ -1,10 +1,19 @@
 <template>
     <div v-auto-animate class="w-full h-full flex flex-col gap-4">
+        <!-- !Tab Navigation -->
+        <div v-auto-animate class="flex justify-start gap-0.5 items-center">
+            <div v-for="tab in ['Company', 'Departments', 'Locations']" :key="tab" :class="getTabClasses(tab)"
+                class="text-lg font-bold px-2 pt-1 rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]"
+                @click="setActiveTab(tab)">
+                {{ tab }}
+            </div>
+            <div class="mt-auto flex-grow border-b-2 border-black"></div>
+        </div>
         <!-- !Confirmation Modal -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full max-h-32" />
         <!-- !Company -->
-        <div class="w-full flex flex-col gap-2">
+        <div v-if="activeTab == 'Company'" v-auto-animate class="w-full flex flex-col gap-4">
             <div class="flex justify-between items-center border-b-2 border-black py-2">
                 <h1 class="text-lg font-bold"> Company </h1>
                 <div v-auto-animate class="flex gap-4">
@@ -80,116 +89,114 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col gap-4 pb-2">
-            <!-- !Department -->
-            <div v-auto-animate class="w-full flex flex-col gap-2">
-                <div class="flex justify-between border-b-2 border-black py-2">
-                    <div class=" items-center  text-lg font-bold"> Departments </div>
-                    <div v-auto-animate class="flex gap-4">
-                        <!-- !toggle department action buttons -->
-                        <NBButtonSquare
-                            v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments?.length > 0"
-                            @click="handleExpandDepartmentButtonClick" size="xs">
-                            <Icon v-if="expandDepartment" name="solar:list-arrow-up-bold" class="h-6 w-6" />
-                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                        </NBButtonSquare>
-                        <!-- !add department button -->
-                        <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
-                            <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
-                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                        </NBButtonSquare>
-                    </div>
-                </div>
-                <!-- !department form -->
-                <div v-auto-animate>
-                    <AppCompanyDepartmentForm @submit="handleDepartmentFormSubmit" v-if="showDepartmentForm"
-                        :formData="departmentFormData" />
-                </div>
-                <!-- !department list -->
-                <div v-if="companyStore.getCompanyDepartments?.length > 0"
-                    v-for="department in companyStore.companyDepartments" :key="department.ID">
-                    <NBCard v-auto-animate>
-                        <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between items-center px-2">
-                                <p> {{ department.name }} </p>
-                                <div v-if="expandDepartment" class="flex gap-4">
-                                    <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                    <NBButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                </div>
-                            </div>
-                        </NBCardHeader>
-                        <div v-if="expandDepartment" class="px-2">
-                            {{ department.description }}
-                        </div>
-                    </NBCard>
-                </div>
-                <div v-else>
-                    <NBCard>
-                        <div class="flex justify-center items-center">
-                            No Data
-                        </div>
-                    </NBCard>
+
+        <!-- !Department -->
+        <div v-if="activeTab == 'Departments'" v-auto-animate class="w-full flex flex-col gap-2">
+            <div class="flex justify-between border-b-2 border-black py-2">
+                <div class=" items-center  text-lg font-bold"> Departments </div>
+                <div v-auto-animate class="flex gap-4">
+                    <!-- !toggle department action buttons -->
+                    <NBButtonSquare
+                        v-if="companyStore.getCompanyDepartments && companyStore.getCompanyDepartments?.length > 0"
+                        @click="handleExpandDepartmentButtonClick" size="xs">
+                        <Icon v-if="expandDepartment" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                        <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                    </NBButtonSquare>
+                    <!-- !add department button -->
+                    <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
+                        <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
+                        <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+                    </NBButtonSquare>
                 </div>
             </div>
-            <!-- !Location -->
-            <div v-auto-animate class="w-full flex flex-col gap-2">
-                <div class="flex justify-between items-center border-b-2 border-black py-2">
-                    <h1 class="text-lg font-bold"> Locations </h1>
-                    <div v-auto-animate class="flex gap-4">
-                        <!-- !toggle location actions button -->
-                        <NBButtonSquare
-                            v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations?.length > 0"
-                            @click="handleExpandLocationButtonClick" size="xs">
-                            <Icon v-if="expandLocation" name="solar:list-arrow-up-bold" class="h-6 w-6" />
-                            <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                        </NBButtonSquare>
-                        <!-- !add location button -->
-                        <NBButtonSquare @click="handleAddLocationButtonClick" size="xs">
-                            <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
-                            <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                        </NBButtonSquare>
-                    </div>
-                </div>
-                <!-- !location form -->
-                <div v-if="showLocationForm">
-                    <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
-                </div>
-                <!-- !location list -->
-                <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
-                    :key="location.ID">
-                    <NBCard v-auto-animate>
-                        <NBCardHeader>
-                            <div v-auto-animate class="flex justify-between items-center px-2">
-                                <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
-                                <div v-if="expandLocation" class="flex gap-4">
-                                    <NBButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
-                                        <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                    <NBButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
-                                        <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                                    </NBButtonSquare>
-                                </div>
+            <!-- !department form -->
+            <div v-auto-animate>
+                <AppCompanyDepartmentForm @submit="handleDepartmentFormSubmit" v-if="showDepartmentForm"
+                    :formData="departmentFormData" />
+            </div>
+            <!-- !department list -->
+            <div v-if="companyStore.getCompanyDepartments?.length > 0" v-for="department in companyStore.companyDepartments"
+                :key="department.ID">
+                <NBCard v-auto-animate>
+                    <NBCardHeader>
+                        <div v-auto-animate class="flex justify-between items-center px-2">
+                            <p> {{ department.name }} </p>
+                            <div v-if="expandDepartment" class="flex gap-4">
+                                <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
+                                    <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
+                                </NBButtonSquare>
+                                <NBButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
+                                    <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
+                                </NBButtonSquare>
                             </div>
-                        </NBCardHeader>
-                        <div v-if="expandLocation" class="px-2">
-                            <p>Phone: {{ location.phone || "No number listed" }}</p>
-                            <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
-                                location.country }} {{
+                        </div>
+                    </NBCardHeader>
+                    <div v-if="expandDepartment" class="px-2">
+                        {{ department.description }}
+                    </div>
+                </NBCard>
+            </div>
+            <div v-else>
+                <NBCard>
+                    <div class="flex justify-center items-center">
+                        No Data
+                    </div>
+                </NBCard>
+            </div>
+        </div>
+        <!-- !Location -->
+        <div v-if="activeTab == 'Locations'" v-auto-animate class="w-full flex flex-col gap-2">
+            <div class="flex justify-between items-center border-b-2 border-black py-2">
+                <h1 class="text-lg font-bold"> Locations </h1>
+                <div v-auto-animate class="flex gap-4">
+                    <!-- !toggle location actions button -->
+                    <NBButtonSquare v-if="companyStore.getCompanyLocations && companyStore.getCompanyLocations?.length > 0"
+                        @click="handleExpandLocationButtonClick" size="xs">
+                        <Icon v-if="expandLocation" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                        <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                    </NBButtonSquare>
+                    <!-- !add location button -->
+                    <NBButtonSquare @click="handleAddLocationButtonClick" size="xs">
+                        <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
+                        <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+                    </NBButtonSquare>
+                </div>
+            </div>
+            <!-- !location form -->
+            <div v-if="showLocationForm">
+                <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
+            </div>
+            <!-- !location list -->
+            <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
+                :key="location.ID">
+                <NBCard v-auto-animate>
+                    <NBCardHeader>
+                        <div v-auto-animate class="flex justify-between items-center px-2">
+                            <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
+                            <div v-if="expandLocation" class="flex gap-4">
+                                <NBButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
+                                    <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
+                                </NBButtonSquare>
+                                <NBButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
+                                    <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
+                                </NBButtonSquare>
+                            </div>
+                        </div>
+                    </NBCardHeader>
+                    <div v-if="expandLocation" class="px-2">
+                        <p>Phone: {{ location.phone || "No number listed" }}</p>
+                        <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
+                            location.country }} {{
         location.postalCode }}</p>
-                        </div>
-                    </NBCard>
-                </div>
-                <div v-else>
-                    <NBCard>
-                        <div class="flex justify-center items-center">
-                            No Data
-                        </div>
-                    </NBCard>
-                </div>
+                    </div>
+                </NBCard>
+            </div>
+            <div v-else>
+                <NBCard>
+                    <div class="flex justify-center items-center">
+                        No Data
+                    </div>
+                </NBCard>
             </div>
         </div>
     </div>
@@ -198,6 +205,18 @@
 <script setup>
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
+
+// Tabs
+const activeTab = ref('Company');
+const setActiveTab = (tabName) => {
+    activeTab.value = tabName;
+};
+const getTabClasses = (tabName) => {
+    return {
+        'text-primary border-l border-t border-r border-black': activeTab.value === tabName,
+        'text-gray-500 border-gray-500 border-l border-t border-r border-b': activeTab.value !== tabName,
+    };
+};
 
 //! Company -----------------------------
 const showCompanyForm = ref(false)
