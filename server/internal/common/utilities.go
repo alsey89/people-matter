@@ -25,6 +25,9 @@ func FormatTime(t time.Time) string {
 
 // take string of numbers and convert to uint
 func ConvertStringOfNumbersToUint(str string) (uint, error) {
+	if str == "" {
+		return 0, fmt.Errorf("common.convert_string_of_numbers_to_uint: string is empty")
+	}
 	num, err := strconv.ParseUint(str, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("common.convert_string_of_numbers_to_uint: %w", err)

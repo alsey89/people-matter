@@ -86,6 +86,13 @@ func (ch *CompanyHandler) GetCompanyDataExpandDefault(c echo.Context) error {
 
 func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.get_company_data_expand_id: empty company id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
 
 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
@@ -119,6 +126,13 @@ func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 
 func (ch *CompanyHandler) UpdateCompany(c echo.Context) error {
 	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.update_company: empty company id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
 
 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
@@ -163,6 +177,13 @@ func (ch *CompanyHandler) UpdateCompany(c echo.Context) error {
 
 func (ch *CompanyHandler) DeleteCompany(c echo.Context) error {
 	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.delete_company: empty company id parameterparameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
 
 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
@@ -372,185 +393,6 @@ func (ch *CompanyHandler) DeleteDepartment(c echo.Context) error {
 		Data:    companyData,
 	})
 }
-
-//! Title ------------------------------------------------------------
-
-// func (ch *CompanyHandler) CreateTitle(c echo.Context) error {
-// 	stringCompanyID := c.Param("company_id")
-// 	if stringCompanyID == "" {
-// 		log.Printf("company.h.create_title: empty company id parameter")
-// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-// 			Message: "no company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-// 	if err != nil {
-// 		log.Printf("company.h.create_title: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error parsing company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	newTitle := new(schema.Title)
-
-// 	err = c.Bind(newTitle)
-// 	if err != nil {
-// 		log.Printf("company.h.create_title: error binding title data: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "something went wrong",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyData, err := ch.companyService.CreateNewTitleAndReturnCompanyListAndExpandID(companyID, newTitle)
-// 	if err != nil {
-// 		log.Printf("company.h.create_title: %v", err)
-// 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-// 			return c.JSON(http.StatusConflict, common.APIResponse{
-// 				Message: "title already exists",
-// 				Data:    nil,
-// 			})
-// 		}
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error creating title data",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	return c.JSON(http.StatusOK, common.APIResponse{
-// 		Message: "title data has been created",
-// 		Data:    companyData,
-// 	})
-// }
-
-// func (ch *CompanyHandler) UpdateTitle(c echo.Context) error {
-// 	stringCompanyID := c.Param("company_id")
-// 	if stringCompanyID == "" {
-// 		log.Printf("company.h.update_title: empty company id parameter")
-// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-// 			Message: "no company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-// 	if err != nil {
-// 		log.Printf("company.h.update_title: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error parsing company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	stringTitleID := c.Param("title_id")
-// 	if stringTitleID == "" {
-// 		log.Printf("company.h.update_title: empty title id parameter")
-// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-// 			Message: "no title id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	titleID, err := common.ConvertStringOfNumbersToUint(stringTitleID)
-// 	if err != nil {
-// 		log.Printf("company.h.update_title: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error parsing title id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	dataToUpdate := new(schema.Title)
-// 	err = c.Bind(dataToUpdate)
-// 	if err != nil {
-// 		log.Printf("company.h.update_title: error binding title data: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "something went wrong",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyData, err := ch.companyService.UpdateTitleAndReturnCompanyListAndExpandID(companyID, titleID, dataToUpdate)
-// 	if err != nil {
-// 		log.Printf("company.h.update_title: %v", err)
-// 		if errors.Is(err, gorm.ErrRecordNotFound) {
-// 			return c.JSON(http.StatusNotFound, common.APIResponse{
-// 				Message: "no title data",
-// 				Data:    nil,
-// 			})
-// 		}
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error updating title data",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	return c.JSON(http.StatusOK, common.APIResponse{
-// 		Message: "title data has been updated",
-// 		Data:    companyData,
-// 	})
-// }
-
-// func (ch *CompanyHandler) DeleteTitle(c echo.Context) error {
-// 	stringCompanyID := c.Param("company_id")
-// 	if stringCompanyID == "" {
-// 		log.Printf("company.h.delete_title: empty company id parameter")
-// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-// 			Message: "no company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-// 	if err != nil {
-// 		log.Printf("company.h.delete_title: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error parsing company id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	stringTitleID := c.Param("title_id")
-// 	if stringTitleID == "" {
-// 		log.Printf("company.h.delete_title: empty title id parameter")
-// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-// 			Message: "no title id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	titleID, err := common.ConvertStringOfNumbersToUint(stringTitleID)
-// 	if err != nil {
-// 		log.Printf("company.h.update_title: %v", err)
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error parsing title id",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	companyData, err := ch.companyService.DeleteTitleAndReturnCompanyListAndExpandID(companyID, titleID)
-// 	if err != nil {
-// 		log.Printf("company.h.delete_title: %v", err)
-// 		if errors.Is(err, gorm.ErrRecordNotFound) {
-// 			return c.JSON(http.StatusNotFound, common.APIResponse{
-// 				Message: "no title data",
-// 				Data:    nil,
-// 			})
-// 		}
-// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-// 			Message: "error deleting title",
-// 			Data:    nil,
-// 		})
-// 	}
-
-// 	return c.JSON(http.StatusOK, common.APIResponse{
-// 		Message: "title has been deleted",
-// 		Data:    companyData,
-// 	})
-// }
 
 //! Location ------------------------------------------------------------
 

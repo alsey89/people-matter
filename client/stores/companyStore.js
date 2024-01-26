@@ -413,6 +413,13 @@ export const useCompanyStore = defineStore("company-store", {
     },
     //! Common
     handleSuccess(response) {
+      const messageStore = useMessageStore();
+      if (response.status === 204) {
+        sessionStorage.removeItem("activeCompanyId");
+        this.state = this.$reset();
+        messageStore.setMessage("No content.");
+        return false;
+      }
       if (response.status >= 200 && response.status < 300) {
         this.companyList = response.data.data.companyList;
         this.companyData = response.data.data.expandedCompany;
@@ -420,13 +427,25 @@ export const useCompanyStore = defineStore("company-store", {
         this.companyName = response.data.data.expandedCompany.name;
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;
-        // this.companyTitles = response.data.data.expandedCompany?.titles;
         this.companyLocations = response.data.data.expandedCompany?.locations;
         //store active company in session
         persistedState.sessionStorage.setItem(
           "activeCompanyId",
           +this.companyId
         );
+
+        // Move company with company.ID == this.companyId to index 0
+        const activeCompanyIndex = this.companyList.findIndex(
+          (company) => company.ID === this.companyId
+        );
+        if (activeCompanyIndex !== -1) {
+          const activeCompany = this.companyList.splice(
+            activeCompanyIndex,
+            1
+          )[0];
+          this.companyList.unshift(activeCompany);
+        }
+
         return true;
       } else {
         return false;
@@ -438,6 +457,9 @@ export const useCompanyStore = defineStore("company-store", {
       if (error.response) {
         console.log(error.response.data);
         switch (error.response.status) {
+          case 204:
+            messageStore.setError("No content.");
+            break;
           case 401:
             messageStore.setError("Invalid credentials.");
             return navigateTo("/signin");
@@ -462,6 +484,7 @@ export const useCompanyStore = defineStore("company-store", {
         console.error(error.request);
         messageStore.setError("No response was received.");
       } else {
+        console.log("Error", error.message);
         // Something happened in setting up the request that triggered an Error
         console.error("Error", error.message);
         messageStore.setError("Something went wrong.");

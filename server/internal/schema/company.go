@@ -32,14 +32,14 @@ type Title struct {
 
 type Department struct {
 	gorm.Model
-	CompanyID   uint   `json:"companyId"`
+	CompanyID   uint   `json:"companyId" gorm:"onDelete:CASCADE onUpdate:CASCADE"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
 type Location struct {
 	gorm.Model
-	CompanyID    uint   `json:"companyId"`
+	CompanyID    uint   `json:"companyId" gorm:"onDelete:CASCADE onUpdate:CASCADE"`
 	Name         string `json:"name"`
 	IsHeadOffice bool   `json:"isHeadOffice"`
 	Phone        string `json:"phone"`
