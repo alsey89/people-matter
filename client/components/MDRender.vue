@@ -3,9 +3,9 @@
 </template>
   
 <script setup>
-import { ref, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import MarkdownIt from 'markdown-it';
-import { defineProps } from 'vue';
+
 
 const props = defineProps({
     content: String

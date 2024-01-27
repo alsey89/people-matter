@@ -60,13 +60,7 @@ func (ch *CompanyHandler) GetCompanyDataExpandDefault(c echo.Context) error {
 	CompanyData, err := ch.companyService.GetCompanyListAndExpandDefault()
 	if err != nil {
 		log.Printf("company.h.get_company_data_expand_default: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNoContent, common.APIResponse{
-				Message: "no company data",
-				Data:    nil,
-			})
-		}
-		if errors.Is(err, ErrEmptyTable) {
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
 			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
@@ -106,7 +100,7 @@ func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 	CompanyData, err := ch.companyService.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
 		log.Printf("company.h.fetch_company_data_expand_id: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
 			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
@@ -157,8 +151,8 @@ func (ch *CompanyHandler) UpdateCompany(c echo.Context) error {
 	companyData, err := ch.companyService.UpdateCompanyAndReturnCompanyListAndExpandID(companyID, dataToUpdate)
 	if err != nil {
 		log.Printf("company.h.update_company: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
 			})
@@ -197,8 +191,8 @@ func (ch *CompanyHandler) DeleteCompany(c echo.Context) error {
 	companyData, err := ch.companyService.DeleteCompanyAndReturnCompanyListAndExpandDefault(companyID)
 	if err != nil {
 		log.Printf("company.h.delete_company: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no company data",
 				Data:    nil,
 			})
@@ -251,8 +245,14 @@ func (ch *CompanyHandler) CreateDepartment(c echo.Context) error {
 	if err != nil {
 		log.Printf("company.h.create_department: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "department already exists",
+				Data:    nil,
+			})
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no department data",
 				Data:    nil,
 			})
 		}
@@ -318,8 +318,8 @@ func (ch *CompanyHandler) UpdateDepartment(c echo.Context) error {
 	companyData, err := ch.companyService.UpdateDepartmentAndReturnCompanyListAndExpandID(companyID, departmentID, dataToUpdate)
 	if err != nil {
 		log.Printf("company.h.update_department: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no department data",
 				Data:    nil,
 			})
@@ -376,8 +376,8 @@ func (ch *CompanyHandler) DeleteDepartment(c echo.Context) error {
 	companyData, err := ch.companyService.DeleteDepartmentAndReturnCompanyListAndExpandID(companyID, departmentID)
 	if err != nil {
 		log.Printf("company.h.delete_department: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no department data",
 				Data:    nil,
 			})
@@ -432,6 +432,12 @@ func (ch *CompanyHandler) CreateLocation(c echo.Context) error {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "location already exists",
+				Data:    nil,
+			})
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no location data",
 				Data:    nil,
 			})
 		}
@@ -497,8 +503,8 @@ func (ch *CompanyHandler) UpdateLocation(c echo.Context) error {
 	companyData, err := ch.companyService.UpdateLocationAndReturnCompanyListAndExpandID(companyID, locationID, dataToUpdate)
 	if err != nil {
 		log.Printf("company.h.update_location: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no location data",
 				Data:    nil,
 			})
@@ -556,8 +562,8 @@ func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
 	companyData, err := ch.companyService.DeleteLocationAndReturnCompanyListAndExpandID(companyID, locationID)
 	if err != nil {
 		log.Printf("company.h.delete_location: %v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusNotFound, common.APIResponse{
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
 				Message: "no location data",
 				Data:    nil,
 			})

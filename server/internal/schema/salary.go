@@ -8,19 +8,20 @@ import (
 
 type Salary struct {
 	gorm.Model
-	UserID          uint      `json:"userId"`
+	UserID          uint      `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Amount          float64   `json:"amount"`
 	Currency        string    `json:"currency"`
 	PaymentInterval string    `json:"paymentInterval"`
 	EffectiveDate   time.Time `json:"effectiveDate"`
-	IsActive        bool      `json:"isActive"`
+	IsActive        bool      `json:"isActive" gorm:"default:false"`
+	IsApproved      bool      `json:"isApproved" gorm:"default:false"`
 }
 
 type Payment struct {
 	gorm.Model
-	UserID        uint      `json:"userId"`
-	SalaryID      uint      `json:"salaryId"`
-	PaymentDate   string    `json:"paymentDate"`
+	UserID        uint      `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	SalaryID      uint      `json:"salaryId" gorm:"onUpdate:CASCADE;onDelete:SET NULL"`
+	PaymentDate   time.Time `json:"paymentDate"`
 	Amount        float64   `json:"amount"`
 	PaymentMethod string    `json:"paymentMethod"`
 	Status        string    `json:"status"`
@@ -31,11 +32,11 @@ type Payment struct {
 	Notes         string    `json:"notes"`
 }
 
-func (salary *Salary) AfterCreate(tx *gorm.DB) (err error) {
-	// Update User's SalaryID field
-	err = tx.Model(&User{}).Where("id = ?", salary.UserID).Update("current_salary_info_id", salary.ID).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// func (salary *Salary) AfterCreate(tx *gorm.DB) (err error) {
+// 	// Update User's SalaryID field
+// 	err = tx.Model(&User{}).Where("id = ?", salary.UserID).Update("current_salary_info_id", salary.ID).Error
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }

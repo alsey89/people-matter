@@ -93,6 +93,9 @@ func (cr CompanyRepository) CompanyReadAndExpandAll() ([]*schema.Company, error)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.company_read_all_and_expand: %w", result.Error)
 	}
+	if len(companies) == 0 {
+		return nil, fmt.Errorf("company.r.company_read_all_and_expand: %w", ErrEmptyTable)
+	}
 
 	return companies, nil
 }
@@ -265,6 +268,10 @@ func (cr CompanyRepository) LocationReadAll() ([]*schema.Location, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_read_all: %w", result.Error)
 	}
+	if len(locations) == 0 {
+		return nil, fmt.Errorf("company.r.location_read_all: %w", ErrEmptyTable)
+	}
+
 	return locations, nil
 }
 

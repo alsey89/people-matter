@@ -19,12 +19,12 @@ type User struct {
 	LastLogin  *time.Time `json:"lastLogin"  gorm:"default:null"`
 
 	//* personal information
-	FirstName        string           `json:"firstName"`
-	MiddleName       string           `json:"middleName"`
-	LastName         string           `json:"lastName"`
-	Nickname         string           `json:"nickname"`
-	ContactInfo      ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
-	EmergencyContact EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
+	FirstName        string            `json:"firstName"`
+	MiddleName       *string           `json:"middleName"`
+	LastName         string            `json:"lastName"`
+	Nickname         string            `json:"nickname"`
+	ContactInfo      *ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
+	EmergencyContact *EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
 
 	//*job information
 	AssignedJob AssignedJob `json:"assignedJob" gorm:"foreignKey:UserID"`
@@ -33,9 +33,9 @@ type User struct {
 	SalaryID uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
 	Payments []Payment `json:"Payments" gorm:"foreignKey:UserID"`
 
-	//* leave & attendance ?? not sure if we need this
-	// Leave      []Leave      `json:"leave"`
-	// Attendance []Attendance `json:"attendance"`
+	//* leave & attendance
+	Leave      []Leave      `json:"leave"`
+	Attendance []Attendance `json:"attendance"`
 }
 
 type ContactInfo struct {

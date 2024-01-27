@@ -2,22 +2,22 @@
     <div v-auto-animate class="w-full flex flex-col gap-4">
         <!-- !Confirmation Modal -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
-            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full max-h-32" />
+            @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
         <!-- !Company Header -->
         <div class="flex justify-between items-center border-b-2 border-black py-2">
             <h1 class="text-lg font-bold"> Company </h1>
             <!-- !add company button -->
-            <!-- <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">
+            <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">
                 <Icon v-if="showCompanyForm" name="material-symbols:close" class="h-6 w-6" />
                 <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-            </NBButtonSquare> -->
+            </NBButtonSquare>
         </div>
         <div v-auto-animate class="w-full flex flex-col gap-4">
             <!-- !New Company Form -->
-            <AppCompanyForm v-if="showCompanyForm || companyStore.getCompanyList.length == 0" :formData="companyFormData"
-                @submit="handleCompanyFormSubmit" />
+            <AppCompanyForm v-if="showCompanyForm" :formData="companyFormData" @submit="handleCompanyFormSubmit" />
             <!-- !Company List -->
-            <div v-if="companyStore.getCompanyList" v-for="company in companyStore.getCompanyList" :key="company.ID">
+            <div v-if="companyStore.getCompanyList && companyStore.getCompanyList.length > 0"
+                v-for="company in companyStore.getCompanyList" :key="company.ID">
                 <NBCard class="w-full">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
@@ -49,6 +49,13 @@
                     </div>
                 </NBCard>
             </div>
+            <div v-else>
+                <NBCard>
+                    <div class="m-auto">
+                        No Data
+                    </div>
+                </NBCard>
+            </div>
         </div>
     </div>
 </template>
@@ -57,7 +64,22 @@
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
 
-//refs/ v-models
+// select company
+const handleSelectCompany = async (company) => {
+    const companyId = company.ID
+    if (!companyId) {
+        console.error("No company ID")
+        messageStore.setError("Error selecting company")
+        return
+    }
+    if (companyStore.getCompanyId === companyId) {
+        showCompanyForm.value = false
+        return
+    }
+    await companyStore.fetchCompanyListAndExpandById(companyId)
+    showCompanyForm.value = false
+};
+// add/edit company
 const showCompanyForm = ref(false)
 const companyFormData = reactive({
     companyFormType: null,
@@ -74,55 +96,6 @@ const companyFormData = reactive({
     companyPostalCode: null,
 })
 
-//methods
-const handleCompanyFormSubmit = async () => {
-    if (companyFormData.companyFormType === "edit") {
-        await companyStore.updateCompany({ companyFormData: companyFormData });
-    } else if (companyFormData.companyFormType === "add") {
-        await companyStore.createCompany({ companyFormData: companyFormData });
-    }
-    showCompanyForm.value = null;
-};
-const handleSelectCompany = async (company) => {
-    const companyId = company.ID
-    if (!companyId) {
-        console.error("No company ID")
-        messageStore.setError("Error selecting company")
-        return
-    }
-    if (companyStore.getCompanyId === companyId) {
-        showCompanyForm.value = false
-        return
-    }
-    await companyStore.fetchCompanyListAndExpandById(companyId)
-    showCompanyForm.value = false
-};
-
-const showConfirmationModal = ref(false)
-const confirmationModalMessage = ref("")
-const handleModalConfirmEvent = ref(null)
-const handleModalCancelEvent = () => {
-    showConfirmationModal.value = false;
-    handleModalConfirmEvent.value = null; //! clear the stored function
-};
-const handleDeleteCompanyButtonClick = (company) => {
-    const companyId = company.ID
-    if (!companyId) {
-        console.error("No company ID")
-        messageStore.setError("Error deleting company")
-        return
-    }
-    confirmationModalMessage.value = `Are you sure you want to delete ${company.name}? All data associated with this company (Departments, Locations, Jobs, etc.) will be deleted. This action cannot be undone.`
-    showConfirmationModal.value = true
-
-    //* store the function to be called when confirmation modal is confirmed, along with its arguments
-    handleModalConfirmEvent.value = async () => {
-        showConfirmationModal.value = false;
-        showCompanyForm.value = false;
-        await companyStore.deleteCompany(companyId);
-        handleModalConfirmEvent.value = null; //! clear the stored function
-    };
-};
 const handleAddCompanyButtonClick = () => {
     clearCompanyForm();
     companyFormData.companyFormType = "add"
@@ -133,7 +106,6 @@ const handleEditCompanyButtonClick = (company) => {
     companyFormData.companyFormType = "edit"
     showCompanyForm.value = true
 };
-
 const clearCompanyForm = () => {
     companyFormData.companyName = ''
     companyFormData.companyPhone = ''
@@ -159,4 +131,55 @@ const populateCompanyForm = (company) => {
     companyFormData.companyCountry = company.country
     companyFormData.companyPostalCode = company.postalCode
 };
+const handleCompanyFormSubmit = async () => {
+    if (companyFormData.companyFormType === "edit") {
+        await companyStore.updateCompany({ companyFormData: companyFormData });
+    } else if (companyFormData.companyFormType === "add") {
+        await companyStore.createCompany({ companyFormData: companyFormData });
+    } else {
+        console.error("No company form type")
+        messageStore.setError("Error submitting company form")
+        return
+    }
+    showCompanyForm.value = false;
+};
+// delete
+const showConfirmationModal = ref(false)
+const confirmationModalMessage = ref("")
+const handleModalConfirmEvent = ref(null)
+
+const handleModalCancelEvent = () => {
+    showConfirmationModal.value = false;
+    handleModalConfirmEvent.value = null; //! clear the stored function
+};
+const handleDeleteCompanyButtonClick = (company) => {
+    const companyId = company.ID
+    if (!companyId) {
+        console.error("No company ID")
+        messageStore.setError("Error deleting company")
+        return
+    }
+    confirmationModalMessage.value = `Are you sure you want to delete ${company.name}? All data associated with this company (Departments, Locations, Jobs, etc.) will be deleted. This action cannot be undone.`
+    showConfirmationModal.value = true
+
+    //* store the function to be called when confirmation modal is confirmed, along with its arguments
+    handleModalConfirmEvent.value = async () => {
+        showConfirmationModal.value = false;
+        showCompanyForm.value = false;
+        await companyStore.deleteCompany(companyId);
+        handleModalConfirmEvent.value = null; //! clear the stored function
+    };
+};
+//watchers
+//show company form when company list is empty
+watch(() => companyStore.getCompanyList, (newList) => {
+    if (!newList || newList.length === 0) {
+        showCompanyForm.value = true;
+        companyFormData.companyFormType = "add"
+    } else {
+        showCompanyForm.value = false;
+        clearCompanyForm();
+    }
+});
+
 </script>
