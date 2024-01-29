@@ -8,7 +8,7 @@
             <div class="text-lg font-bold"> Jobs </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- !toggle job action buttons -->
-                <NBButtonSquare v-if="jobStore.getAllJobs && jobStore.getAllJobs?.length > 0"
+                <NBButtonSquare v-if="companyStore.getCompanyJobs && companyStore.getCompanyJobs?.length > 0"
                     @click="handleExpandJobButtonClick" size="xs">
                     <Icon v-if="expandJob" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
@@ -22,10 +22,10 @@
         </div>
         <!-- !Job Form -->
         <div v-auto-animate>
-            <AppJobForm v-if="showJobForm" :jobFormData="jobFormData" @submit="handleFormSubmit" />
+            <AppCompanyJobForm v-if="showJobForm" :jobFormData="jobFormData" @submit="handleFormSubmit" />
         </div>
         <!-- !Job List -->
-        <div v-if="jobStore.getAllJobs?.length > 0" v-for="job in jobStore.getAllJobs" :key="job.ID">
+        <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="job in companyStore.getCompanyJobs" :key="job.ID">
             <NBCard v-auto-animate>
                 <NBCardHeader>
                     <div class="flex justify-between items-center px-2">
@@ -41,7 +41,7 @@
                     </div>
                 </NBCardHeader>
                 <div v-if="expandJob" class="px-2">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-2">
                             <p class="font-semibold border-b py-1">Description:</p>
                             <p>
@@ -85,8 +85,16 @@
 </template>
 
 <script setup>
-const jobStore = useJobStore();
+definePageMeta({
+    title: "Job",
+    description: "Job",
+    layout: "company",
+});
+
+const companyStore = useCompanyStore();
 const messageStore = useMessageStore();
+
+
 const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId');
 //expand
 const expandJob = ref(false);
@@ -97,24 +105,23 @@ const handleExpandJobButtonClick = () => {
 // add/edit
 const showJobForm = ref(false);
 const jobFormData = reactive({
-    formType: "",
+    jobFormType: "",
     jobId: null,
 
-    companyId: parseInt(activeCompanyId),
-    title: null,
-    description: null,
-    duties: null,
-    qualifications: null,
-    experience: null,
-    departmentId: null,
-    locationId: null,
-    managerId: null,
-    minSalary: null,
-    maxSalary: null,
+    jobTitle: null,
+    jobDescription: null,
+    jobDuties: null,
+    jobQualifications: null,
+    jobExperience: null,
+    jobDepartmentId: null,
+    jobLocationId: null,
+    jobManagerId: null,
+    jobMinSalary: null,
+    jobMaxSalary: null,
 });
 const handleAddJobButtonClick = () => {
-    clearJobFormData();
-    jobFormData.formType = "add";
+    clearJobForm();
+    jobFormData.jobFormType = "add";
     showJobForm.value = !showJobForm.value;
 };
 const handleEditJobButtonClick = (job) => {
@@ -127,37 +134,40 @@ const handleEditJobButtonClick = (job) => {
     showJobForm.value = !showJobForm.value;
 };
 const populateJobFormData = (job) => {
-    jobFormData.formType = "edit";
+    jobFormData.jobFormType = "edit";
     jobFormData.jobId = job.ID;
 
-    jobFormData.title = job.title;
-    jobFormData.description = job.description;
-    jobFormData.duties = job.duties;
-    jobFormData.qualifications = job.qualifications;
-    jobFormData.experience = job.experience;
-    jobFormData.departmentId = job.departmentId;
-    jobFormData.locationId = job.locationId;
-    jobFormData.managerId = job.managerId;
-    jobFormData.minSalary = job.minSalary;
-    jobFormData.maxSalary = job.maxSalary;
+    jobFormData.jobTitle = job.title;
+    jobFormData.jobDescription = job.description;
+    jobFormData.jobDuties = job.duties;
+    jobFormData.jobQualifications = job.qualifications;
+    jobFormData.jobExperience = job.experience;
+    jobFormData.jobDepartmentId = job.departmentId;
+    jobFormData.jobLocationId = job.locationId;
+    jobFormData.jobManagerId = job.managerId;
+    jobFormData.jobMinSalary = job.minSalary;
+    jobFormData.jobMaxSalary = job.maxSalary;
 };
-const clearJobFormData = () => {
-    jobFormData.title = null;
-    jobFormData.description = null;
-    jobFormData.duties = null;
-    jobFormData.qualifications = null;
-    jobFormData.experience = null;
-    jobFormData.departmentId = null;
-    jobFormData.locationId = null;
-    jobFormData.managerId = null;
-    jobFormData.minSalary = null;
-    jobFormData.maxSalary = null;
+const clearJobForm = () => {
+    jobFormData.jobFormType = "";
+    jobFormData.jobId = null;
+
+    jobFormData.jobTitle = null;
+    jobFormData.jobDescription = null;
+    jobFormData.jobDuties = null;
+    jobFormData.jobQualifications = null;
+    jobFormData.jobExperience = null;
+    jobFormData.jobDepartmentId = null;
+    jobFormData.jobLocationId = null;
+    jobFormData.jobManagerId = null;
+    jobFormData.jobMinSalary = null;
+    jobFormData.jobMaxSalary = null;
 };
 const handleFormSubmit = () => {
-    if (jobFormData.formType == "add") {
-        jobStore.createJob({ companyId: activeCompanyId, jobFormData: jobFormData });
-    } else if (jobFormData.formType == "edit") {
-        jobStore.updateJob({ companyId: activeCompanyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
+    if (jobFormData.jobFormType == "add") {
+        companyStore.createJob({ companyId: activeCompanyId, jobFormData: jobFormData });
+    } else if (jobFormData.jobFormType == "edit") {
+        companyStore.updateJob({ companyId: activeCompanyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
     }
 
     showJobForm.value = false;
@@ -183,16 +193,16 @@ const handleDeleteJobButtonClick = (job) => {
     handleModalConfirmEvent.value = async () => {
         showConfirmationModal.value = false;
         showJobForm.value = false;
-        await jobStore.deleteJob({ companyId: activeCompanyId, jobId: jobId });
-        // if there is only one job left, hide the job list
-        if (jobStore.getAllJobs.length == 1) {
-            showJobList.value = false;
-        }
+        await companyStore.deleteJob({ companyId: activeCompanyId, jobId: jobId });
+
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
-// life cycle functions
-onBeforeMount(() => {
-    jobStore.fetchJobList({ companyId: activeCompanyId });
-});
+// watchers
+watch(() => companyStore.getCompanyJobs, (newJobList) => {
+    if (!newJobList || newJobList.length === 0) {
+        showJobForm.value = true;
+        jobFormData.jobFormType = "add"
+    }
+}, { immediate: true });
 </script>

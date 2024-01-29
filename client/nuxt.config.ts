@@ -10,7 +10,12 @@ export default defineNuxtConfig({
       apiUrl: "http://localhost:3001/api/v1",
     },
   },
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+    timeline: {
+      enabled: true,
+    },
+  },
   modules: [
     "@nuxtjs/tailwindcss",
     "@pinia/nuxt",

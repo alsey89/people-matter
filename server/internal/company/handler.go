@@ -406,7 +406,7 @@ func (ch *CompanyHandler) CreateLocation(c echo.Context) error {
 		})
 	}
 
-	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
 		log.Printf("company.h.create_location: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -426,7 +426,7 @@ func (ch *CompanyHandler) CreateLocation(c echo.Context) error {
 		})
 	}
 
-	companyData, err := ch.companyService.CreateNewLocationAndReturnCompanyListAndExpandID(companyID, newLocation)
+	companyData, err := ch.companyService.CreateNewLocationAndReturnCompanyListAndExpandID(uintCompanyID, newLocation)
 	if err != nil {
 		log.Printf("company.h.create_location: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -463,7 +463,7 @@ func (ch *CompanyHandler) UpdateLocation(c echo.Context) error {
 		})
 	}
 
-	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
 		log.Printf("company.h.update_location: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -481,7 +481,7 @@ func (ch *CompanyHandler) UpdateLocation(c echo.Context) error {
 		})
 	}
 
-	locationID, err := common.ConvertStringOfNumbersToUint(stringLocationID)
+	uinLocationID, err := common.ConvertStringOfNumbersToUint(stringLocationID)
 	if err != nil {
 		log.Printf("company.h.update_location: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -500,7 +500,7 @@ func (ch *CompanyHandler) UpdateLocation(c echo.Context) error {
 		})
 	}
 
-	companyData, err := ch.companyService.UpdateLocationAndReturnCompanyListAndExpandID(companyID, locationID, dataToUpdate)
+	companyData, err := ch.companyService.UpdateLocationAndReturnCompanyListAndExpandID(uintCompanyID, uinLocationID, dataToUpdate)
 	if err != nil {
 		log.Printf("company.h.update_location: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
@@ -519,7 +519,6 @@ func (ch *CompanyHandler) UpdateLocation(c echo.Context) error {
 		Message: "location data has been updated",
 		Data:    companyData,
 	})
-
 }
 
 func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
@@ -532,7 +531,7 @@ func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
 		})
 	}
 
-	companyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
 		log.Printf("company.h.delete_location: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -550,7 +549,7 @@ func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
 		})
 	}
 
-	locationID, err := common.ConvertStringOfNumbersToUint(stringLocationID)
+	uintLocationID, err := common.ConvertStringOfNumbersToUint(stringLocationID)
 	if err != nil {
 		log.Printf("company.h.delete_location: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -559,7 +558,7 @@ func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
 		})
 	}
 
-	companyData, err := ch.companyService.DeleteLocationAndReturnCompanyListAndExpandID(companyID, locationID)
+	companyData, err := ch.companyService.DeleteLocationAndReturnCompanyListAndExpandID(uintCompanyID, uintLocationID)
 	if err != nil {
 		log.Printf("company.h.delete_location: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
@@ -578,4 +577,191 @@ func (ch *CompanyHandler) DeleteLocation(c echo.Context) error {
 		Message: "location has been deleted",
 		Data:    companyData,
 	})
+}
+
+//! Jobs ------------------------------------------------------------
+
+func (ch *CompanyHandler) CreateJob(c echo.Context) error {
+	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.create_job: empty company id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
+
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	if err != nil {
+		log.Printf("company.h.create_job: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing company id",
+			Data:    nil,
+		})
+	}
+
+	newJob := new(schema.Job)
+	err = c.Bind(newJob)
+	if err != nil {
+		log.Printf("company.h.create_job: error binding job data: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	companyData, err := ch.companyService.CreateNewJobAndReturnCompanyListAndExpandID(uintCompanyID, newJob)
+	if err != nil {
+		log.Printf("company.h.create_job: %v", err)
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return c.JSON(http.StatusConflict, common.APIResponse{
+				Message: "job already exists",
+				Data:    nil,
+			})
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no job data",
+				Data:    nil,
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error creating job data",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "job data has been created",
+		Data:    companyData,
+	})
+}
+
+func (ch *CompanyHandler) UpdateJob(c echo.Context) error {
+
+	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.update_job: empty company id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
+
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	if err != nil {
+		log.Printf("company.h.update_job: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing company id",
+			Data:    nil,
+		})
+	}
+
+	stringJobID := c.Param("job_id")
+	if stringJobID == "" {
+		log.Printf("company.h.update_job: empty job id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no job id",
+			Data:    nil,
+		})
+	}
+
+	uintJobID, err := common.ConvertStringOfNumbersToUint(stringJobID)
+	if err != nil {
+		log.Printf("company.h.update_job: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing job id",
+			Data:    nil,
+		})
+	}
+
+	dataToUpdate := new(schema.Job)
+
+	err = c.Bind(dataToUpdate)
+	if err != nil {
+		log.Printf("company.h.update_job: error binding job data: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	companyData, err := ch.companyService.UpdateJobAndReturnCompanyListAndExpandID(uintCompanyID, uintJobID, dataToUpdate)
+	if err != nil {
+		log.Printf("company.h.update_job: %v", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no job data",
+				Data:    nil,
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error updating job data",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "job data has been created",
+		Data:    companyData,
+	})
+}
+
+func (ch *CompanyHandler) DeleteJob(c echo.Context) error {
+	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("company.h.delete_job: empty company id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no company id",
+			Data:    nil,
+		})
+	}
+
+	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	if err != nil {
+		log.Printf("company.h.delete_job: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing company id",
+			Data:    nil,
+		})
+	}
+
+	stringJobID := c.Param("job_id")
+	if stringJobID == "" {
+		log.Printf("company.h.delete_job: empty job id parameter")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "no job id",
+			Data:    nil,
+		})
+	}
+
+	uintJobID, err := common.ConvertStringOfNumbersToUint(stringJobID)
+	if err != nil {
+		log.Printf("company.h.delete_job: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error parsing job id",
+			Data:    nil,
+		})
+	}
+
+	companyData, err := ch.companyService.DeleteJobAndReturnCompanyListAndExpandID(uintCompanyID, uintJobID)
+	if err != nil {
+		log.Printf("company.h.delete_job: %v", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, ErrEmptyTable) {
+			return c.JSON(http.StatusNoContent, common.APIResponse{
+				Message: "no job data",
+				Data:    nil,
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error deleting job",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "job has been deleted",
+		Data:    companyData,
+	})
+
 }

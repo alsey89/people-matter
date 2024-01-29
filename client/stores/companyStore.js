@@ -19,6 +19,7 @@ export const useCompanyStore = defineStore("company-store", {
     //* related data
     companyDepartments: null,
     companyLocations: null,
+    companyJobs: null,
     //* store
     isLoading: true,
     lastFetch: null,
@@ -58,6 +59,7 @@ export const useCompanyStore = defineStore("company-store", {
     //* related data
     getCompanyDepartments: (state) => state.companyDepartments,
     getCompanyLocations: (state) => state.companyLocations,
+    getCompanyJobs: (state) => state.companyJobs,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
@@ -353,6 +355,113 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
+    //! Job API Calls
+    async fetchJobList({ companyId }) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/v1/job/company/${companyId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.handleSuccess(response);
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async createJob({ companyId, jobFormData }) {
+      console.log("jobFormDAta", jobFormData);
+      console.log("companyId", companyId);
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.post(
+          `http://localhost:3001/api/v1/company/${companyId}/job`,
+          {
+            title: jobFormData.jobTitle,
+            departmentId: jobFormData.jobDepartmentId,
+            locationId: jobFormData.jobLocationId,
+            managerId: jobFormData.jobManagerId,
+            MinSalary: jobFormData.jobMinSalary,
+            MaxSalary: jobFormData.jobMaxSalary,
+            description: jobFormData.jobDescription,
+            duties: jobFormData.jobDuties,
+            qualifications: jobFormData.jobQualifications,
+            experience: jobFormData.jobExperience,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Job created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async updateJob({ companyId, jobId, jobFormData }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/company/${companyId}/job/${jobId}`,
+          {
+            title: jobFormData.jobTitle,
+            departmentId: jobFormData.jobDepartmentId,
+            locationId: jobFormData.jobLocationId,
+            managerId: jobFormData.jobManagerId,
+            MinSalary: jobFormData.jobMinSalary,
+            MaxSalary: jobFormData.jobMaxSalary,
+            description: jobFormData.jobDescription,
+            duties: jobFormData.jobDuties,
+            qualifications: jobFormData.jobQualifications,
+            experience: jobFormData.jobExperience,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Job updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteJob({ companyId, jobId }) {
+      const messageStore = useMessageStore();
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/company/${companyId}/job/${jobId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("Job deleted.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
     //! Common
     handleSuccess(response) {
       const messageStore = useMessageStore();
@@ -380,6 +489,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;
         this.companyLocations = response.data.data.expandedCompany?.locations;
+        this.companyJobs = response.data.data.expandedCompany?.jobs;
         //store active company in session
         persistedState.sessionStorage.setItem(
           "activeCompanyId",

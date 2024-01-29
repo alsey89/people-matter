@@ -46,7 +46,7 @@ func (js *JobService) CreateNewJobAndReturnJobList(companyID uint, newJob *schem
 
 func (js *JobService) UpdateJobAndReturnJobList(companyID uint, jobID uint, jobToUpdate schema.Job) ([]*schema.Job, error) {
 
-	err := js.JobRepository.JobUpdate(jobID, &jobToUpdate)
+	_, err := js.JobRepository.JobUpdate(jobID, &jobToUpdate)
 	if err != nil {
 		return nil, fmt.Errorf("job.s.update_job_and_return_job_list: %w", err)
 	}

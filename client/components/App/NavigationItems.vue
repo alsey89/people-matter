@@ -11,10 +11,6 @@
         class="hover:bg-secondary-bg">
         Users
     </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/job" :class="{ 'border-l-2 border-l-primary': activeRoute === '/job' }"
-        class="hover:bg-secondary-bg">
-        Jobs
-    </NBMenuItemNavigation>
     <!-- <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
         class="hover:bg-secondary-bg">
         Salary

@@ -1,10 +1,10 @@
 <template>
     <div class="flex justify-start gap-0.5 items-center">
         <client-only>
-            <Button @click="handleTabSelect(tab.to)" v-for="tab in tabs" :key="tab.name" :class="getTabClasses(tab.to)"
+            <div @click="handleTabSelect(tab.to)" v-for="tab in tabs" :key="tab.name" :class="getTabClasses(tab.to)"
                 class="text-lg font-bold rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]">
                 {{ tab.name }}
-            </Button>
+            </div>
             <div class="mt-auto flex-grow border-b-2 border-black"></div>
         </client-only>
     </div>
@@ -23,6 +23,7 @@ const tabs = computed(() => [
     { name: 'Company', to: `/company` },
     { name: 'Departments', to: `/company/${companyStore.getCompanyId}/department` },
     { name: 'Locations', to: `/company/${companyStore.getCompanyId}/location` },
+    { name: 'Positions', to: `/company/${companyStore.getCompanyId}/job` },
 ]);
 const handleTabSelect = (tabRoute) => {
     if (activeRoute.value == tabRoute) {

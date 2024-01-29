@@ -3,15 +3,17 @@ package company
 import (
 	"fmt"
 	"log"
+	"verve-hrms/internal/job"
 	"verve-hrms/internal/schema"
 )
 
 type CompanyService struct {
 	CompanyRepository *CompanyRepository
+	JobRepository     *job.JobRepository
 }
 
-func NewCompanyService(companyRepository *CompanyRepository) *CompanyService {
-	return &CompanyService{CompanyRepository: companyRepository}
+func NewCompanyService(companyRepository *CompanyRepository, jobRepository *job.JobRepository) *CompanyService {
+	return &CompanyService{CompanyRepository: companyRepository, JobRepository: jobRepository}
 }
 
 //! Company ------------------------------------------------------------
@@ -130,7 +132,7 @@ func (cs *CompanyService) CreateNewDepartmentAndReturnCompanyListAndExpandID(com
 
 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
 	if err != nil {
-		return nil, fmt.Errorf("company.s.create_title: %w", err)
+		return nil, fmt.Errorf("company.s.create_department: %w", err)
 	}
 
 	return companyData, nil
@@ -166,53 +168,53 @@ func (cs *CompanyService) DeleteDepartmentAndReturnCompanyListAndExpandID(compan
 	return companyData, nil
 }
 
-//! Title ------------------------------------------------------------
+//! Job ------------------------------------------------------------
 
-// func (cs *CompanyService) CreateNewTitleAndReturnCompanyListAndExpandID(companyID uint, newTitle *schema.Title) (*CompanyInterfaceData, error) {
-// 	newTitle.CompanyID = companyID
+func (cs *CompanyService) CreateNewJobAndReturnCompanyListAndExpandID(companyID uint, newJob *schema.Job) (*CompanyInterfaceData, error) {
+	newJob.CompanyID = companyID
 
-// 	_, err := cs.CompanyRepository.TitleCreate(newTitle)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.create_title: %w", err)
-// 	}
+	_, err := cs.JobRepository.JobCreate(newJob)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.create_job: %w", err)
+	}
 
-// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.create_title: %w", err)
-// 	}
+	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.create_job: %w", err)
+	}
 
-// 	return companyData, nil
-// }
+	return companyData, nil
+}
 
-// func (cs *CompanyService) UpdateTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint, dataToUpdate *schema.Title) (*CompanyInterfaceData, error) {
-// 	dataToUpdate.ID = titleID
+func (cs *CompanyService) UpdateJobAndReturnCompanyListAndExpandID(companyID uint, jobID uint, dataToUpdate *schema.Job) (*CompanyInterfaceData, error) {
+	dataToUpdate.ID = jobID
 
-// 	_, err := cs.CompanyRepository.TitleUpdate(titleID, dataToUpdate)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.update_title: %w", err)
-// 	}
+	_, err := cs.JobRepository.JobUpdate(jobID, dataToUpdate)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.update_job: %w", err)
+	}
 
-// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.update_title: %w", err)
-// 	}
+	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.update_job: %w", err)
+	}
 
-// 	return companyData, nil
-// }
+	return companyData, nil
+}
 
-// func (cs *CompanyService) DeleteTitleAndReturnCompanyListAndExpandID(companyID uint, titleID uint) (*CompanyInterfaceData, error) {
-// 	err := cs.CompanyRepository.TitleDelete(titleID)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.delete_title: %w", err)
-// 	}
+func (cs *CompanyService) DeleteJobAndReturnCompanyListAndExpandID(companyID uint, jobID uint) (*CompanyInterfaceData, error) {
+	err := cs.JobRepository.JobDelete(jobID)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.delete_job: %w", err)
+	}
 
-// 	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("company.s.delete_title: %w", err)
-// 	}
+	companyData, err := cs.GetCompanyListAndExpandByID(companyID)
+	if err != nil {
+		return nil, fmt.Errorf("company.s.delete_job: %w", err)
+	}
 
-// 	return companyData, nil
-// }
+	return companyData, nil
+}
 
 //! Location ------------------------------------------------------------
 

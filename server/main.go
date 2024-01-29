@@ -86,15 +86,15 @@ func main() {
 	authService := auth.NewAuthService(userService)
 	authHandler := auth.NewAuthHandler(authService)
 
-	//*Instantiate Company Domain
-	companyRepository := company.NewCompanyRepository(client)
-	companyService := company.NewCompanyService(companyRepository)
-	companyHandler := company.NewCompanyHandler(companyService)
-
 	//*Instantiate Job Domain
 	jobRepository := job.NewJobRepository(client)
-	jobService := job.NewJobService(jobRepository)
-	jobHandler := job.NewJobHandler(jobService)
+	// jobService := job.NewJobService(jobRepository)
+	// jobHandler := job.NewJobHandler(jobService)
+
+	//*Instantiate Company Domain
+	companyRepository := company.NewCompanyRepository(client)
+	companyService := company.NewCompanyService(companyRepository, jobRepository)
+	companyHandler := company.NewCompanyHandler(companyService)
 
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
@@ -123,13 +123,10 @@ func main() {
 	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
 	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
 	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)
-
-	jobRoutes := e.Group("api/v1/job")
-	// by company
-	jobRoutes.GET("/company/:company_id", jobHandler.GetAllJobs)
-	jobRoutes.POST("/company/:company_id", jobHandler.CreateJob)
-	jobRoutes.PUT("/company/:company_id/:job_id", jobHandler.UpdateJob)
-	jobRoutes.DELETE("/company/:company_id/:job_id", jobHandler.DeleteJob)
+	// job
+	companyRoutes.POST("/:company_id/job", companyHandler.CreateJob)
+	companyRoutes.PUT("/:company_id/job/:job_id", companyHandler.UpdateJob)
+	companyRoutes.DELETE("/:company_id/job/:job_id", companyHandler.DeleteJob)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

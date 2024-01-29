@@ -42,7 +42,8 @@
                         </div>
                     </div>
                 </NBCardHeader>
-                <div v-if="expandedDepartmentIndex == index || expandedDepartmentIndex == 'all'" class="px-2">
+                <div v-if="department.description && expandedDepartmentIndex == index || department.description && expandedDepartmentIndex == 'all'"
+                    class="px-2">
                     <MDRender :content="department.description" />
                 </div>
             </NBCard>

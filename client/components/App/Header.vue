@@ -42,6 +42,9 @@ onBeforeMount(() => {
     if (!selectedCompanyId) {
         companyStore.fetchCompanyListAndExpandDefault()
     }
+    if (!companyStore.getCompanyName || !companyStore.getCompanyLogoUrl) {
+        companyStore.fetchCompanyDetails(selectedCompanyId)
+    }
 })
 
 </script>

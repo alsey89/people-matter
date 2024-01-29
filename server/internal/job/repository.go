@@ -110,36 +110,36 @@ func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Job, error) {
 	return jobs, nil
 }
 
-func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) error {
-	var job *schema.Job
+func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) (*schema.Job, error) {
+	var job schema.Job
 
-	//*convert updateData to map[string]interface{}
+	updateDataMap := map[string]interface{}{
+		"Title":          updateData.Title,
+		"Description":    updateData.Description,
+		"Duties":         updateData.Duties,
+		"Qualifications": updateData.Qualifications,
+		"Experience":     updateData.Experience,
+		"MinSalary":      updateData.MinSalary,
+		"MaxSalary":      updateData.MaxSalary,
 
-	updateDataMap := make(map[string]interface{})
-	updateDataMap["Title"] = updateData.Title
-	updateDataMap["Description"] = updateData.Description
-	updateDataMap["Duties"] = updateData.Duties
-	updateDataMap["Qualifications"] = updateData.Qualifications
-	updateDataMap["Experience"] = updateData.Experience
-	updateDataMap["MinSalary"] = updateData.MinSalary
-	updateDataMap["MaxSalary"] = updateData.MaxSalary
-	updateDataMap["DepartmentID"] = updateData.DepartmentID
-	updateDataMap["LocationID"] = updateData.LocationID
-	updateDataMap["CompanyID"] = updateData.CompanyID
-	updateDataMap["ManagerID"] = updateData.ManagerID
+		// "CompanyID": updateData.CompanyID, //* not part of updateData, will always initialize to 0 since it's not a pointer
+		"LocationID":   updateData.LocationID,
+		"DepartmentID": updateData.DepartmentID,
+		"ManagerID":    updateData.ManagerID,
+	}
 
 	//*Updates only updates non-zero values, need to select nil values explicitly
 	result := jr.client.Model(&job).Where("ID = ?", jobID).Updates(updateDataMap)
 	if result.Error != nil {
-		return fmt.Errorf("company.r.company_update: %w", result.Error)
+		return nil, fmt.Errorf("job.r.job_update: %w", result.Error)
 	}
 
 	// Check if any row was affected, if not, the job does not exist.
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("company.r.company_update: %w", gorm.ErrRecordNotFound)
+		return nil, fmt.Errorf("job.r.job_update: %w", gorm.ErrRecordNotFound)
 	}
 
-	return nil
+	return &job, nil
 }
 
 func (jr JobRepository) JobDelete(jobID uint) error {

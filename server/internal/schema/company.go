@@ -21,6 +21,7 @@ type Company struct {
 	Departments []Department `json:"departments" gorm:"foreignKey:CompanyID"`
 	Titles      []Title      `json:"titles" gorm:"foreignKey:CompanyID"`
 	Locations   []Location   `json:"locations" gorm:"foreignKey:CompanyID"`
+	Jobs        []Job        `json:"jobs" gorm:"foreignKey:CompanyID"`
 }
 
 type Title struct {
