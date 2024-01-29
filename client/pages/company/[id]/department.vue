@@ -7,6 +7,11 @@
         <div class="flex justify-between items-center border-b-2 border-black py-2">
             <div class=" items-center  text-lg font-bold"> Departments </div>
             <div v-auto-animate class="flex gap-4">
+                <!-- show/hide details Button -->
+                <NBButtonSquare size="xs" @click="handleToggleAllDepartmentsButtonClick">
+                    <Icon v-if="expandedDepartmentIndex == 'all'" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                    <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
+                </NBButtonSquare>
                 <!-- !add department button -->
                 <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
                     <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
@@ -20,11 +25,12 @@
                 :formData="departmentFormData" />
         </div>
         <!-- !department list -->
-        <div v-if="companyStore.getCompanyDepartments?.length > 0" v-for="department in companyStore.companyDepartments"
-            :key="department.ID">
+        <div v-if="companyStore.getCompanyDepartments?.length > 0"
+            v-for="(department, index) in companyStore.companyDepartments" :key="department.ID">
             <NBCard v-auto-animate>
                 <NBCardHeader>
-                    <div v-auto-animate class="flex justify-between items-center px-2">
+                    <div v-auto-animate @click="handleExpandDepartmentButtonClick(index)"
+                        class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p> {{ department.name }} </p>
                         <div class="flex gap-4">
                             <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
@@ -36,7 +42,7 @@
                         </div>
                     </div>
                 </NBCardHeader>
-                <div v-if="department.description" class="px-2">
+                <div v-if="expandedDepartmentIndex == index || expandedDepartmentIndex == 'all'" class="px-2">
                     <MDRender :content="department.description" />
                 </div>
             </NBCard>
@@ -60,6 +66,23 @@ definePageMeta({
 
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
+
+// show/hide details
+const expandedDepartmentIndex = ref("all")
+const handleExpandDepartmentButtonClick = (index) => {
+    if (expandedDepartmentIndex.value == index) {
+        expandedDepartmentIndex.value = null
+        return
+    }
+    expandedDepartmentIndex.value = index
+}
+const handleToggleAllDepartmentsButtonClick = () => {
+    if (expandedDepartmentIndex.value == 'all') {
+        expandedDepartmentIndex.value = null
+        return
+    }
+    expandedDepartmentIndex.value = 'all'
+}
 
 // add/edit department form
 const showDepartmentForm = ref(false)

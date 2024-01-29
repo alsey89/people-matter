@@ -103,7 +103,20 @@ func (cr CompanyRepository) CompanyReadAndExpandAll() ([]*schema.Company, error)
 func (cr CompanyRepository) CompanyUpdate(CompanyID uint, updateData *schema.Company) (*schema.Company, error) {
 	var company schema.Company
 
-	result := cr.client.Model(&company).Where("ID = ?", CompanyID).Updates(updateData)
+	updateMap := map[string]interface{}{
+		"Name":       updateData.Name,
+		"LogoURL":    updateData.LogoURL,
+		"Website":    updateData.Website,
+		"Email":      updateData.Email,
+		"Phone":      updateData.Phone,
+		"Address":    updateData.Address,
+		"City":       updateData.City,
+		"State":      updateData.State,
+		"Country":    updateData.Country,
+		"PostalCode": updateData.PostalCode,
+	}
+
+	result := cr.client.Model(&company).Where("ID = ?", CompanyID).Updates(updateMap)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.company_update: %w", result.Error)
 	}
@@ -161,7 +174,13 @@ func (cr CompanyRepository) DepartmentReadAll() ([]*schema.Department, error) {
 func (cr CompanyRepository) DepartmentUpdate(DepartmentID uint, updateData *schema.Department) (*schema.Department, error) {
 	var department schema.Department
 
-	result := cr.client.Model(&department).Where("ID = ?", DepartmentID).Updates(updateData)
+	updateMap := map[string]interface{}{
+		// "CompanyID": updateData.CompanyID, //* not part of updateData, will always initialize to 0 since it's not a pointer
+		"Name":        updateData.Name,
+		"Description": updateData.Description,
+	}
+
+	result := cr.client.Model(&department).Where("ID = ?", DepartmentID).Updates(updateMap)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.department_update: %w", result.Error)
 	}
@@ -278,7 +297,19 @@ func (cr CompanyRepository) LocationReadAll() ([]*schema.Location, error) {
 func (cr CompanyRepository) LocationUpdate(locationID uint, updateData *schema.Location) (*schema.Location, error) {
 	var location schema.Location
 
-	result := cr.client.Model(&location).Where("ID = ?", locationID).Select("IsHeadOffice").Updates(updateData)
+	updateMap := map[string]interface{}{
+		// "CompanyID":    updateData.CompanyID, //* not part of updateData, will always initialize to 0 since it's not a pointer
+		"Name":         updateData.Name,
+		"IsHeadOffice": updateData.IsHeadOffice,
+		"Phone":        updateData.Phone,
+		"Address":      updateData.Address,
+		"City":         updateData.City,
+		"State":        updateData.State,
+		"Country":      updateData.Country,
+		"PostalCode":   updateData.PostalCode,
+	}
+
+	result := cr.client.Model(&location).Where("ID = ?", locationID).Updates(updateMap)
 	if result.Error != nil {
 		return nil, fmt.Errorf("company.r.location_update: %w", result.Error)
 	}

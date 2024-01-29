@@ -7,7 +7,7 @@ export const useCompanyStore = defineStore("company-store", {
     //* company data
     companyId: null,
     companyName: null,
-    companyLogoUrl: "defaultLogo.png",
+    companyLogoUrl: null,
     companyEmail: null,
     companyAddress: null,
     companyCity: null,
@@ -375,6 +375,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.companyPostalCode = response.data.data.expandedCompany.postalCode;
         this.companyPhone = response.data.data.expandedCompany.phone;
         this.companyWebsite = response.data.data.expandedCompany.website;
+        this.companyLogoUrl = response.data.data.expandedCompany.logoUrl;
         //related data
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;

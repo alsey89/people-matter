@@ -36,7 +36,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex gap-2 md:gap-4">
+                        <div class="flex flex-col md:flex-row flex-wrap md:flex-nowrap gap-2 md:gap-4">
                             <NBButtonSquare size="xs" @click.stop="handleSelectCompany(company)">
                                 <Icon name="material-symbols:check" class="h-6 w-6 "
                                     :class="company.ID === companyStore.getCompanyId ? 'bg-primary text-white' : 'text-black hover:text-primary'" />
@@ -66,13 +66,13 @@
 </template>
 
 <script setup>
-
+//meta
 definePageMeta({
     title: "Company",
     description: "Company",
     layout: "company",
 });
-
+//stores
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
 
