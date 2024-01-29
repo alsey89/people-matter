@@ -1,5 +1,5 @@
 <template>
-    <div v-html="renderedMarkdown" class="markdown-content"></div>
+    <div v-html="renderedMarkdown" class="prose"></div>
 </template>
   
 <script setup>

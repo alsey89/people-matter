@@ -12,48 +12,51 @@
         <!-- !Company -->
         <AppCompany v-if="activeTab == 'Company'" />
         <!-- !Department -->
-        <AppDepartment v-if="activeTab == 'Departments'" />
+        <AppCompanyDepartment v-if="activeTab == 'Departments'" />
         <!-- !Location -->
-        <AppLocation v-if="activeTab == 'Locations'" />
+        <AppCompanyLocation v-if="activeTab == 'Locations'" />
     </div>
 </template>
 
 <script setup>
 const companyStore = useCompanyStore()
+
 // Tabs
 const activeTab = ref('Company');
 
 const setActiveTab = (tabName) => {
     if (activeTab.value === tabName) {
-        return
+        return;
     };
-    if (companyStore.getCompanyName === null && (tabName !== 'Company')) {
-        return
+    if (companyStore.getCompanyId === null && (tabName !== 'Company')) {
+        return;
     };
     activeTab.value = tabName;
 };
 
 const getTabClasses = (tabName) => {
-    let isDisabled = companyStore.getCompanyName === null && (tabName === 'Departments' || tabName === 'Locations');
+    let isDisabled = companyStore.getCompanyId === null && (tabName !== 'Company');
     return {
-        'mt-1 px-4 py-1.5 text-primary border-l border-t border-r border-black': activeTab.value === tabName && !isDisabled,
-        'mt-2 px-2 py-1 text-gray-500 border-gray-500 border-l border-t border-r border-b-2': activeTab.value !== tabName && !isDisabled,
-        'mt-2 px-2 py-1 text-gray-300 border-gray-500 border-l border-t border-r border-b-2 cursor-not-allowed': isDisabled,
+        // active tab
+        'mt-1 px-4 py-1.5 text-primary border-black border-l border-t border-r': activeTab.value === tabName && !isDisabled,
+        // inactive tab
+        'mt-2 px-2 py-1 text-gray-500 border-gray-500 border-b-black border-l border-t border-r border-b-2': activeTab.value !== tabName && !isDisabled,
+        // disabled tab
+        'mt-2 px-2 py-1 text-gray-500 border-gray-500 border-b-black border-l border-t border-r border-b-2 hover:cursor-not-allowed': isDisabled,
     };
 };
 
-//! meta & loading -----------------------------
 definePageMeta({
     title: 'Company',
     layout: 'default',
 })
-const selectedCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
-onBeforeMount(() => {
-    if (selectedCompanyId) {
-        companyStore.fetchCompanyListAndExpandById(selectedCompanyId)
-        return
-    }
-    companyStore.fetchCompanyListAndExpandDefault()
-})
 
+onMounted(() => {
+    const selectedCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
+    if (selectedCompanyId) {
+        companyStore.fetchCompanyListAndExpandById({ companyId: selectedCompanyId })
+    } else {
+        companyStore.fetchCompanyListAndExpandDefault()
+    }
+});
 </script>

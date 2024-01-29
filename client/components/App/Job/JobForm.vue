@@ -104,7 +104,7 @@ const handleSubmit = () => {
 
 const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
 onBeforeMount(() => {
-    companyStore.fetchCompanyListAndExpandById(activeCompanyId)
+    companyStore.fetchCompanyListAndExpandById({ companyId: activeCompanyId })
 });
 </script>
   

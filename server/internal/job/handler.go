@@ -22,8 +22,15 @@ func NewJobHandler(jobService *JobService) *JobHandler {
 
 // ! Job ------------------------------------------------------------
 func (jh *JobHandler) CreateJob(c echo.Context) error {
-
 	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("job.h.create_job: company_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid company id",
+			Data:    nil,
+		})
+	}
+
 	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
 		log.Printf("job.h.create_job: error converting company_id to uint: %v", err)
@@ -66,6 +73,13 @@ func (jh *JobHandler) CreateJob(c echo.Context) error {
 
 func (jh *JobHandler) GetAllJobs(c echo.Context) error {
 	stringCompanyID := c.Param("company_id")
+	if stringCompanyID == "" {
+		log.Printf("job.h.read_all_jobs: company_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid company id",
+			Data:    nil,
+		})
+	}
 
 	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
 	if err != nil {
@@ -116,6 +130,14 @@ func (jh *JobHandler) UpdateJob(c echo.Context) error {
 	}
 
 	stringJobId := c.Param("job_id")
+	if stringJobId == "" {
+		log.Printf("job.h.update_job: job_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid job id",
+			Data:    nil,
+		})
+	}
+
 	uintJobID, err := common.ConvertStringOfNumbersToUint(stringJobId)
 	if err != nil {
 		log.Printf("job.h.delete_job: error converting job_id to uint: %v", err)
@@ -126,6 +148,14 @@ func (jh *JobHandler) UpdateJob(c echo.Context) error {
 	}
 
 	stringCompanyId := c.Param("company_id")
+	if stringCompanyId == "" {
+		log.Printf("job.h.update_job: company_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid company id",
+			Data:    nil,
+		})
+	}
+
 	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyId)
 	if err != nil {
 		log.Printf("job.h.delete_job: error converting company_id to uint: %v", err)
@@ -145,6 +175,14 @@ func (jh *JobHandler) UpdateJob(c echo.Context) error {
 
 func (jh *JobHandler) DeleteJob(c echo.Context) error {
 	stringJobId := c.Param("job_id")
+	if stringJobId == "" {
+		log.Printf("job.h.delete_job: job_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid job id",
+			Data:    nil,
+		})
+	}
+
 	uintJobID, err := common.ConvertStringOfNumbersToUint(stringJobId)
 	if err != nil {
 		log.Printf("job.h.delete_job: error converting job_id to uint: %v", err)

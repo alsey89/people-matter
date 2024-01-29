@@ -10,6 +10,10 @@ export const useCompanyStore = defineStore("company-store", {
     companyLogoUrl: "defaultLogo.png",
     companyEmail: null,
     companyAddress: null,
+    companyCity: null,
+    companyState: null,
+    companyCountry: null,
+    companyPostalCode: null,
     companyPhone: null,
     companyWebsite: null,
     //* related data
@@ -26,38 +30,44 @@ export const useCompanyStore = defineStore("company-store", {
     //* company data
     getCompanyName: (state) => state.companyName, //persisted
     getCompanyLogoUrl: (state) => state.companyLogoUrl, //persisted
-
-    getCompanyId: (state) => state.companyData?.ID,
-    getCompanyEmail: (state) => state.companyData?.email,
-    getFullAddress: (state) =>
-      state.companyData?.address +
-      ", " +
-      state.companyData?.city +
-      ", " +
-      state.companyData?.state +
-      ", " +
-      state.companyData?.country +
-      " " +
-      state.companyData?.postalCode,
-    getCompanyAddress: (state) => state.companyData?.address,
-    getCompanyCity: (state) => state.companyData?.city,
-    getCompanyState: (state) => state.companyData?.state,
-    getCompanyCountry: (state) => state.companyData?.country,
-    getCompanyPostalCode: (state) => state.companyData?.postalCode,
-    getCompanyPhone: (state) => state.companyData?.phone,
-    getCompanyWebsite: (state) => state.companyData?.website,
+    getCompanyId: (state) => state.companyId,
+    getCompanyEmail: (state) => state.companyEmail,
+    getFullAddress: (state) => {
+      let formattedAddress = "";
+      let parts = [
+        state.companyAddress,
+        state.companyCity,
+        state.get,
+        state.companyCountry,
+        state.companyPostalCode,
+      ];
+      parts.forEach((part) => {
+        if (part) {
+          formattedAddress += part + " ";
+        }
+      });
+      return formattedAddress;
+    },
+    getCompanyAddress: (state) => state.companyAddress,
+    getCompanyCity: (state) => state.companyCity,
+    getCompanyState: (state) => state.companyState,
+    getCompanyCountry: (state) => state.companyCountry,
+    getCompanyPostalCode: (state) => state.companyPostalCode,
+    getCompanyPhone: (state) => state.companyPhone,
+    getCompanyWebsite: (state) => state.companyWebsite,
     //* related data
     getCompanyDepartments: (state) => state.companyDepartments,
-    getCompanyTitles: (state) => state.companyTitles,
     getCompanyLocations: (state) => state.companyLocations,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
   actions: {
+    async clearCompanyStore() {
+      this.state = this.$reset();
+    },
     //! Company API Calls
-    async fetchCompanyList() {},
     async fetchCompanyListAndExpandDefault() {
-      this.Loading = true;
+      this.isLoading = true;
       try {
         const response = await axios.get(
           "http://localhost:3001/api/v1/company/default",
@@ -73,11 +83,11 @@ export const useCompanyStore = defineStore("company-store", {
       } catch (error) {
         this.handleError(error);
       } finally {
-        this.Loading = false;
+        this.isLoading = false;
       }
     },
-    async fetchCompanyListAndExpandById(companyId) {
-      this.Loading = true;
+    async fetchCompanyListAndExpandById({ companyId }) {
+      this.isLoading = true;
       try {
         const response = await axios.get(
           `http://localhost:3001/api/v1/company/${companyId}`,
@@ -93,7 +103,7 @@ export const useCompanyStore = defineStore("company-store", {
       } catch (error) {
         this.handleError(error);
       } finally {
-        this.Loading = false;
+        this.isLoading = false;
       }
     },
     async createCompany({ companyFormData }) {
@@ -163,7 +173,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    async deleteCompany(companyId) {
+    async deleteCompany({ companyId }) {
       const messageStore = useMessageStore();
       try {
         const response = await axios.delete(
@@ -357,6 +367,15 @@ export const useCompanyStore = defineStore("company-store", {
         this.companyData = response.data.data.expandedCompany;
         this.companyId = response.data.data.expandedCompany.ID;
         this.companyName = response.data.data.expandedCompany.name;
+        this.companyEmail = response.data.data.expandedCompany.email;
+        this.companyAddress = response.data.data.expandedCompany.address;
+        this.companyCity = response.data.data.expandedCompany.city;
+        this.companyState = response.data.data.expandedCompany.state;
+        this.companyCountry = response.data.data.expandedCompany.country;
+        this.companyPostalCode = response.data.data.expandedCompany.postalCode;
+        this.companyPhone = response.data.data.expandedCompany.phone;
+        this.companyWebsite = response.data.data.expandedCompany.website;
+        //related data
         this.companyDepartments =
           response.data.data.expandedCompany?.departments;
         this.companyLocations = response.data.data.expandedCompany?.locations;
@@ -365,19 +384,19 @@ export const useCompanyStore = defineStore("company-store", {
           "activeCompanyId",
           +this.companyId
         );
-
-        // Move company with company.ID == this.companyId to index 0
-        const activeCompanyIndex = this.companyList.findIndex(
-          (company) => company.ID === this.companyId
-        );
-        if (activeCompanyIndex !== -1) {
-          const activeCompany = this.companyList.splice(
-            activeCompanyIndex,
-            1
-          )[0];
-          this.companyList.unshift(activeCompany);
+        //move active company to index 0 if more than 1 company
+        if (this.companyList && this.companyList.length > 0) {
+          const activeCompanyIndex = this.companyList.findIndex(
+            (company) => company.ID === this.companyId
+          );
+          if (activeCompanyIndex !== -1) {
+            const activeCompany = this.companyList.splice(
+              activeCompanyIndex,
+              1
+            )[0];
+            this.companyList.unshift(activeCompany);
+          }
         }
-
         return true;
       } else {
         return false;

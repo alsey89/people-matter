@@ -17,7 +17,7 @@
         </div>
         <!-- !department form -->
         <div v-auto-animate>
-            <AppDepartmentForm v-if="showDepartmentForm" @submit="handleDepartmentFormSubmit"
+            <AppCompanyDepartmentForm v-if="showDepartmentForm" @submit="handleDepartmentFormSubmit"
                 :formData="departmentFormData" />
         </div>
         <!-- !department list -->
@@ -38,7 +38,7 @@
                     </div>
                 </NBCardHeader>
                 <div class="px-2">
-                    {{ department.description }}
+                    <MDRender :content="department.description" />
                 </div>
             </NBCard>
         </div>
@@ -65,6 +65,7 @@ const departmentFormData = reactive({
     departmentDescription: null,
 })
 const handleDepartmentFormSubmit = async () => {
+    showDepartmentForm.value = false;
     if (departmentFormData.departmentFormType == "edit") {
         await companyStore.updateDepartment({ companyId: companyStore.getCompanyId, departmentFormData: departmentFormData });
     } else if (departmentFormData.departmentFormType == "add") {
@@ -74,7 +75,6 @@ const handleDepartmentFormSubmit = async () => {
         messageStore.setError("Error submitting department form")
         return
     }
-    showDepartmentForm.value = false;
 };
 const handleAddDepartmentButtonClick = () => {
     clearDepartmentForm()

@@ -30,7 +30,9 @@
                                 <div v-if="company.ID === companyStore.getCompanyId">
                                     <p>phone: {{ companyStore.getCompanyPhone }}</p>
                                     <p>email: {{ companyStore.getCompanyEmail }}</p>
-                                    <p>{{ companyStore.getFullAddress }}</p>
+                                    <p>
+                                        {{ companyStore.getFullAddress }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -64,6 +66,13 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+    title: "Company",
+    description: "Company",
+    layout: "company",
+});
+
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
 

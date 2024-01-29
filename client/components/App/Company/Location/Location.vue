@@ -16,7 +16,7 @@
         </div>
         <!-- !location form -->
         <div v-if="showLocationForm">
-            <AppLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
+            <AppCompanyLocationForm @submit="handleLocationFormSubmit" :formData="locationFormData" />
         </div>
         <!-- !location list -->
         <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
@@ -72,6 +72,7 @@ const locationFormData = reactive({
     locationPostalCode: null,
 })
 const handleLocationFormSubmit = async () => {
+    showLocationForm.value = false;
     if (locationFormData.locationFormType === "edit") {
         await companyStore.updateLocation({ companyId: companyStore.getCompanyId, locationFormData: locationFormData });
     } else if (locationFormData.locationFormType === "add") {
@@ -81,7 +82,6 @@ const handleLocationFormSubmit = async () => {
         messageStore.setError("Error submitting location form")
         return
     }
-    showLocationForm.value = false;
 };
 const handleAddLocationButtonClick = () => {
     clearLocationForm()
