@@ -81,35 +81,32 @@ func main() {
 	userRepository := user.NewUserRepository(client)
 	userService := user.NewUserService(userRepository)
 	userHandler := user.NewUserHandler(userService)
-
 	//* Instantiate Auth Domain
 	authService := auth.NewAuthService(userService)
 	authHandler := auth.NewAuthHandler(authService)
-
 	//*Instantiate Job Domain
 	jobRepository := job.NewJobRepository(client)
 	// jobService := job.NewJobService(jobRepository)
 	// jobHandler := job.NewJobHandler(jobService)
-
 	//*Instantiate Company Domain
 	companyRepository := company.NewCompanyRepository(client)
 	companyService := company.NewCompanyService(companyRepository, jobRepository)
 	companyHandler := company.NewCompanyHandler(companyService)
 
+	//! Auth Routes
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
 	authRoutes.GET("/check", authHandler.CheckAuth)
 
+	//! Current User Routes
 	userRoutes := e.Group("api/v1/user")
 	userRoutes.GET("", userHandler.GetUser)
-	userRoutes.PUT("", userHandler.EditUser)
-	//user admin routes
-	userRoutes.GET("/all", userHandler.GetAllUsers)
 
+	//! Company Routes
 	companyRoutes := e.Group("api/v1/company")
-	// company
+	// main
 	companyRoutes.POST("", companyHandler.CreateCompany)
 	companyRoutes.GET("/default", companyHandler.GetCompanyDataExpandDefault)
 	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
@@ -127,6 +124,13 @@ func main() {
 	companyRoutes.POST("/:company_id/job", companyHandler.CreateJob)
 	companyRoutes.PUT("/:company_id/job/:job_id", companyHandler.UpdateJob)
 	companyRoutes.DELETE("/:company_id/job/:job_id", companyHandler.DeleteJob)
+
+	//! Company User Routes
+	companyUserRoutes := e.Group("api/v1/company/:company_id/user")
+	companyUserRoutes.GET("", userHandler.GetCompanyUsers)
+	companyUserRoutes.POST("", userHandler.CreateCompanyUser)
+	companyUserRoutes.PUT("/user_id", userHandler.UpdateCompanyUser)
+	companyUserRoutes.DELETE("/user_id", userHandler.DeleteCompanyUser)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

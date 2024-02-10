@@ -35,7 +35,7 @@ func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
 }
 
 // note: Preloads role (assignedJob > job > title and department)
-func (ur UserRepository) ReadAndExpandRole(UserID uint) (*schema.User, error) {
+func (ur UserRepository) ReadAndExpand(UserID uint) (*schema.User, error) {
 	var user schema.User
 	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").First(&user, "id = ?", UserID)
 	if result.Error != nil {
@@ -46,11 +46,21 @@ func (ur UserRepository) ReadAndExpandRole(UserID uint) (*schema.User, error) {
 }
 
 // note: Preloads roles (assignedJob > job > title and department)
-func (ur UserRepository) ReadAllAndExpandRoles() ([]*schema.User, error) {
+func (ur UserRepository) ReadAllAndExpand() ([]*schema.User, error) {
 	var users []*schema.User
 	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Find(&users)
 	if result.Error != nil {
 		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
+	}
+
+	return users, nil
+}
+
+func (ur UserRepository) ReadAllByCompanyIDAndExpand(companyID uint) ([]*schema.User, error) {
+	var users []*schema.User
+	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Where("company_id = ?", companyID).Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read_all_for_company: %w", result.Error)
 	}
 
 	return users, nil
