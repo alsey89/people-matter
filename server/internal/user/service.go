@@ -43,12 +43,20 @@ func (us *UserService) GetUserByEmail(email string) (*schema.User, error) {
 
 func (us *UserService) GetAllUsersAndExpand(companyID uint) ([]*schema.User, error) {
 
-	existingUsers, err := us.userRepository.ReadAllByCompanyIDAndExpand(companyID)
+	existingUsers, err := us.userRepository.ReadAllAndExpand()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
 	}
 
-	return existingUsers, nil
+	filteredUsers := make([]*schema.User, 0)
+	for _, user := range existingUsers {
+		// Check for nil pointers before accessing properties
+		if user.AssignedJob != nil && user.AssignedJob.Job.CompanyID == companyID {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+
+	return filteredUsers, nil // Return the filtered users
 }
 
 func (us *UserService) GetUserByIDAndExpand(ID uint) (*schema.User, error) {

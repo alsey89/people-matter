@@ -160,11 +160,11 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
-    async fetchAllUsersData(store) {
+    async fetchAllUsersData({ companyId }) {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/user/all",
+          `http://localhost:3001/api/v1/company/${companyId}/user`,
           {
             headers: {
               "Content-Type": "application/json",

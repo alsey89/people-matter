@@ -56,16 +56,6 @@ func (ur UserRepository) ReadAllAndExpand() ([]*schema.User, error) {
 	return users, nil
 }
 
-func (ur UserRepository) ReadAllByCompanyIDAndExpand(companyID uint) ([]*schema.User, error) {
-	var users []*schema.User
-	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Where("company_id = ?", companyID).Find(&users)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read_all_for_company: %w", result.Error)
-	}
-
-	return users, nil
-}
-
 func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
 	var user schema.User
 	result := ur.client.Where("email = ?", email).First(&user)

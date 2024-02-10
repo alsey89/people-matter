@@ -12,7 +12,7 @@ type User struct {
 	gorm.Model            // This includes fields ID, CreatedAt, UpdatedAt, DeletedAt
 	Email      string     `json:"email"      gorm:"uniqueIndex"`
 	Password   string     `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
-	AvatarURL  *string    `json:"avatarUrl"  gorm:"type:text"`
+	AvatarURL  string     `json:"avatarUrl"  gorm:"type:text"`
 	IsAdmin    bool       `json:"isAdmin"    gorm:"default:false"`
 	IsEmployee bool       `json:"isEmployee" gorm:"default:false"`
 	IsActive   bool       `json:"isActive"   gorm:"default:true"`
@@ -27,10 +27,10 @@ type User struct {
 	EmergencyContact *EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
 
 	//*job information
-	AssignedJob AssignedJob `json:"assignedJob" gorm:"foreignKey:UserID"`
+	AssignedJob *AssignedJob `json:"assignedJob" gorm:"foreignKey:UserID"`
 
 	//* salary information
-	SalaryID uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
+	SalaryID *uint     `json:"salaryId"  gorm:"foreignKey:UserID"`
 	Payments []Payment `json:"Payments" gorm:"foreignKey:UserID"`
 
 	//* leave & attendance
