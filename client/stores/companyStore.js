@@ -60,6 +60,18 @@ export const useCompanyStore = defineStore("company-store", {
     getCompanyDepartments: (state) => state.companyDepartments,
     getCompanyLocations: (state) => state.companyLocations,
     getCompanyJobs: (state) => state.companyJobs,
+    //* get by id
+    getDepartmentNameById: (state) => (departmentId) =>
+      state.companyDepartments.find(
+        (department) => department.ID === departmentId
+      ).name,
+    getLocationNameById: (state) => (locationId) =>
+      state.companyLocations.find((location) => location.ID === locationId)
+        .name,
+    getJobTitleById: (state) => (jobId) =>
+      state.companyJobs.find((job) => job.ID === jobId).title,
+    getManagerJobById: (state) => (managerId) =>
+      state.companyJobs.find((job) => job.ID === managerId).title,
     //* store
     getIsLoading: (state) => state.isLoading,
   },

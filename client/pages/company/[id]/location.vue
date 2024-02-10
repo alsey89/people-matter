@@ -9,7 +9,7 @@
             <div v-auto-animate class="flex gap-4">
                 <!-- !add location button -->
                 <NBButtonSquare @click="handleAddLocationButtonClick" size="xs">
-                    <Icon v-if="showLocationForm" name="material-symbols:close" class="h-6 w-6" />
+                    <Icon v-if="showLocationForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                 </NBButtonSquare>
             </div>
@@ -149,17 +149,4 @@ const handleDeleteLocationButtonClick = (location) => {
 const handleModalCancelEvent = () => {
     showConfirmationModal.value = false
 };
-
-// watchers
-watch(() => companyStore.getCompanyLocations, (newLocationList) => {
-    if (!newLocationList || newLocationList.length === 0) {
-        showLocationForm.value = true;
-        locationFormData.locationFormType = "add"
-    } else {
-        showLocationForm.value = false;
-        clearLocationForm();
-    }
-}, { immediate: true });
-
-
 </script>

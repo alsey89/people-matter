@@ -9,12 +9,13 @@
             <div v-auto-animate class="flex gap-4">
                 <!-- !toggle job action buttons -->
                 <NBButtonSquare @click="handleToggleAllJobsButtonClick" size="xs">
-                    <Icon v-if="expandedJobIndex == 'all'" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                    <Icon v-if="expandedJobIndex == 'all'" name="solar:list-arrow-up-bold"
+                        class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                 </NBButtonSquare>
                 <!-- !add job button -->
                 <NBButtonSquare @click="handleAddJobButtonClick" size="xs">
-                    <Icon v-if="showJobForm" name="material-symbols:close" class="h-6 w-6" />
+                    <Icon v-if="showJobForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                 </NBButtonSquare>
             </div>
@@ -30,7 +31,9 @@
                 <NBCardHeader>
                     <div v-auto-animate @click="handleExpandJobButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
-                        <p> {{ job.title }} </p>
+                        <p :class="{ 'text-primary text-xl': expandedJobIndex === index }">
+                            {{ job.title }}
+                        </p>
                         <div class="flex gap-4">
                             <NBButtonSquare size="xs" @click.stop="handleEditJobButtonClick(job)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
@@ -67,10 +70,22 @@
                                 <MDRender :content="job.experience" />
                             </p>
                         </div>
-                    </div>
-                    <div class="mt-4">
-                        <p class="font-semibold">Salary Range:</p>
-                        <p>{{ job.minSalary }} - {{ job.maxSalary }}</p>
+                        <div>
+                            <p class="font-semibold">Manager:</p>
+                            <p>{{ companyStore.getManagerJobById(job.managerId) }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Salary Range:</p>
+                            <p>{{ job.minSalary }} - {{ job.maxSalary }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Location:</p>
+                            <p>{{ companyStore.getLocationNameById(job.locationId) }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Department:</p>
+                            <p>{{ companyStore.getDepartmentNameById(job.departmentId) }}</p>
+                        </div>
                     </div>
                 </div>
             </NBCard>
@@ -207,11 +222,4 @@ const handleDeleteJobButtonClick = (job) => {
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
-// watchers
-watch(() => companyStore.getCompanyJobs, (newJobList) => {
-    if (!newJobList || newJobList.length < 1) {
-        showJobForm.value = true;
-        jobFormData.jobFormType = "add"
-    }
-}, { immediate: true });
 </script>

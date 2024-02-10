@@ -9,12 +9,13 @@
             <div v-auto-animate class="flex gap-4">
                 <!-- show/hide details Button -->
                 <NBButtonSquare size="xs" @click="handleToggleAllDepartmentsButtonClick">
-                    <Icon v-if="expandedDepartmentIndex == 'all'" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                    <Icon v-if="expandedDepartmentIndex == 'all'" name="solar:list-arrow-up-bold"
+                        class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                 </NBButtonSquare>
                 <!-- !add department button -->
                 <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
-                    <Icon v-if="showDepartmentForm" name="material-symbols:close" class="h-6 w-6" />
+                    <Icon v-if="showDepartmentForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
                 </NBButtonSquare>
             </div>
@@ -31,7 +32,9 @@
                 <NBCardHeader>
                     <div v-auto-animate @click="handleExpandDepartmentButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
-                        <p> {{ department.name }} </p>
+                        <p :class="{ 'text-primary text-xl': expandedDepartmentIndex === index }">
+                            {{ department.name }}
+                        </p>
                         <div class="flex gap-4">
                             <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
@@ -152,13 +155,4 @@ const handleDeleteDepartmentButtonClick = (department) => {
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 }
-
-// watchers
-// show department form when department list is empty
-watch(() => companyStore.getCompanyDepartments, (newDepartmentList) => {
-    if (!newDepartmentList || newDepartmentList.length < 1) {
-        showDepartmentForm.value = true;
-        departmentFormData.departmentFormType = "add"
-    }
-}, { immediate: true });
 </script>

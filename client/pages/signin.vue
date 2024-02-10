@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-screen flex items-center justify-center">
     <div v-auto-animate class="w-full flex flex-col justfiy-center items-center">
-      <NBCard v-if="showForm" class="w-1/5 bg-gray-100">
+      <NBCard v-if="showForm" class="bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
           <NBCardHeader>
             <NBText>

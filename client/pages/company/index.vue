@@ -8,7 +8,7 @@
             <h1 class="text-lg font-bold"> Company </h1>
             <!-- !add company button -->
             <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">
-                <Icon v-if="showCompanyForm" name="material-symbols:close" class="h-6 w-6" />
+                <Icon v-if="showCompanyForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                 <Icon v-else name="material-symbols:add" class="h-6 w-6" />
             </NBButtonSquare>
         </div>
@@ -182,16 +182,4 @@ const handleDeleteCompanyButtonClick = (company) => {
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
-//watchers
-//show company form when company list is empty
-watch(() => companyStore.getCompanyList, (newList) => {
-    if (!newList || newList.length === 0) {
-        showCompanyForm.value = true;
-        companyFormData.companyFormType = "add"
-    } else {
-        showCompanyForm.value = false;
-        clearCompanyForm();
-    }
-});
-
 </script>

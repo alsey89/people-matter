@@ -21,8 +21,8 @@ const activeRoute = computed(() => {
 })
 const tabs = computed(() => [
     { name: 'Company', to: `/company` },
-    { name: 'Departments', to: `/company/${companyStore.getCompanyId}/department` },
     { name: 'Locations', to: `/company/${companyStore.getCompanyId}/location` },
+    { name: 'Departments', to: `/company/${companyStore.getCompanyId}/department` },
     { name: 'Positions', to: `/company/${companyStore.getCompanyId}/job` },
 ]);
 const handleTabSelect = (tabRoute) => {
