@@ -1,5 +1,5 @@
 <template>
-    <NBCard class="w-full h-full">
+    <NBCard id="modal" class="w-full h-full">
         <NBCardHeader>
             Confirmation Required
         </NBCardHeader>
@@ -31,4 +31,9 @@ const handleConfirmButtonClick = () => {
 const handleCancelButtonClick = () => {
     emit("cancel")
 }
+// Scroll to bottom of modal when it is mounted
+onMounted(() => {
+    const modal = document.getElementById("modal")
+    modal.scrollIntoView({ behavior: "smooth", block: "end" })
+})
 </script>

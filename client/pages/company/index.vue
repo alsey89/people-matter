@@ -4,7 +4,7 @@
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
         <!-- !Company Header -->
-        <div class="flex justify-between items-center border-b-2 border-black py-2">
+        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
             <h1 class="text-lg font-bold"> Company </h1>
             <!-- !add company button -->
             <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">

@@ -5,7 +5,8 @@
                 <!-- Input for Title -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="title"> Title* </label>
-                    <input v-model="jobFormData.jobTitle" type="text" name="title" id="title" placeholder="Title of the Job"
+                    <input v-model.trim="jobFormData.jobTitle" type="text" name="title" id="title"
+                        placeholder="Title of the Job"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary"
                         required />
                 </div>
@@ -33,11 +34,11 @@
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="salaryRange"> Salary Range [optional] </label>
                     <div class="flex items-center gap-2">
-                        <input v-model="jobFormData.jobMinSalary" type="number" name="salaryRange" id="salaryRange"
+                        <input v-model.number="jobFormData.jobMinSalary" type="number" name="salaryRange" id="salaryRange"
                             placeholder="Min"
                             class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                         -
-                        <input v-model="jobFormData.jobMaxSalary" type="number" name="salaryRange" id="salaryRange"
+                        <input v-model.number="jobFormData.jobMaxSalary" type="number" name="salaryRange" id="salaryRange"
                             placeholder="Max"
                             class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                     </div>
@@ -45,25 +46,26 @@
                 <!-- Input for Description -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="description"> Description [optional] </label>
-                    <textarea v-model="jobFormData.jobDescription" type="text" name="description" id="description"
+                    <textarea v-model.trim="jobFormData.jobDescription" type="text" name="description" id="description"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                 </div>
                 <!-- Input for Duties -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="duties"> Duties [optional] </label>
-                    <textarea v-model="jobFormData.jobDuties" type="text" name="duties" id="duties"
+                    <textarea v-model.trim="jobFormData.jobDuties" type="text" name="duties" id="duties"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                 </div>
                 <!-- Input for Qualifications -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="qualifications"> Qualifications [optional] </label>
-                    <textarea v-model="jobFormData.jobQualifications" type="text" name="qualifications" id="qualifications"
+                    <textarea v-model.trim="jobFormData.jobQualifications" type="text" name="qualifications"
+                        id="qualifications"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                 </div>
                 <!-- Input for Experience -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="experience"> Experience [optional] </label>
-                    <textarea v-model="jobFormData.jobExperience" type="text" name="experience" id="experience"
+                    <textarea v-model.trim="jobFormData.jobExperience" type="text" name="experience" id="experience"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                 </div>
                 <!-- Submit Button -->

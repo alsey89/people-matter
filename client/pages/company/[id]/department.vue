@@ -4,7 +4,7 @@
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
         <!-- !Department Header -->
-        <div class="flex justify-between items-center border-b-2 border-black py-2">
+        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
             <div class=" items-center  text-lg font-bold"> Departments </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- show/hide details Button -->
@@ -154,14 +154,11 @@ const handleDeleteDepartmentButtonClick = (department) => {
 }
 
 // watchers
+// show department form when department list is empty
 watch(() => companyStore.getCompanyDepartments, (newDepartmentList) => {
     if (!newDepartmentList || newDepartmentList.length < 1) {
         showDepartmentForm.value = true;
         departmentFormData.departmentFormType = "add"
-    } else {
-        showDepartmentForm.value = false;
-        clearDepartmentForm();
     }
 }, { immediate: true });
-
 </script>

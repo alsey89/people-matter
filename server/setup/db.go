@@ -38,9 +38,9 @@ func GetClient() *gorm.DB {
 	}
 
 	//! local postgres
-	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
 	//!supabase for easy visualization
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "db.ehpdytlwkuavpscqllsr.supabase.co", "postgres", "bljZcr1sQsIDpreR", "postgres", "5432")
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "db.ehpdytlwkuavpscqllsr.supabase.co", "postgres", "bljZcr1sQsIDpreR", "postgres", "5432")
 
 	var err error
 	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{

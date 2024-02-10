@@ -8,9 +8,8 @@
             <div class="text-lg font-bold"> Jobs </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- !toggle job action buttons -->
-                <NBButtonSquare v-if="companyStore.getCompanyJobs && companyStore.getCompanyJobs?.length > 0"
-                    @click="handleExpandJobButtonClick" size="xs">
-                    <Icon v-if="expandJob" name="solar:list-arrow-up-bold" class="h-6 w-6" />
+                <NBButtonSquare @click="handleToggleAllJobsButtonClick" size="xs">
+                    <Icon v-if="expandedJobIndex == 'all'" name="solar:list-arrow-up-bold" class="h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
                 </NBButtonSquare>
                 <!-- !add job button -->
@@ -25,12 +24,14 @@
             <AppCompanyJobForm v-if="showJobForm" :jobFormData="jobFormData" @submit="handleFormSubmit" />
         </div>
         <!-- !Job List -->
-        <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="job in companyStore.getCompanyJobs" :key="job.ID">
+        <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="(job, index) in companyStore.getCompanyJobs"
+            :key="job.ID">
             <NBCard v-auto-animate>
                 <NBCardHeader>
-                    <div class="flex justify-between items-center px-2">
+                    <div v-auto-animate @click="handleExpandJobButtonClick(index)"
+                        class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p> {{ job.title }} </p>
-                        <div v-if="expandJob" class="flex gap-4">
+                        <div class="flex gap-4">
                             <NBButtonSquare size="xs" @click.stop="handleEditJobButtonClick(job)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                             </NBButtonSquare>
@@ -40,9 +41,9 @@
                         </div>
                     </div>
                 </NBCardHeader>
-                <div v-if="expandJob" class="px-2">
+                <div v-if="expandedJobIndex == index || expandedJobIndex == 'all'" class="px-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col flex-wrap gap-2">
                             <p class="font-semibold border-b py-1">Description:</p>
                             <p>
                                 <MDRender :content="job.description" />
@@ -96,12 +97,25 @@ const messageStore = useMessageStore();
 
 
 const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId');
-//expand
-const expandJob = ref(false);
-const handleExpandJobButtonClick = () => {
-    showJobForm.value = false;
-    expandJob.value = !expandJob.value;
-};
+// show/hide details
+const expandedJobIndex = ref("all")
+const handleExpandJobButtonClick = (index) => {
+    if (expandedJobIndex.value == index) {
+        expandedJobIndex.value = null
+        return
+    }
+    expandedJobIndex.value = index
+}
+const handleToggleAllJobsButtonClick = () => {
+    if (expandedJobIndex.value == 'all') {
+        expandedJobIndex.value = null
+        return
+    }
+    expandedJobIndex.value = 'all'
+}
+
+
+
 // add/edit
 const showJobForm = ref(false);
 const jobFormData = reactive({
@@ -125,11 +139,6 @@ const handleAddJobButtonClick = () => {
     showJobForm.value = !showJobForm.value;
 };
 const handleEditJobButtonClick = (job) => {
-    scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-    })
     populateJobFormData(job)
     showJobForm.value = !showJobForm.value;
 };
@@ -200,7 +209,7 @@ const handleDeleteJobButtonClick = (job) => {
 };
 // watchers
 watch(() => companyStore.getCompanyJobs, (newJobList) => {
-    if (!newJobList || newJobList.length === 0) {
+    if (!newJobList || newJobList.length < 1) {
         showJobForm.value = true;
         jobFormData.jobFormType = "add"
     }

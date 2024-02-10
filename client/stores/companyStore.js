@@ -374,8 +374,6 @@ export const useCompanyStore = defineStore("company-store", {
       }
     },
     async createJob({ companyId, jobFormData }) {
-      console.log("jobFormDAta", jobFormData);
-      console.log("companyId", companyId);
       const messageStore = useMessageStore();
       try {
         const response = await axios.post(
