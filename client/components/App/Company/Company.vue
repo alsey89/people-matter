@@ -15,9 +15,8 @@
         <div v-auto-animate class="w-full flex flex-col gap-4">
             <!-- !New Company Form -->
             <AppCompanyForm v-if="showCompanyForm" :formData="companyFormData" @submit="handleCompanyFormSubmit" />
-            <!-- !Company List -->
-            <div v-if="companyStore.getCompanyList && companyStore.getCompanyList.length > 0"
-                v-for="company in companyStore.getCompanyList" :key="company.ID">
+            <!-- !Company Data -->
+            <div v-if="companyStore.getCompanyData">
                 <NBCard class="w-full">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
@@ -173,16 +172,4 @@ const handleDeleteCompanyButtonClick = (company) => {
         handleModalConfirmEvent.value = null; //! clear the stored function
     };
 };
-//watchers
-//show company form when company list is empty
-watch(() => companyStore.getCompanyList, (newList) => {
-    if (!newList || newList.length === 0) {
-        showCompanyForm.value = true;
-        companyFormData.companyFormType = "add"
-    } else {
-        showCompanyForm.value = false;
-        clearCompanyForm();
-    }
-});
-
 </script>

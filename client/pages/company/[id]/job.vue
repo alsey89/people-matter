@@ -48,31 +48,45 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex flex-col flex-wrap gap-2">
                             <p class="font-semibold border-b py-1">Description:</p>
-                            <p>
+                            <p v-if="job.description">
                                 <MDRender :content="job.description" />
+                            </p>
+                            <p v-else>
+                                No Data
                             </p>
                         </div>
                         <div class="flex flex-col gap-2">
                             <p class="font-semibold border-b py-1">Duties:</p>
-                            <p>
+                            <p v-if="job.duties">
                                 <MDRender :content="job.duties" />
+                            </p>
+                            <p v-else>
+                                No Data
                             </p>
                         </div>
                         <div class="flex flex-col gap-2">
                             <p class="font-semibold border-b py-1">Qualifications:</p>
-                            <p>
+                            <p v-if="job.qualifications">
                                 <MDRender :content="job.qualifications" />
+                            </p>
+                            <p v-else>
+                                No Data
                             </p>
                         </div>
                         <div class="flex flex-col gap-2">
                             <p class="font-semibold border-b py-1">Experience:</p>
-                            <p>
+                            <p v-if="job.experience">
                                 <MDRender :content="job.experience" />
+                            </p>
+                            <p v-else>
+                                No Data
                             </p>
                         </div>
                         <div>
                             <p class="font-semibold">Manager:</p>
-                            <p>{{ companyStore.getManagerJobById(job.managerId) }}</p>
+                            <p v-if="companyStore.getManagerJobById(job.managerId)">{{
+                                companyStore.getManagerJobById(job.managerId) }}</p>
+                            <p v-else>No Data</p>
                         </div>
                         <div>
                             <p class="font-semibold">Salary Range:</p>
@@ -80,11 +94,15 @@
                         </div>
                         <div>
                             <p class="font-semibold">Location:</p>
-                            <p>{{ companyStore.getLocationNameById(job.locationId) }}</p>
+                            <p v-if="companyStore.getLocationNameById(job.locationId)">{{
+                                companyStore.getLocationNameById(job.locationId) }}</p>
+                            <p v-else>No Data</p>
                         </div>
                         <div>
                             <p class="font-semibold">Department:</p>
-                            <p>{{ companyStore.getDepartmentNameById(job.departmentId) }}</p>
+                            <p v-if="companyStore.getDepartmentNameById(job.departmentId)">{{
+                                companyStore.getDepartmentNameById(job.departmentId) }}</p>
+                            <p v-else>No Data</p>
                         </div>
                     </div>
                 </div>
@@ -110,8 +128,6 @@ definePageMeta({
 const companyStore = useCompanyStore();
 const messageStore = useMessageStore();
 
-
-const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId');
 // show/hide details
 const expandedJobIndex = ref("all")
 const handleExpandJobButtonClick = (index) => {
@@ -189,11 +205,10 @@ const clearJobForm = () => {
 };
 const handleFormSubmit = () => {
     if (jobFormData.jobFormType == "add") {
-        companyStore.createJob({ companyId: activeCompanyId, jobFormData: jobFormData });
+        companyStore.createJob({ companyId: companyStore.companyId, jobFormData: jobFormData });
     } else if (jobFormData.jobFormType == "edit") {
-        companyStore.updateJob({ companyId: activeCompanyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
+        companyStore.updateJob({ companyId: companyStore.companyId, jobId: jobFormData.jobId, jobFormData: jobFormData });
     }
-
     showJobForm.value = false;
 };
 // delete
@@ -217,7 +232,7 @@ const handleDeleteJobButtonClick = (job) => {
     handleModalConfirmEvent.value = async () => {
         showConfirmationModal.value = false;
         showJobForm.value = false;
-        await companyStore.deleteJob({ companyId: activeCompanyId, jobId: jobId });
+        await companyStore.deleteJob({ companyId: companyStore.companyId, jobId: jobId });
 
         handleModalConfirmEvent.value = null; //! clear the stored function
     };

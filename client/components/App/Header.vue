@@ -36,15 +36,4 @@
 const userStore = useUserStore()
 const companyStore = useCompanyStore()
 
-const selectedCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
-
-onBeforeMount(() => {
-    if (!selectedCompanyId) {
-        companyStore.fetchCompanyListAndExpandDefault()
-    }
-    if (!companyStore.getCompanyName || !companyStore.getCompanyLogoUrl) {
-        companyStore.fetchCompanyDetails(selectedCompanyId)
-    }
-})
-
 </script>

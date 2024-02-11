@@ -102,10 +102,5 @@ const emit = defineEmits(['submit']);
 const handleSubmit = () => {
     emit('submit');
 };
-
-const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
-onBeforeMount(() => {
-    companyStore.fetchCompanyListAndExpandById({ companyId: activeCompanyId })
-});
 </script>
   

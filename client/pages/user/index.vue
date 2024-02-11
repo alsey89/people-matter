@@ -16,7 +16,7 @@
             <!-- !New Company Form -->
             <AppUsersForm v-if="showUserForm" :userFormData="userFormData" @submit="handleUserFormSubmit" />
             <!-- !Company List -->
-            <div v-if="userStore.getUserList && userStore.getUserList.length > 0" v-for="user in userStore.getCompanyList"
+            <div v-if="userStore.getUserList && userStore.getUserList.length > 0" v-for="user in userStore.getUserList"
                 :key="user.ID">
                 <NBCard class="w-full flex justify-between">
                     <div class="">

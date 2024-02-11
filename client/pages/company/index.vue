@@ -1,33 +1,34 @@
 <template>
     <div v-auto-animate class="w-full flex flex-col gap-4">
-        <!-- !Confirmation Modal -->
+        <!-- !CONFIRMATION MODAL -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
-        <!-- !Company Header -->
+        <!-- !COMPANY HEADER -->
         <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
             <h1 class="text-lg font-bold"> Company </h1>
-            <!-- !add company button -->
-            <NBButtonSquare @click="handleAddCompanyButtonClick" size="xs">
+            <!-- !Add Company Button -->
+            <NBButtonSquare v-if="!companyStore.getCompanyData" @click="handleAddCompanyButtonClick" size="xs">
                 <Icon v-if="showCompanyForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                 <Icon v-else name="material-symbols:add" class="h-6 w-6" />
+            </NBButtonSquare>
+            <NBButtonSquare v-if="showCompanyForm" @click="showCompanyForm = false" size="xs">
+                <Icon name="material-symbols:close" class="text-primary-dark h-6 w-6" />
             </NBButtonSquare>
         </div>
         <div v-auto-animate class="w-full flex flex-col gap-4">
             <!-- !New Company Form -->
             <AppCompanyForm v-if="showCompanyForm" :formData="companyFormData" @submit="handleCompanyFormSubmit" />
             <!-- !Company List -->
-            <div v-if="companyStore.getCompanyList && companyStore.getCompanyList.length > 0"
-                v-for="company in companyStore.getCompanyList" :key="company.ID">
+            <div v-if="companyStore.getCompanyData">
                 <NBCard class="w-full">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
-                            <AppLogo :src="companyStore.getCompanyLogoUrl"
-                                :class="company.ID === companyStore.getCompanyId ? 'w-24 h-24' : 'w-12 h-12'"
-                                shape="square" />
+                            <AppLogo :src="companyStore.getCompanyLogoUrl" class="w-24 h-24" shape="square" />
                             <div class="flex flex-col overflow-x-hidden">
-                                <h1 class="text-sm md:text-lg text-nowrap font-bold"> {{ company.name }} </h1>
-                                <p class="text-sm md:text-lg text-nowrap"> {{ company.website }} </p>
-                                <div v-if="company.ID === companyStore.getCompanyId">
+                                <h1 class="text-sm md:text-lg text-nowrap font-bold"> {{ companyStore.getCompanyName }}
+                                </h1>
+                                <p class="text-sm md:text-lg text-nowrap"> {{ companyStore.getCompanyWebsite }} </p>
+                                <div>
                                     <p>phone: {{ companyStore.getCompanyPhone }}</p>
                                     <p>email: {{ companyStore.getCompanyEmail }}</p>
                                     <p>
@@ -37,14 +38,10 @@
                             </div>
                         </div>
                         <div class="flex flex-col md:flex-row flex-wrap md:flex-nowrap gap-2 md:gap-4">
-                            <NBButtonSquare size="xs" @click.stop="handleSelectCompany(company)">
-                                <Icon name="material-symbols:check" class="h-6 w-6 "
-                                    :class="company.ID === companyStore.getCompanyId ? 'bg-primary text-white' : 'text-black hover:text-primary'" />
-                            </NBButtonSquare>
-                            <NBButtonSquare size="xs" @click.stop="handleEditCompanyButtonClick(company)">
+                            <NBButtonSquare size="xs" @click.stop="handleEditCompanyButtonClick">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
                             </NBButtonSquare>
-                            <NBButtonSquare size="xs" @click.stop="handleDeleteCompanyButtonClick(company)">
+                            <NBButtonSquare size="xs" @click.stop="handleDeleteCompanyButtonClick">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
                             </NBButtonSquare>
                         </div>
@@ -76,21 +73,6 @@ definePageMeta({
 const companyStore = useCompanyStore()
 const messageStore = useMessageStore()
 
-// select company
-const handleSelectCompany = async (company) => {
-    const companyId = company.ID
-    if (!companyId) {
-        console.error("No company ID")
-        messageStore.setError("Error selecting company")
-        return
-    }
-    if (companyStore.getCompanyId === companyId) {
-        showCompanyForm.value = false
-        return
-    }
-    await companyStore.fetchCompanyListAndExpandById({ companyId: companyId })
-    showCompanyForm.value = false
-};
 // add/edit company
 const showCompanyForm = ref(false)
 const companyFormData = reactive({
@@ -116,7 +98,7 @@ const handleAddCompanyButtonClick = () => {
 const handleEditCompanyButtonClick = (company) => {
     populateCompanyForm(company)
     companyFormData.companyFormType = "edit"
-    showCompanyForm.value = true
+    showCompanyForm.value = !showCompanyForm.value
 };
 const clearCompanyForm = () => {
     companyFormData.companyName = ''
@@ -130,18 +112,18 @@ const clearCompanyForm = () => {
     companyFormData.companyCountry = ''
     companyFormData.companyPostalCode = ''
 };
-const populateCompanyForm = (company) => {
-    companyFormData.companyId = company.ID
-    companyFormData.companyName = company.name
-    companyFormData.companyPhone = company.phone
-    companyFormData.companyEmail = company.email
-    companyFormData.companyWebsite = company.website
-    companyFormData.companyLogoUrl = company.logoUrl
-    companyFormData.companyAddress = company.address
-    companyFormData.companyCity = company.city
-    companyFormData.companyState = company.state
-    companyFormData.companyCountry = company.country
-    companyFormData.companyPostalCode = company.postalCode
+const populateCompanyForm = () => {
+    companyFormData.companyId = companyStore.getCompanyId
+    companyFormData.companyName = companyStore.getCompanyName
+    companyFormData.companyPhone = companyStore.getCompanyPhone
+    companyFormData.companyEmail = companyStore.getCompanyEmail
+    companyFormData.companyWebsite = companyStore.getCompanyWebsite
+    companyFormData.companyLogoUrl = companyStore.getCompanyLogoUrl
+    companyFormData.companyAddress = companyStore.getCompanyAddress
+    companyFormData.companyCity = companyStore.getCompanyCity
+    companyFormData.companyState = companyStore.getCompanyState
+    companyFormData.companyCountry = companyStore.getCompanyCountry
+    companyFormData.companyPostalCode = companyStore.getCompanyPostalCode
 };
 const handleCompanyFormSubmit = async () => {
     showCompanyForm.value = false;
@@ -164,14 +146,14 @@ const handleModalCancelEvent = () => {
     showConfirmationModal.value = false;
     handleModalConfirmEvent.value = null; //! clear the stored function
 };
-const handleDeleteCompanyButtonClick = (company) => {
-    const companyId = company.ID
+const handleDeleteCompanyButtonClick = () => {
+    const companyId = companyStore.getCompanyId
     if (!companyId) {
         console.error("No company ID")
         messageStore.setError("Error deleting company")
         return
     }
-    confirmationModalMessage.value = `Are you sure you want to delete ${company.name}? All data associated with this company (Departments, Locations, Jobs, etc.) will be deleted. This action cannot be undone.`
+    confirmationModalMessage.value = `Are you sure you want to delete ${companyStore.getCompanyName}? All data associated with this company (Departments, Locations, Jobs, etc.) will be deleted. This action cannot be undone.`
     showConfirmationModal.value = true
 
     //* store the function to be called when confirmation modal is confirmed, along with its arguments

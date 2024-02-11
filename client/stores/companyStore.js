@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const useCompanyStore = defineStore("company-store", {
   state: () => ({
-    companyList: [],
+    // companyList: [],
     companyData: null,
     //* company data
     companyId: null,
@@ -26,7 +26,6 @@ export const useCompanyStore = defineStore("company-store", {
   }),
   getters: {
     //* all data
-    getCompanyList: (state) => state.companyList,
     getCompanyData: (state) => state.companyData,
     //* company data
     getCompanyName: (state) => state.companyName, //persisted
@@ -71,7 +70,7 @@ export const useCompanyStore = defineStore("company-store", {
     getJobTitleById: (state) => (jobId) =>
       state.companyJobs.find((job) => job.ID === jobId).title,
     getManagerJobById: (state) => (managerId) =>
-      state.companyJobs.find((job) => job.ID === managerId).title,
+      state.companyJobs.find((job) => job.ID === managerId)?.title,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
@@ -80,31 +79,11 @@ export const useCompanyStore = defineStore("company-store", {
       this.state = this.$reset();
     },
     //! Company API Calls
-    async fetchCompanyListAndExpandDefault() {
+    async fetchCompany() {
       this.isLoading = true;
       try {
         const response = await axios.get(
           "http://localhost:3001/api/v1/company/default",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        this.handleSuccess(response);
-      } catch (error) {
-        this.handleError(error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async fetchCompanyListAndExpandById({ companyId }) {
-      this.isLoading = true;
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/api/v1/company/${companyId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -189,6 +168,7 @@ export const useCompanyStore = defineStore("company-store", {
     },
     async deleteCompany({ companyId }) {
       const messageStore = useMessageStore();
+      this.isLoading = true;
       try {
         const response = await axios.delete(
           `http://localhost:3001/api/v1/company/${companyId}`,
@@ -206,6 +186,8 @@ export const useCompanyStore = defineStore("company-store", {
         }
       } catch (error) {
         this.handleError(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     //! Department API Calls
@@ -476,13 +458,11 @@ export const useCompanyStore = defineStore("company-store", {
     handleSuccess(response) {
       const messageStore = useMessageStore();
       if (response.status === 204) {
-        sessionStorage.removeItem("activeCompanyId");
         this.state = this.$reset();
         messageStore.setMessage("No content.");
         return false;
       }
       if (response.status >= 200 && response.status < 300) {
-        this.companyList = response.data.data.companyList;
         this.companyData = response.data.data.expandedCompany;
         this.companyId = response.data.data.expandedCompany.ID;
         this.companyName = response.data.data.expandedCompany.name;
@@ -500,24 +480,6 @@ export const useCompanyStore = defineStore("company-store", {
           response.data.data.expandedCompany?.departments;
         this.companyLocations = response.data.data.expandedCompany?.locations;
         this.companyJobs = response.data.data.expandedCompany?.jobs;
-        //store active company in session
-        persistedState.sessionStorage.setItem(
-          "activeCompanyId",
-          +this.companyId
-        );
-        //move active company to index 0 if more than 1 company
-        if (this.companyList && this.companyList.length > 0) {
-          const activeCompanyIndex = this.companyList.findIndex(
-            (company) => company.ID === this.companyId
-          );
-          if (activeCompanyIndex !== -1) {
-            const activeCompany = this.companyList.splice(
-              activeCompanyIndex,
-              1
-            )[0];
-            this.companyList.unshift(activeCompany);
-          }
-        }
         return true;
       } else {
         return false;
