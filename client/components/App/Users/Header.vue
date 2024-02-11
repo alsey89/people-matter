@@ -1,7 +1,8 @@
 <template>
-    <div class="flex justify-start gap-0.5 items-center">
+    <div v-auto-animate class="flex justify-start gap-0.5 items-center">
         <client-only>
-            <div @click="handleTabSelect(tab.to)" v-for="tab in tabs" :key="tab.name" :class="getTabClasses(tab.to)"
+            <div v-if="activeRoute.startsWith('/user')" @click="handleTabSelect(tab.to)" v-for="tab in tabs" :key="tab.name"
+                :class="getTabClasses(tab.to)"
                 class="text-base font-bold rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]">
                 {{ tab.name }}
             </div>
@@ -13,13 +14,13 @@
 <script setup>
 import { useRoute } from 'vue-router';
 const companyStore = useCompanyStore()
-const userStore = useUserStore()
 
 //tabs ---------------------
 const route = useRoute()
 const activeRoute = computed(() => {
     return route.path
 })
+
 const tabs = computed(() => [
     { name: 'Users', to: `/user` },
     // { name: 'Locations', to: `/company/${companyStore.getCompanyId}/location` },
@@ -49,12 +50,4 @@ const getTabClasses = (tabRoute) => {
 
 // life cycle related ---------------------
 const activeCompanyId = persistedState.sessionStorage.getItem('activeCompanyId')
-onBeforeMount(() => {
-    if (activeCompanyId) {
-        userStore.fetchAllUsersData({ companyId: activeCompanyId })
-    } else {
-        messageStore.setError("No active company selected. Please select a company.")
-        navigateTo('/company')
-    }
-});
 </script>

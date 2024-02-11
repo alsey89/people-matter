@@ -1,7 +1,8 @@
 <template>
-    <div class="flex justify-start gap-0.5 items-center">
+    <div v-auto-animate class="flex justify-start gap-0.5 items-center">
         <client-only>
-            <div @click="handleTabSelect(tab.to)" v-for="tab in tabs" :key="tab.name" :class="getTabClasses(tab.to)"
+            <div v-if="activeRoute.startsWith('/company')" @click="handleTabSelect(tab.to)" v-for=" tab  in  tabs "
+                :key="tab.name" :class="getTabClasses(tab.to)"
                 class="text-base font-bold rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]">
                 {{ tab.name }}
             </div>
