@@ -102,7 +102,13 @@ func main() {
 
 	//! Current User Routes
 	userRoutes := e.Group("api/v1/user")
-	userRoutes.GET("", userHandler.GetUser)
+	// current user
+	userRoutes.GET("/current", userHandler.GetCurrentUser)
+	// all users
+	userRoutes.GET("", userHandler.GetAllUsers)
+	userRoutes.POST("", userHandler.CreateUser)
+	userRoutes.PUT("/:user_id", userHandler.UpdateUser)
+	userRoutes.DELETE("/:user_id", userHandler.DeleteUser)
 
 	//! Company Routes
 	companyRoutes := e.Group("api/v1/company")
@@ -124,13 +130,6 @@ func main() {
 	companyRoutes.POST("/:company_id/job", companyHandler.CreateJob)
 	companyRoutes.PUT("/:company_id/job/:job_id", companyHandler.UpdateJob)
 	companyRoutes.DELETE("/:company_id/job/:job_id", companyHandler.DeleteJob)
-
-	//! Company User Routes
-	companyUserRoutes := e.Group("api/v1/company/:company_id/user")
-	companyUserRoutes.GET("", userHandler.GetCompanyUsers)
-	companyUserRoutes.POST("", userHandler.CreateCompanyUser)
-	companyUserRoutes.PUT("/user_id", userHandler.UpdateCompanyUser)
-	companyUserRoutes.DELETE("/user_id", userHandler.DeleteCompanyUser)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))

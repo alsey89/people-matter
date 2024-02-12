@@ -13,16 +13,33 @@
             </NBButtonSquare>
         </div>
         <div v-auto-animate class="w-full flex flex-col gap-4">
-            <!-- !New Company Form -->
+            <!-- !New User Form -->
             <AppUsersForm v-if="showUserForm" :userFormData="userFormData" @submit="handleUserFormSubmit" />
-            <!-- !Company List -->
-            <div v-if="userStore.getUserList && userStore.getUserList.length > 0" v-for="user in userStore.getUserList"
-                :key="user.ID">
-                <NBCard class="w-full flex justify-between">
-                    <div class="">
-                        {{ user }}
+            <!-- !User List -->
+            <div v-if="userStore.getAllUsersData && userStore.getAllUsersData.length > 0"
+                v-for="user in userStore.getAllUsersData" :key="user.ID">
+                <NBCard class="w-full">
+                    <div class="flex justify-between items-center p-2">
+                        <div class="flex gap-4 items-center">
+                            <AppImage :src="user.avatarUrl || 'defaultAvatar.jpg'" shape="square" class="w-12 h-12" />
+                            <div class="flex flex-col overflow-x-hidden">
+                                <h1 class="text-sm md:text-lg text-nowrap font-bold"> {{ user.firstName }} {{
+                                    user.middleName || "" }} {{ user.lastName || '' }}
+                                </h1>
+                                <div>
+                                    <p>email: {{ user.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <NBButtonSquare size="xs" @click.stop="handleEditUserButtonClick(user)">
+                                <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
+                            </NBButtonSquare>
+                            <NBButtonSquare size="xs" @click.stop="handleDeleteUserButtonClick(user)">
+                                <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
+                            </NBButtonSquare>
+                        </div>
                     </div>
-                    <button @click="handleEditUserButtonClick(user)"> EDIT </button>
                 </NBCard>
             </div>
             <div v-else>
@@ -97,7 +114,7 @@ const handleUserFormSubmit = async () => {
     if (userFormData.userFormType === "edit") {
         await userStore.updateUser({ userFormData: userFormData });
     } else if (userFormData.userFormType === "add") {
-        await userStore.createUser({ companyFormData: companyFormData });
+        await userStore.createUser({ userFormData: userFormData });
     } else {
         console.error("No user form type")
         messageStore.setError("Error submitting user form")
@@ -126,7 +143,7 @@ const handleDeleteUserButtonClick = (user) => {
     //* store the function to be called when confirmation modal is confirmed, along with its arguments
     handleModalConfirmEvent.value = async () => {
         showConfirmationModal.value = false;
-        showCompanyForm.value = false;
+        showUserForm.value = false;
         await userStore.deleteUser({ userId: userId });
         handleModalConfirmEvent.value = null; //! clear the stored function
     };

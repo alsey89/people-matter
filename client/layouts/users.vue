@@ -28,7 +28,7 @@
 const userStore = useUserStore()
 
 onBeforeMount(() => {
-    userStore.fetchUserList()
+    userStore.fetchAllUsersData()
 });
 </script>
 

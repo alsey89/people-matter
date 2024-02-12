@@ -20,41 +20,8 @@ func NewCompanyHandler(companyService *CompanyService) *CompanyHandler {
 	return &CompanyHandler{companyService: companyService}
 }
 
-//! Company ------------------------------------------------------------
-
-func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
-	newCompany := new(schema.Company)
-
-	err := c.Bind(newCompany)
-	if err != nil {
-		log.Printf("company.h.create_company: error binding company data: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
-			Data:    nil,
-		})
-	}
-
-	companyData, err := ch.companyService.CreateNewCompanyAndReturnList(newCompany)
-	if err != nil {
-		log.Printf("company.h.create_company: %v", err)
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return c.JSON(http.StatusConflict, common.APIResponse{
-				Message: "company already exists",
-				Data:    nil,
-			})
-		}
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "error creating company data",
-			Data:    nil,
-		})
-	}
-
-	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "company data has been created",
-		Data:    companyData,
-	})
-}
-
+// ! Company ------------------------------------------------------------
+// todo: switch to single company data
 func (ch *CompanyHandler) GetCompanyDataExpandDefault(c echo.Context) error {
 
 	CompanyData, err := ch.companyService.GetCompanyListAndExpandDefault()
@@ -115,6 +82,39 @@ func (ch *CompanyHandler) GetCompanyDataExpandID(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "company data has been retrieved",
 		Data:    CompanyData,
+	})
+}
+
+func (ch *CompanyHandler) CreateCompany(c echo.Context) error {
+	newCompany := new(schema.Company)
+
+	err := c.Bind(newCompany)
+	if err != nil {
+		log.Printf("company.h.create_company: error binding company data: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	companyData, err := ch.companyService.CreateNewCompanyAndReturnList(newCompany)
+	if err != nil {
+		log.Printf("company.h.create_company: %v", err)
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return c.JSON(http.StatusConflict, common.APIResponse{
+				Message: "company already exists",
+				Data:    nil,
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error creating company data",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "company data has been created",
+		Data:    companyData,
 	})
 }
 

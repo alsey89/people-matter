@@ -2,29 +2,28 @@ import axios from "axios";
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
+    //* complete data
     currentUserData: null,
     allUsersData: null,
-    userData: null,
-    //* user data
-    firstName: null,
-    middleName: null,
-    lastName: null,
-    nickName: null,
-    //* account data
-    email: null,
-    avatarUrl: null,
+    singleUserData: null,
+    //* current user data
+    currentUserfirstName: null,
+    currentUserLastName: null,
+    currentUserMiddleName: null,
+    currentUserNickName: null,
+    currentUserEmail: null,
+    currentUserAvatarUrl: null,
     //* store
     isLoading: false,
-    lastFetch: null,
   }),
   getters: {
     //* complete data
     getCurrentUserData: (state) => state.currentUserData,
     getAllUsersData: (state) => state.allUsersData,
-    //* fields
+    //* current user data
     getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
     getCurrentUserFullName: (state) =>
-      state.userData?.firstName + " " + state.currentUserData?.lastName,
+      state.currentUserData?.firstName + " " + state.currentUserData?.lastName,
     getCurrentUserUserId: (state) => state.currentUserData?.userId,
     getCurrentUserEmail: (state) => state.currentUserData?.email,
     getCurrentUserIsAdmin: (state) => state.currentUserData?.isAdmin,
@@ -32,6 +31,7 @@ export const useUserStore = defineStore("user-store", {
       state.currentUserData?.assignedJob?.job?.title?.name,
     getCurrentUserDepartment: (state) =>
       state.currentUserData?.assignedJob?.job?.department?.name,
+    //* single user data
   },
   actions: {
     //! Auth API Calls
@@ -54,7 +54,7 @@ export const useUserStore = defineStore("user-store", {
         );
         if (response.status === 200) {
           messageStore.setMessage("Successfully signed in.");
-          this.userData = response.data.data;
+          this.currentUserData = response.data.data;
           return navigateTo("/");
         }
       } catch (error) {
@@ -82,7 +82,7 @@ export const useUserStore = defineStore("user-store", {
         );
         if (response.status === 200) {
           messageStore.setMessage("Successfully signed up.");
-          this.userData = response.data.data;
+          this.currentUserData = response.data.data;
           return navigateTo("/");
         }
       } catch (error) {
@@ -104,7 +104,7 @@ export const useUserStore = defineStore("user-store", {
         this.handleError(error);
       }
     },
-    async checkAuth(store) {
+    async checkAuth() {
       try {
         await axios.get("http://localhost:3001/api/v1/auth/check", {
           withCredentials: true,
@@ -116,25 +116,29 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     //! User API Calls
-    async fetchCurrentUserData(store) {
+    async fetchCurrentUserData() {
       this.isLoading = true;
       try {
-        const response = await axios.get("http://localhost:3001/api/v1/user", {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "http://localhost:3001/api/v1/user/current",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
         this.currentUserData = response.data.data;
-        this.firstName = response.data.data.firstName;
-        this.lastName = response.data.data.lastName;
-        this.middleName = response.data.data.middleName;
-        this.nickName = response.data.data.nickName;
-        this.email = response.data.data.email;
-        this.avatarUrl = response.data.data.avatarUrl;
-        this.lastFetch = Date.now();
+        this.currentUserId = response.data.data.ID;
+        this.currentUserfirstName = response.data.data.firstName;
+        this.currentUserLastName = response.data.data.lastName;
+        this.currentUserMiddleName = response.data.data.middleName;
+        this.currentUserNickName = response.data.data.nickName;
+        this.currentUserEmail = response.data.data.email;
+        this.currentUserAvatarUrl = response.data.data.avatarUrl;
       } catch (error) {
+        console.error("Error:", error.response);
         this.handleError(error);
       } finally {
         this.isLoading = false;
@@ -144,7 +148,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "`http://localhost:3001/api/v1/user/${userId}",
+          `http://localhost:3001/api/v1/user/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -153,18 +157,43 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        this.userData = response.data.data;
+        this.singleUserData = response.data.data;
       } catch (error) {
         this.handleError(error);
       } finally {
         this.isLoading = false;
       }
     },
-    async fetchAllUsersData({ companyId }) {
+    async fetchAllUsersData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(
-          `http://localhost:3001/api/v1/company/${companyId}/user`,
+        const response = await axios.get(`http://localhost:3001/api/v1/user`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
+        this.handleSuccess(response);
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async createUser({ userFormData }) {
+      const messageStore = useMessageStore;
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/api/v1/user",
+          {
+            email: userFormData.email,
+            firstName: userFormData.firstName,
+            middleName: userFormData.middleName,
+            lastName: userFormData.lastName,
+            isAdmin: userFormData.isAdmin,
+          },
           {
             headers: {
               "Content-Type": "application/json",
@@ -173,8 +202,32 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        this.allUsersData = response.data.data;
-        this.lastFetch = Date.now();
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("User created.");
+        }
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+    async deleteUser({ userId }) {
+      const messageStore = useMessageStore;
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `http://localhost:3001/api/v1/user/${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("user has been deleted");
+        }
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -182,14 +235,8 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     //! Utilities
-    shouldFetchUserData() {
-      const THRESHOLD = 5 * 60 * 1000; //* 5 minutes
-      if (!this.lastFetch) return true;
-      return Date.now() - this.lastFetch > THRESHOLD;
-    },
     handleError(error) {
       const messageStore = useMessageStore();
-
       if (error.response) {
         console.log(error.response.data);
         switch (error.response.status) {
@@ -222,6 +269,16 @@ export const useUserStore = defineStore("user-store", {
         messageStore.setError("Something went wrong.");
       }
       console.log(error.config);
+    },
+    handleSuccess(response) {
+      const messageStore = useMessageStore;
+      if (response.status === 204) {
+        this.state = this.$reset();
+        messageStore.setMessage("No content.");
+        return false;
+      }
+      this.allUsersData = response.data.data;
+      return true;
     },
   },
   // persist: {

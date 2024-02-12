@@ -1,11 +1,13 @@
 package user
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	"verve-hrms/internal/common"
 	"verve-hrms/internal/schema"
@@ -20,7 +22,7 @@ func NewUserHandler(userService *UserService) *UserHandler {
 }
 
 // auth
-func (uh *UserHandler) GetUser(c echo.Context) error {
+func (uh *UserHandler) GetCurrentUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("user.h.get_user: error asserting token")
@@ -50,7 +52,7 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 	if err != nil {
 		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
+			Message: "error getting user data",
 			Data:    nil,
 		})
 	}
@@ -62,61 +64,59 @@ func (uh *UserHandler) GetUser(c echo.Context) error {
 }
 
 // users
-func (uh *UserHandler) GetCompanyUsers(c echo.Context) error {
-	stringCompanyID := c.Param("company_id")
-	if stringCompanyID == "" {
-		log.Printf("user.h.get_company_users: company_id is empty")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company_id is empty",
-			Data:    nil,
-		})
-	}
-
-	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-	if err != nil {
-		log.Printf("user.h.get_company_users: %v", err)
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	users, err := uh.userService.GetAllUsersAndExpand(uintCompanyID)
+func (uh *UserHandler) GetAllUsers(c echo.Context) error {
+	userList, err := uh.userService.GetAllUsersAndExpand()
 	if err != nil {
 		log.Printf("user.h.get_all_users: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
+			Message: "error getting all user data",
 			Data:    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "users data has been retrieved",
-		Data:    users,
+		Data:    userList,
 	})
 }
 
-func (uh *UserHandler) CreateCompanyUser(c echo.Context) error {
-	stringCompanyID := c.Param("company_id")
-	if stringCompanyID == "" {
-		log.Printf("user.h.create_company_user: company_id is empty")
+func (uh *UserHandler) GetUserByID(c echo.Context) error {
+	stringUserID := c.Param("user_id")
+	if stringUserID == "" {
+		log.Printf("user.h.get_user: user_id is empty")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company_id is empty",
+			Message: "user_id is empty",
 			Data:    nil,
 		})
 	}
 
-	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
+	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
 	if err != nil {
-		log.Printf("user.h.create_company_user: %v", err)
+		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: err.Error(),
+			Message: "user_id is invalid format",
 			Data:    nil,
 		})
 	}
 
+	userData, err := uh.userService.GetUserByIDAndExpand(uintUserID)
+	if err != nil {
+		log.Printf("user.h.get_user: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error getting user by Id",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "user data has been retrieved",
+		Data:    userData,
+	})
+}
+
+func (uh *UserHandler) CreateUser(c echo.Context) error {
 	var newUser schema.User
-	err = c.Bind(&newUser)
+	err := c.Bind(&newUser)
 	if err != nil {
 		log.Printf("user.h.create_company_user: error binding request %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
@@ -125,11 +125,17 @@ func (uh *UserHandler) CreateCompanyUser(c echo.Context) error {
 		})
 	}
 
-	userList, err := uh.userService.CreateNewUserAndGetAllUsersAndExpand(uintCompanyID, &newUser)
+	userList, err := uh.userService.CreateNewUserAndGetAllUsersAndExpand(&newUser)
 	if err != nil {
 		log.Printf("user.h.create_company_user: %v", err)
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return c.JSON(http.StatusConflict, common.APIResponse{
+				Message: "user already exists",
+				Data:    nil,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
+			Message: "something went wrong while creating user",
 			Data:    nil,
 		})
 	}
@@ -140,25 +146,7 @@ func (uh *UserHandler) CreateCompanyUser(c echo.Context) error {
 	})
 }
 
-func (uh *UserHandler) UpdateCompanyUser(c echo.Context) error {
-	stringCompanyID := c.Param("company_id")
-	if stringCompanyID == "" {
-		log.Printf("user.h.update_compnay_user: company_id is empty")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company_id is empty",
-			Data:    nil,
-		})
-	}
-
-	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-	if err != nil {
-		log.Printf("user.h.update_compnay_user: %v", err)
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
+func (uh *UserHandler) UpdateUser(c echo.Context) error {
 	stringUserID := c.Param("id")
 	if stringUserID == "" {
 		log.Printf("user.h.update_compnay_user: user_id is empty")
@@ -172,7 +160,7 @@ func (uh *UserHandler) UpdateCompanyUser(c echo.Context) error {
 	if err != nil {
 		log.Printf("user.h.update_compnay_user: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: err.Error(),
+			Message: "user_id is invalid format",
 			Data:    nil,
 		})
 	}
@@ -182,16 +170,16 @@ func (uh *UserHandler) UpdateCompanyUser(c echo.Context) error {
 	if err != nil {
 		log.Printf("user.h.update_compnay_user: error binding request %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: err.Error(),
+			Message: "error binding request",
 			Data:    nil,
 		})
 	}
 
-	userList, err := uh.userService.UpdateUserAndGetAllUsersAndExpand(uintCompanyID, uintUserID, updateData)
+	userList, err := uh.userService.UpdateUserAndGetAllUsersAndExpand(uintUserID, updateData)
 	if err != nil {
 		log.Printf("user.h.update_compnay_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
+			Message: "error updating user",
 			Data:    nil,
 		})
 	}
@@ -202,26 +190,8 @@ func (uh *UserHandler) UpdateCompanyUser(c echo.Context) error {
 	})
 }
 
-func (uh *UserHandler) DeleteCompanyUser(c echo.Context) error {
-	stringCompanyID := c.Param("company_id")
-	if stringCompanyID == "" {
-		log.Printf("user.h.delete_company_user: company_id is empty")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company_id is empty",
-			Data:    nil,
-		})
-	}
-
-	uintCompanyID, err := common.ConvertStringOfNumbersToUint(stringCompanyID)
-	if err != nil {
-		log.Printf("user.h.delete_company_user: %v", err)
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company_id is invalid format",
-			Data:    nil,
-		})
-	}
-
-	stringUserID := c.Param("id")
+func (uh *UserHandler) DeleteUser(c echo.Context) error {
+	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
 		log.Printf("user.h.delete_company_user: user_id is empty")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
@@ -239,11 +209,17 @@ func (uh *UserHandler) DeleteCompanyUser(c echo.Context) error {
 		})
 	}
 
-	userList, err := uh.userService.DeleteUserAndGetAllUsersAndExpand(uintCompanyID, uintUserID)
+	userList, err := uh.userService.DeleteUserAndGetAllUsersAndExpand(uintUserID)
 	if err != nil {
 		log.Printf("user.h.delete_user: %v", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(http.StatusNotFound, common.APIResponse{
+				Message: "user not found",
+				Data:    nil,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: err.Error(),
+			Message: "error deleting user",
 			Data:    nil,
 		})
 	}
