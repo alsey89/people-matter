@@ -66,11 +66,18 @@ func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
 	return &user, nil
 }
 
-// note: Updates() will ignore zero values like "", 0, false
 func (ur UserRepository) Update(UserID uint, updateData schema.User) (*schema.User, error) {
 	var user schema.User
 
-	result := ur.client.First(&user, "id = ?", UserID).Updates(updateData)
+	updateDataMap := map[string]interface{}{
+		"Email":      updateData.Email,
+		"FirstName":  updateData.FirstName,
+		"MiddleName": updateData.MiddleName,
+		"LastName":   updateData.LastName,
+		"IsAdmin":    updateData.IsAdmin,
+	}
+
+	result := ur.client.Model(&user).Where("id = ?", UserID).Updates(updateDataMap)
 	if result.Error != nil {
 		return nil, fmt.Errorf("user.r.update: %w", result.Error)
 	}
@@ -79,7 +86,7 @@ func (ur UserRepository) Update(UserID uint, updateData schema.User) (*schema.Us
 }
 
 func (ur UserRepository) Delete(UserID uint) error {
-	result := ur.client.Delete(&schema.User{}, "id = ?", UserID)
+	result := ur.client.Unscoped().Delete(&schema.User{}, "id = ?", UserID)
 	if result.Error != nil {
 		return fmt.Errorf("user.r.delete: %w", result.Error)
 	}

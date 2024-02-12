@@ -83,7 +83,7 @@ func (uh *UserHandler) GetAllUsers(c echo.Context) error {
 func (uh *UserHandler) GetUserByID(c echo.Context) error {
 	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
-		log.Printf("user.h.get_user: user_id is empty")
+		log.Printf("user.h.get_user_by_id: user_id is empty")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is empty",
 			Data:    nil,
@@ -92,7 +92,7 @@ func (uh *UserHandler) GetUserByID(c echo.Context) error {
 
 	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
 	if err != nil {
-		log.Printf("user.h.get_user: %v", err)
+		log.Printf("user.h.get_user_by_id: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is invalid format",
 			Data:    nil,
@@ -101,7 +101,7 @@ func (uh *UserHandler) GetUserByID(c echo.Context) error {
 
 	userData, err := uh.userService.GetUserByIDAndExpand(uintUserID)
 	if err != nil {
-		log.Printf("user.h.get_user: %v", err)
+		log.Printf("user.h.get_user_by_id: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting user by Id",
 			Data:    nil,
@@ -118,7 +118,7 @@ func (uh *UserHandler) CreateUser(c echo.Context) error {
 	var newUser schema.User
 	err := c.Bind(&newUser)
 	if err != nil {
-		log.Printf("user.h.create_company_user: error binding request %v", err)
+		log.Printf("user.h.create_user: error binding request %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: err.Error(),
 			Data:    nil,
@@ -127,7 +127,7 @@ func (uh *UserHandler) CreateUser(c echo.Context) error {
 
 	userList, err := uh.userService.CreateNewUserAndGetAllUsersAndExpand(&newUser)
 	if err != nil {
-		log.Printf("user.h.create_company_user: %v", err)
+		log.Printf("user.h.create_user: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "user already exists",
@@ -147,9 +147,9 @@ func (uh *UserHandler) CreateUser(c echo.Context) error {
 }
 
 func (uh *UserHandler) UpdateUser(c echo.Context) error {
-	stringUserID := c.Param("id")
+	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
-		log.Printf("user.h.update_compnay_user: user_id is empty")
+		log.Printf("user.h.update_user: user_id is empty")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is empty",
 			Data:    nil,
@@ -158,7 +158,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 
 	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
 	if err != nil {
-		log.Printf("user.h.update_compnay_user: %v", err)
+		log.Printf("user.h.update_user: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is invalid format",
 			Data:    nil,
@@ -168,7 +168,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 	var updateData schema.User
 	err = c.Bind(&updateData)
 	if err != nil {
-		log.Printf("user.h.update_compnay_user: error binding request %v", err)
+		log.Printf("user.h.update_user: error binding request %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "error binding request",
 			Data:    nil,
@@ -177,7 +177,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 
 	userList, err := uh.userService.UpdateUserAndGetAllUsersAndExpand(uintUserID, updateData)
 	if err != nil {
-		log.Printf("user.h.update_compnay_user: %v", err)
+		log.Printf("user.h.update_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error updating user",
 			Data:    nil,
@@ -193,7 +193,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 func (uh *UserHandler) DeleteUser(c echo.Context) error {
 	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
-		log.Printf("user.h.delete_company_user: user_id is empty")
+		log.Printf("user.h.delete_user: user_id is empty")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is empty",
 			Data:    nil,
@@ -202,7 +202,7 @@ func (uh *UserHandler) DeleteUser(c echo.Context) error {
 
 	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
 	if err != nil {
-		log.Printf("user.h.delete_company_user: %v", err)
+		log.Printf("user.h.delete_user: %v", err)
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "user_id is invalid format",
 			Data:    nil,

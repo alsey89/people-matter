@@ -39,7 +39,7 @@ func GetClient() *gorm.DB {
 
 	//! local postgres
 	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
-	//!supabase for easy visualization
+	//!throwaway supabase for easy visualization
 	dsn := "user=postgres.ehpdytlwkuavpscqllsr password=sv0d88szHm5P5Syx host=aws-0-ap-northeast-1.pooler.supabase.com port=5432 dbname=postgres"
 
 	var err error

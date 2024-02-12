@@ -22,12 +22,6 @@ type Repository interface {
 	DepartmentUpdate(DepartmentID uint, updateData *schema.Department) (*schema.Department, error)
 	DepartmentDelete(DepartmentID uint) error
 
-	// TitleCreate(newTitle *schema.Title) (*schema.Title, error)
-	// TitleRead(TitleID uint) (*schema.Title, error)
-	// TitleReadAll() ([]*schema.Title, error)
-	// TitleUpdate(TitleID uint, updateData *schema.Title) (*schema.Title, error)
-	// TitleDelete(TitleID uint) error
-
 	LocationCreate(newLocation *schema.Location) (*schema.Location, error)
 	LocationRead(LocationID uint) (*schema.Location, error)
 	LocationReadAll() ([]*schema.Location, error)
@@ -131,7 +125,7 @@ func (cr CompanyRepository) CompanyUpdate(CompanyID uint, updateData *schema.Com
 
 func (cr CompanyRepository) CompanyDelete(CompanyID uint) error {
 	var company schema.Company
-	result := cr.client.Delete(&company, CompanyID)
+	result := cr.client.Unscoped().Delete(&company, CompanyID)
 	if result.Error != nil {
 		return fmt.Errorf("company.r.company_delete: %w", result.Error)
 	}
@@ -195,71 +189,13 @@ func (cr CompanyRepository) DepartmentUpdate(DepartmentID uint, updateData *sche
 
 func (cr CompanyRepository) DepartmentDelete(DepartmentID uint) error {
 	var department schema.Department
-	result := cr.client.Delete(&department, DepartmentID)
+	result := cr.client.Unscoped().Delete(&department, DepartmentID)
 	if result.Error != nil {
 		return fmt.Errorf("company.r.department_delete: %w", result.Error)
 	}
 
 	return nil
 }
-
-//! Titles      ------------------------------------------------------
-
-// func (cr CompanyRepository) TitleCreate(newTitle *schema.Title) (*schema.Title, error) {
-// 	result := cr.client.Create(newTitle)
-// 	if result.Error != nil {
-// 		return nil, fmt.Errorf("company.r.title_create: %w", result.Error)
-// 	}
-
-// 	return newTitle, nil
-// }
-
-// func (cr CompanyRepository) TitleRead(TitleID uint) (*schema.Title, error) {
-// 	var title schema.Title
-// 	result := cr.client.First(&title, TitleID)
-// 	if result.Error != nil {
-// 		return nil, fmt.Errorf("company.r.title_read: %w", result.Error)
-// 	}
-// 	return &title, nil
-// }
-
-// func (cr CompanyRepository) TitleReadAll() ([]*schema.Title, error) {
-// 	var titles []*schema.Title
-// 	result := cr.client.Find(&titles)
-// 	if result.Error != nil {
-// 		return nil, fmt.Errorf("company.r.title_read_all: %w", result.Error)
-// 	}
-// 	if len(titles) == 0 {
-// 		return nil, fmt.Errorf("company.r.title_read_all: %w", ErrEmptyTable)
-// 	}
-// 	return titles, nil
-// }
-
-// func (cr CompanyRepository) TitleUpdate(TitleID uint, updateData *schema.Title) (*schema.Title, error) {
-// 	var title schema.Title
-
-// 	result := cr.client.Model(&title).Where("ID = ?", TitleID).Updates(updateData)
-// 	if result.Error != nil {
-// 		return nil, fmt.Errorf("company.r.title_update: %w", result.Error)
-// 	}
-
-// 	// Check if any row was affected, if not, the title does not exist.
-// 	if result.RowsAffected == 0 {
-// 		return nil, fmt.Errorf("company.r.title_update: %w", gorm.ErrRecordNotFound)
-// 	}
-
-// 	return &title, nil
-// }
-
-// func (cr CompanyRepository) TitleDelete(TitleID uint) error {
-// 	var title schema.Title
-// 	result := cr.client.Delete(&title, TitleID)
-// 	if result.Error != nil {
-// 		return fmt.Errorf("company.r.title_delete: %w", result.Error)
-// 	}
-
-// 	return nil
-// }
 
 //! Locations   ------------------------------------------------------
 
@@ -324,7 +260,7 @@ func (cr CompanyRepository) LocationUpdate(locationID uint, updateData *schema.L
 
 func (cr CompanyRepository) LocationDelete(LocationID uint) error {
 	var location schema.Location
-	result := cr.client.Delete(&location, LocationID)
+	result := cr.client.Unscoped().Delete(&location, LocationID)
 	if result.Error != nil {
 		return fmt.Errorf("company.r.location_delete: %w", result.Error)
 	}

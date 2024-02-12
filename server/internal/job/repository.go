@@ -145,7 +145,7 @@ func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) (*schema.J
 func (jr JobRepository) JobDelete(jobID uint) error {
 	var job *schema.Job
 
-	result := jr.client.Delete(&job, jobID)
+	result := jr.client.Unscoped().Delete(&job, jobID)
 	if result.Error != nil {
 		return fmt.Errorf("job.r.job_delete: %w", result.Error)
 	}
@@ -208,7 +208,7 @@ func (jr JobRepository) AssignedJobUpdate(assignedJobID uint, updateData *schema
 func (jr JobRepository) AssignedJobDelete(AssignedJobID uint) error {
 	var assignedJob *schema.AssignedJob
 
-	result := jr.client.Delete(&assignedJob, AssignedJobID)
+	result := jr.client.Unscoped().Delete(&assignedJob, AssignedJobID)
 	if result.Error != nil {
 		return fmt.Errorf("job.r.assigned_job_delete: %w", result.Error)
 	}

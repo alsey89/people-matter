@@ -35,14 +35,15 @@ import (
 func main() {
 	e := echo.New()
 
+	//! Load Config
 	viper.SetConfigFile("dev.env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
 	}
-
+	//! Load DB
 	client := setup.GetClient()
-
+	//! Middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{viper.GetString("CLIENT_URL")},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
@@ -72,11 +73,11 @@ func main() {
 		SigningMethod: "HS256",
 		TokenLookup:   "cookie:jwt",
 	}))
-
-	//! swagger routes
+	//! Swagger
 	e.Static("/swagger", "docs")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	//! Domains
 	//* Instantiate User Domain
 	userRepository := user.NewUserRepository(client)
 	userService := user.NewUserService(userRepository)
@@ -93,14 +94,14 @@ func main() {
 	companyService := company.NewCompanyService(companyRepository, jobRepository)
 	companyHandler := company.NewCompanyHandler(companyService)
 
-	//! Auth Routes
+	//! Routes
+	//* Auth Routes
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
 	authRoutes.GET("/check", authHandler.CheckAuth)
-
-	//! Current User Routes
+	//* Current User Routes
 	userRoutes := e.Group("api/v1/user")
 	// current user
 	userRoutes.GET("/current", userHandler.GetCurrentUser)
@@ -109,8 +110,7 @@ func main() {
 	userRoutes.POST("", userHandler.CreateUser)
 	userRoutes.PUT("/:user_id", userHandler.UpdateUser)
 	userRoutes.DELETE("/:user_id", userHandler.DeleteUser)
-
-	//! Company Routes
+	//* Company Routes
 	companyRoutes := e.Group("api/v1/company")
 	// main
 	companyRoutes.POST("", companyHandler.CreateCompany)

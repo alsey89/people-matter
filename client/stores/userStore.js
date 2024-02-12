@@ -182,7 +182,7 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     async createUser({ userFormData }) {
-      const messageStore = useMessageStore;
+      const messageStore = useMessageStore();
       this.isLoading = true;
       try {
         const response = await axios.post(
@@ -211,7 +211,7 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     async deleteUser({ userId }) {
-      const messageStore = useMessageStore;
+      const messageStore = useMessageStore();
       this.isLoading = true;
       try {
         const response = await axios.delete(
@@ -226,16 +226,44 @@ export const useUserStore = defineStore("user-store", {
         );
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
-          messageStore.setMessage("user has been deleted");
+          messageStore.setMessage("User deleted.");
         }
       } catch (error) {
         this.handleError(error);
-      } finally {
-        this.isLoading = false;
+      }
+    },
+    async updateUser({ userId, userFormData }) {
+      const messageStore = useMessageStore();
+      this.isLoading = true;
+      try {
+        const response = await axios.put(
+          `http://localhost:3001/api/v1/user/${userId}`,
+          {
+            email: userFormData.email,
+            firstName: userFormData.firstName,
+            middleName: userFormData.middleName,
+            lastName: userFormData.lastName,
+            isAdmin: userFormData.isAdmin,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          messageStore.setMessage("User updated.");
+        }
+      } catch (error) {
+        this.handleError(error);
       }
     },
     //! Utilities
     handleError(error) {
+      console.log("entering handleError");
       const messageStore = useMessageStore();
       if (error.response) {
         console.log(error.response.data);
@@ -261,7 +289,7 @@ export const useUserStore = defineStore("user-store", {
         }
       } else if (error.request) {
         // The request was made but no response was received
-        console.log(error.request);
+        console.log("Request Error", error.request);
         messageStore.setError("No response was received.");
       } else {
         // Something happened in setting up the request that triggered an Error
@@ -271,14 +299,18 @@ export const useUserStore = defineStore("user-store", {
       console.log(error.config);
     },
     handleSuccess(response) {
-      const messageStore = useMessageStore;
+      const messageStore = useMessageStore();
       if (response.status === 204) {
         this.state = this.$reset();
         messageStore.setMessage("No content.");
         return false;
       }
-      this.allUsersData = response.data.data;
-      return true;
+      if (response.status >= 200 && response.status < 300) {
+        this.allUsersData = response.data.data;
+        return true;
+      } else {
+        return false;
+      }
     },
   },
   // persist: {

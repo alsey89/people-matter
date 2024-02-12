@@ -21,14 +21,12 @@
                 <NBCard class="w-full">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
-                            <AppImage :src="user.avatarUrl || 'defaultAvatar.jpg'" shape="square" class="w-12 h-12" />
+                            <AppImage :src="user.avatarUrl || 'defaultAvatar.jpg'" shape="square" class="w-8 h-8" />
                             <div class="flex flex-col overflow-x-hidden">
-                                <h1 class="text-sm md:text-lg text-nowrap font-bold"> {{ user.firstName }} {{
+                                <h1 class="text-sm md:text-base text-nowrap font-bold"> {{ user.firstName }} {{
                                     user.middleName || "" }} {{ user.lastName || '' }}
                                 </h1>
-                                <div>
-                                    <p>email: {{ user.email }}</p>
-                                </div>
+                                <p class="text-sm md:text-base"> Unassigned </p>
                             </div>
                         </div>
                         <div class="flex gap-4">
@@ -112,7 +110,7 @@ const populateUserForm = (user) => {
 const handleUserFormSubmit = async () => {
     showUserForm.value = false;
     if (userFormData.userFormType === "edit") {
-        await userStore.updateUser({ userFormData: userFormData });
+        await userStore.updateUser({ userId: userFormData.userId, userFormData: userFormData });
     } else if (userFormData.userFormType === "add") {
         await userStore.createUser({ userFormData: userFormData });
     } else {
