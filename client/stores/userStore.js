@@ -32,11 +32,16 @@ export const useUserStore = defineStore("user-store", {
     getCurrentUserDepartment: (state) =>
       state.currentUserData?.assignedJob?.job?.department?.name,
     //* single user data
+
+    //* store
+    getIsLoading: (state) => state.isLoading,
   },
   actions: {
     //! Auth API Calls
     async signin({ email, password }) {
       const messageStore = useMessageStore();
+      const companyStore = useCompanyStore();
+      this.isLoading = true;
       try {
         const response = await axios.post(
           "http://localhost:3001/api/v1/auth/signin",
@@ -55,14 +60,18 @@ export const useUserStore = defineStore("user-store", {
         if (response.status === 200) {
           messageStore.setMessage("Successfully signed in.");
           this.currentUserData = response.data.data;
+          await companyStore.fetchCompany();
           return navigateTo("/");
         }
       } catch (error) {
         this.handleError(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     async signup({ username, email, password, confirmPassword }) {
       const messageStore = useMessageStore();
+      this.isLoading = true;
       try {
         const response = await axios.post(
           "http://localhost:3001/api/v1/auth/signup",
@@ -87,9 +96,12 @@ export const useUserStore = defineStore("user-store", {
         }
       } catch (error) {
         this.handleError(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     async signout() {
+      this.isLoading = true;
       try {
         await axios.post(
           "http://localhost:3001/api/v1/auth/signout",
@@ -102,6 +114,8 @@ export const useUserStore = defineStore("user-store", {
         return navigateTo("/signin");
       } catch (error) {
         this.handleError(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     async checkAuth() {

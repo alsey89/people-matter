@@ -92,7 +92,18 @@ export const useCompanyStore = defineStore("company-store", {
             withCredentials: true,
           }
         );
-        this.handleSuccess(response);
+        const isSuccess = this.handleSuccess(response);
+        if (isSuccess) {
+          persistedState.sessionStorage.setItem("companyId", this.companyId);
+          persistedState.sessionStorage.setItem(
+            "companyName",
+            this.companyName
+          );
+          persistedState.sessionStorage.setItem(
+            "companyLogoUrl",
+            this.companyLogoUrl
+          );
+        }
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -525,9 +536,5 @@ export const useCompanyStore = defineStore("company-store", {
       }
       console.error(error.config);
     },
-  },
-  persist: {
-    storage: persistedState.sessionStorage,
-    paths: ["companyName", "companyLogoUrl"],
   },
 });

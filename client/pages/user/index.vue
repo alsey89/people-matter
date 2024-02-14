@@ -18,7 +18,7 @@
             <!-- !User List -->
             <div v-if="userStore.getAllUsersData && userStore.getAllUsersData.length > 0"
                 v-for="user in userStore.getAllUsersData" :key="user.ID">
-                <NBCard class="w-full">
+                <NBCard @click="handleUserDetailsClick(user.ID)" class="hover:bg-secondary-bg hover:cursor-pointer">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
                             <AppImage :src="user.avatarUrl || 'defaultAvatar.jpg'" shape="square" class="w-8 h-8" />
@@ -64,6 +64,12 @@ definePageMeta({
 //stores
 const userStore = useUserStore()
 const messageStore = useMessageStore()
+
+//navigate to user details
+const router = useRouter()
+const handleUserDetailsClick = async (userId) => {
+    await router.push(`/user/${userId}`)
+};
 
 // add/edit user
 const showUserForm = ref(false)
