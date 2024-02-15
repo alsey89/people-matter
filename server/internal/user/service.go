@@ -13,8 +13,13 @@ func NewUserService(userRepository *UserRepository) *UserService {
 	return &UserService{userRepository: userRepository}
 }
 
-func (us *UserService) CreateNewAccount(newUser *schema.User) (*schema.User, error) {
-	createdUser, err := us.userRepository.Create(newUser)
+//! Auth ------------------------------------------------------------
+
+func (us *UserService) CreateNewUser(newUser *schema.User) (*schema.User, error) {
+	var createdUser *schema.User
+	var err error
+
+	createdUser, err = us.userRepository.Create(newUser)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.create_new_account: %w", err)
 	}
@@ -22,47 +27,81 @@ func (us *UserService) CreateNewAccount(newUser *schema.User) (*schema.User, err
 	return createdUser, nil
 }
 
-func (us *UserService) GetAllUsers() ([]*schema.User, error) {
-	users, err := us.userRepository.ReadAll()
-	if err != nil {
-		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
-	}
-
-	return users, nil
-}
-
 func (us *UserService) GetUserByEmail(email string) (*schema.User, error) {
-	user, err := us.userRepository.ReadByEmail(email)
+	var existingUser *schema.User
+	var err error
+
+	existingUser, err = us.userRepository.ReadByEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.get_user_by_email: %w", err)
 	}
 
-	return user, nil
+	return existingUser, nil
 }
 
-func (us *UserService) GetUserByID(ID uint) (*schema.User, error) {
-	user, err := us.userRepository.Read(ID)
+//! All Users List -----------------------------------------------------------
+
+func (us *UserService) GetAllUsersWithRole() ([]*schema.User, error) {
+
+	existingUsers, err := us.userRepository.ReadAllAndExpandRole()
 	if err != nil {
-		return nil, fmt.Errorf("user.s.get_user_by_id: %w", err)
+		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
 	}
 
-	return user, nil
+	return existingUsers, nil // Return the filtered users
 }
 
-func (us *UserService) UpdateUser(ID uint, updateData schema.User) (*schema.User, error) {
-	updatedUser, err := us.userRepository.Update(ID, updateData)
+func (us *UserService) CreateListUserAndGetAllUsersWithRole(newUser *schema.User) ([]*schema.User, error) {
+	_, err := us.userRepository.Create(newUser)
+	if err != nil {
+		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
+	}
+
+	expandedUserList, err := us.GetAllUsersWithRole()
+	if err != nil {
+		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
+	}
+
+	return expandedUserList, nil
+}
+
+func (us *UserService) UpdateListUserAndGetAllUsersWithRole(userID uint, updateData schema.User) ([]*schema.User, error) {
+	_, err := us.userRepository.Update(userID, updateData)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.update_user: %w", err)
 	}
 
-	return updatedUser, nil
-}
-
-func (us *UserService) DeleteUser(ID uint) error {
-	err := us.userRepository.Delete(ID)
+	expandedUserList, err := us.GetAllUsersWithRole()
 	if err != nil {
-		return fmt.Errorf("s.delete_user: %w", err)
+		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
 	}
 
-	return nil
+	return expandedUserList, nil
+}
+
+func (us *UserService) DeleteListUserAndGetAllUsersWithRole(userID uint) ([]*schema.User, error) {
+	err := us.userRepository.Delete(userID)
+	if err != nil {
+		return nil, fmt.Errorf("s.delete_user: %w", err)
+	}
+
+	expandedUserList, err := us.GetAllUsersWithRole()
+	if err != nil {
+		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
+	}
+
+	return expandedUserList, nil
+}
+
+// ! Single User Details -----------------------------------------------------------
+func (us *UserService) GetSingleUserByIDAndExpand(ID uint) (*schema.User, error) {
+	var existingUser *schema.User
+	var err error
+
+	existingUser, err = us.userRepository.ReadByIDAndExpandRole(ID)
+	if err != nil {
+		return nil, fmt.Errorf("user.s.get_user_by_id: %w", err)
+	}
+
+	return existingUser, nil
 }

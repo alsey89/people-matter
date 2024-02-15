@@ -11,14 +11,17 @@
   - [ ] Salary configuration
   - [ ] Automated payslip generation
   - [ ] Tax calculation
-- [ ] **Recruitment Management**
-  - [ ] Job posting system
-  - [ ] Application tracking
-  - [ ] Onboarding workflow
 - [ ] **Performance Management**
   - [ ] Appraisal cycles
   - [ ] Goal tracking
   - [ ] Feedback management
+- [ ] **Compliance Management**
+  - [ ] Compliance document repository
+  - [ ] Legal and compliance alerts
+- [ ] **Recruitment Management**
+  - [ ] Job posting system
+  - [ ] Application tracking
+  - [ ] Onboarding workflow
 - [ ] **Training and Development**
   - [ ] Training scheduling
   - [ ] Skill tracking
@@ -28,9 +31,6 @@
 - [ ] **Benefits Administration**
   - [ ] Insurance and retirement plan management
   - [ ] Employee self-service
-- [ ] **Compliance Management**
-  - [ ] Compliance document repository
-  - [ ] Legal and compliance alerts
 
 # Employee Portal Features Checklist:
 

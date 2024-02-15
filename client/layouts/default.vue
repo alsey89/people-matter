@@ -1,17 +1,17 @@
 <template>
     <div class="w-full h-full min-h-screen inset-0 flex justify-center bg-primary-bg">
         <div class="w-full max-w-[1280px] flex flex-col py-2 gap-4">
-            <!-- Header -->
+            <!-- !HEADER -->
             <div class="w-full h-12 z-10 px-2">
                 <AppHeader />
             </div>
-            <!-- Body -->
-            <div class="w-full h-full flex" style="max-height: calc(100vh - 5rem)">
-                <!-- Sidebar -->
-                <div class="hidden md:block w-32 min-h-full md:pl-2">
+            <!-- !BODY -->
+            <div class="w-full h-full flex gap-4" style="max-height: calc(100vh - 5rem)">
+                <!-- !Sidebar -->
+                <div class="hidden md:block min-w-48 min-h-full md:pl-2">
                     <AppSidebar />
                 </div>
-                <!-- Content -->
+                <!-- !Content -->
                 <div class="flex flex-grow overflow-y-auto px-2">
                     <router-view></router-view>
                 </div>
@@ -21,5 +21,9 @@
 </template>
 
 <script setup>
-// Your script here
+const companyStore = useCompanyStore()
+
+if (!companyStore.getCompanyData) {
+    companyStore.fetchCompany()
+}
 </script>

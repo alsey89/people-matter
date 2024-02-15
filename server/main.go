@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -13,6 +12,8 @@ import (
 
 	_ "verve-hrms/docs"
 	"verve-hrms/internal/auth"
+	"verve-hrms/internal/company"
+	"verve-hrms/internal/job"
 	"verve-hrms/internal/user"
 	"verve-hrms/setup"
 )
@@ -33,34 +34,45 @@ import (
 func main() {
 	e := echo.New()
 
-	viper.SetConfigFile("dev.env")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
-	}
+	//! Config
+	setup.InitConfig()
 
+	//! Load DB
 	client := setup.GetClient()
-
+	//! Middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{viper.GetString("CLIENT_URL")},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		AllowCredentials: true,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
 	}))
-	e.Use(middleware.Logger())
-	// e.Use(middleware.Secure()) //todo: enable in production
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup:    "cookie:_csrf",
-		CookiePath:     "/",
-		CookieDomain:   "localhost",
-		CookieSecure:   viper.GetBool("IS_PRODUCTION"),
-		CookieHTTPOnly: true,
-		// CookieSameSite: http.SameSiteStrictMode, //todo: enable in production
-	}))
+	if viper.GetBool("IS_PRODUCTION") {
+		e.Use(middleware.Secure())
+		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+			TokenLookup:    "cookie:_csrf",
+			CookiePath:     "/",
+			CookieDomain:   viper.GetString("PRODUCTION_DOMAIN"),
+			CookieSecure:   true,
+			CookieHTTPOnly: true,
+			CookieSameSite: http.SameSiteStrictMode,
+		}))
+	} else {
+		// e.Use(middleware.Secure()) //! this is not needed for development
+		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+			TokenLookup:    "cookie:_csrf",
+			CookiePath:     "/",
+			CookieDomain:   "localhost",
+			CookieSecure:   false,
+			CookieHTTPOnly: true,
+			CookieSameSite: http.SameSiteLaxMode,
+		}))
+	}
 	e.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: func(c echo.Context) bool {
 			if c.Request().URL.Path == "/api/v1/auth/signin" ||
 				c.Request().URL.Path == "/api/v1/auth/signup" ||
+				c.Request().URL.Path == "/api/v1/auth/signout" ||
+				c.Request().URL.Path == "/api/v1/auth/csrf" ||
 				c.Request().URL.Path == "/api/v1/auth/password/reset" {
 				return true
 			}
@@ -70,33 +82,68 @@ func main() {
 		SigningMethod: "HS256",
 		TokenLookup:   "cookie:jwt",
 	}))
-
-	//! swagger routes
+	e.Use(middleware.Logger())
+	//! Swagger
 	e.Static("/swagger", "docs")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	//! Domains
 	//* Instantiate User Domain
 	userRepository := user.NewUserRepository(client)
 	userService := user.NewUserService(userRepository)
 	userHandler := user.NewUserHandler(userService)
-
 	//* Instantiate Auth Domain
 	authService := auth.NewAuthService(userService)
 	authHandler := auth.NewAuthHandler(authService)
+	//*Instantiate Job Domain
+	jobRepository := job.NewJobRepository(client)
+	// jobService := job.NewJobService(jobRepository)
+	// jobHandler := job.NewJobHandler(jobService)
+	//*Instantiate Company Domain
+	companyRepository := company.NewCompanyRepository(client)
+	companyService := company.NewCompanyService(companyRepository, jobRepository)
+	companyHandler := company.NewCompanyHandler(companyService)
 
+	//! Routes
+	//* Auth Routes
 	authRoutes := e.Group("api/v1/auth")
 	authRoutes.POST("/signin", authHandler.Signin)
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
 	authRoutes.GET("/check", authHandler.CheckAuth)
-
+	authRoutes.GET("/csrf", authHandler.GetCSRFToken)
+	//* User Routes
 	userRoutes := e.Group("api/v1/user")
-	userRoutes.GET("", userHandler.GetUser)
-	userRoutes.PUT("", userHandler.EditUser)
+	// current user
+	userRoutes.GET("/current", userHandler.GetCurrentUser)
+	// user list
+	userRoutes.GET("/list", userHandler.GetUsersList)
+	userRoutes.POST("/list", userHandler.CreateListUser)
+	userRoutes.PUT("/list/:user_id", userHandler.UpdateListUser)
+	userRoutes.DELETE("/list/:user_id", userHandler.DeleteListUser)
+	// single user details
+	userRoutes.GET("/:user_id", userHandler.GetUserDetails)
+	//* Company Routes
+	companyRoutes := e.Group("api/v1/company")
+	// main
+	companyRoutes.POST("", companyHandler.CreateCompany)
+	companyRoutes.GET("/default", companyHandler.GetCompanyDataExpandDefault)
+	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
+	companyRoutes.PUT("/:company_id", companyHandler.UpdateCompany)
+	companyRoutes.DELETE("/:company_id", companyHandler.DeleteCompany)
+	// department
+	companyRoutes.POST("/:company_id/department", companyHandler.CreateDepartment)
+	companyRoutes.PUT("/:company_id/department/:department_id", companyHandler.UpdateDepartment)
+	companyRoutes.DELETE("/:company_id/department/:department_id", companyHandler.DeleteDepartment)
+	// location
+	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
+	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
+	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)
+	// job
+	companyRoutes.POST("/:company_id/job", companyHandler.CreateJob)
+	companyRoutes.PUT("/:company_id/job/:job_id", companyHandler.UpdateJob)
+	companyRoutes.DELETE("/:company_id/job/:job_id", companyHandler.DeleteJob)
 
-	adminRoutes := e.Group("api/v1/admin")
-	adminRoutes.GET("/user/all", userHandler.GetAllUsers)
-
-	// Start the server
+	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))
 }

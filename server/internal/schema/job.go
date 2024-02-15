@@ -6,87 +6,43 @@ import (
 	"gorm.io/gorm"
 )
 
-type JobInfo struct {
+type Job struct {
 	gorm.Model
-	UserID       uint `json:"userId"`
-	DepartmentID uint `json:"departmentId"` // Foreign key for Department
-	TitleID      uint `json:"titleId"`      // Foreign key for Title
-	LocationID   uint `json:"locationId"`   // Foreign key for Location
 
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
+	// Basic Job Details
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	Duties         string `json:"duties"`
+	Qualifications string `json:"qualifications"`
+	Experience     string `json:"experience"`
+	MinSalary      int    `json:"minSalary"`
+	MaxSalary      int    `json:"maxSalary"`
 
-	// Hierarchy
-	Superiors    []Superior    `gorm:"foreignKey:JobInfoID"`
-	Subordinates []Subordinate `gorm:"foreignKey:JobInfoID"`
+	// Foreign Keys
+	DepartmentID uint `json:"departmentId"`
+	LocationID   uint `json:"locationId"`
+	CompanyID    uint `json:"companyId"`
 
-	Location Location `gorm:"foreignKey:LocationID"` // One-to-one relationship with Location
+	// Associated Structs
+	Department *Department `json:"department" gorm:"foreignKey:DepartmentID"`
+	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
+
+	// Hierarchical Relationship
+	ManagerID    *uint  `json:"managerId"`                                //* if not reference, will cause foreign key constraint error when null
+	Subordinates []*Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
+
+	// Other Related Data
+	AssignedJobs []*AssignedJob `json:"assignedJobs"`
 }
 
-type Superior struct {
+type AssignedJob struct {
 	gorm.Model
-	JobInfoID uint `json:"jobInfoId"` // References JobInfo
-	UserID    uint `json:"userId"`    // References the superior's User
-}
+	JobID  uint `json:"jobId"`  // Foreign key
+	UserID uint `json:"userId"` // Foreign key
 
-type Subordinate struct {
-	gorm.Model
-	JobInfoID uint `json:"jobInfoId"` // References JobInfo
-	UserID    uint `json:"userId"`    // References the subordinate's User
-}
+	Job Job `json:"job" gorm:"foreignKey:JobID"`
 
-type Title struct {
-	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"` // Optional: More details about the title/role
-
-	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
-}
-
-type Department struct {
-	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"` // Optional: More details about the department
-
-	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
-}
-
-type Location struct {
-	gorm.Model
-	Address    string `json:"address"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Country    string `json:"country"`
-	PostalCode string `json:"postalCode"`
-
-	// Relationships
-	JobInfo []JobInfo `json:"jobInfo"` // One-to-many relationship with JobInfo
-}
-
-// callback function to sync title and department
-func (j *JobInfo) AfterSave(tx *gorm.DB) (err error) {
-	// Fetch the associated user
-	var user User
-	if err := tx.First(&user, j.UserID).Error; err != nil {
-		return err
-	}
-
-	// Fetch the new department name and title name
-	var department Department
-	var title Title
-	if err := tx.First(&department, "id = ?", j.DepartmentID).Error; err != nil {
-		return err
-	}
-	if err := tx.First(&title, "id = ?", j.TitleID).Error; err != nil {
-		return err
-	}
-
-	// Update the user's department name and title name
-	user.Department = department.Name
-	user.Title = title.Name
-
-	// Save the updated user back to the database
-	return tx.Save(&user).Error
+	IsActive  bool       `json:"isActive"`
+	StartDate time.Time  `json:"startDate"`
+	EndDate   *time.Time `json:"endDate"`
 }

@@ -1,10 +1,10 @@
 <template>
-    <transition name="pop">
+    <transition name="pop" appear>
         <slot> </slot>
     </transition>
 </template>
 
-<style scoped>
+<style>
 .pop-enter-active,
 .pop-leave-active {
     transition: opacity 0.3s ease, transform 0.3s ease;
