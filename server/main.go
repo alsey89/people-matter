@@ -101,15 +101,17 @@ func main() {
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
 	authRoutes.GET("/check", authHandler.CheckAuth)
-	//* Current User Routes
+	//* User Routes
 	userRoutes := e.Group("api/v1/user")
 	// current user
 	userRoutes.GET("/current", userHandler.GetCurrentUser)
-	// all users
-	userRoutes.GET("", userHandler.GetAllUsers)
-	userRoutes.POST("", userHandler.CreateUser)
-	userRoutes.PUT("/:user_id", userHandler.UpdateUser)
-	userRoutes.DELETE("/:user_id", userHandler.DeleteUser)
+	// user list
+	userRoutes.GET("/list", userHandler.GetUsersList)
+	userRoutes.POST("/list", userHandler.CreateListUser)
+	userRoutes.PUT("/list/:user_id", userHandler.UpdateListUser)
+	userRoutes.DELETE("/list/:user_id", userHandler.DeleteListUser)
+	// single user details
+	userRoutes.GET("/:user_id", userHandler.GetUserDetails)
 	//* Company Routes
 	companyRoutes := e.Group("api/v1/company")
 	// main

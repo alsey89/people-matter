@@ -21,7 +21,7 @@ func NewUserHandler(userService *UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-// auth
+// ! Auth ------------------------------------------------------------
 func (uh *UserHandler) GetCurrentUser(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
@@ -48,7 +48,7 @@ func (uh *UserHandler) GetCurrentUser(c echo.Context) error {
 
 	uintID := uint(ID)
 
-	userData, err := uh.userService.GetUserByIDAndExpand(uintID)
+	userData, err := uh.userService.GetSingleUserByIDAndExpand(uintID)
 	if err != nil {
 		log.Printf("user.h.get_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -63,9 +63,9 @@ func (uh *UserHandler) GetCurrentUser(c echo.Context) error {
 	})
 }
 
-// users
-func (uh *UserHandler) GetAllUsers(c echo.Context) error {
-	userList, err := uh.userService.GetAllUsersAndExpand()
+// ! All Users List -----------------------------------------------------------
+func (uh *UserHandler) GetUsersList(c echo.Context) error {
+	userList, err := uh.userService.GetAllUsersWithRole()
 	if err != nil {
 		log.Printf("user.h.get_all_users: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -80,41 +80,7 @@ func (uh *UserHandler) GetAllUsers(c echo.Context) error {
 	})
 }
 
-func (uh *UserHandler) GetUserByID(c echo.Context) error {
-	stringUserID := c.Param("user_id")
-	if stringUserID == "" {
-		log.Printf("user.h.get_user_by_id: user_id is empty")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "user_id is empty",
-			Data:    nil,
-		})
-	}
-
-	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
-	if err != nil {
-		log.Printf("user.h.get_user_by_id: %v", err)
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "user_id is invalid format",
-			Data:    nil,
-		})
-	}
-
-	userData, err := uh.userService.GetUserByIDAndExpand(uintUserID)
-	if err != nil {
-		log.Printf("user.h.get_user_by_id: %v", err)
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "error getting user by Id",
-			Data:    nil,
-		})
-	}
-
-	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "user data has been retrieved",
-		Data:    userData,
-	})
-}
-
-func (uh *UserHandler) CreateUser(c echo.Context) error {
+func (uh *UserHandler) CreateListUser(c echo.Context) error {
 	var newUser schema.User
 	err := c.Bind(&newUser)
 	if err != nil {
@@ -125,7 +91,7 @@ func (uh *UserHandler) CreateUser(c echo.Context) error {
 		})
 	}
 
-	userList, err := uh.userService.CreateNewUserAndGetAllUsersAndExpand(&newUser)
+	userList, err := uh.userService.CreateListUserAndGetAllUsersWithRole(&newUser)
 	if err != nil {
 		log.Printf("user.h.create_user: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -146,7 +112,7 @@ func (uh *UserHandler) CreateUser(c echo.Context) error {
 	})
 }
 
-func (uh *UserHandler) UpdateUser(c echo.Context) error {
+func (uh *UserHandler) UpdateListUser(c echo.Context) error {
 	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
 		log.Printf("user.h.update_user: user_id is empty")
@@ -175,7 +141,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 		})
 	}
 
-	userList, err := uh.userService.UpdateUserAndGetAllUsersAndExpand(uintUserID, updateData)
+	userList, err := uh.userService.UpdateListUserAndGetAllUsersWithRole(uintUserID, updateData)
 	if err != nil {
 		log.Printf("user.h.update_user: %v", err)
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -190,7 +156,7 @@ func (uh *UserHandler) UpdateUser(c echo.Context) error {
 	})
 }
 
-func (uh *UserHandler) DeleteUser(c echo.Context) error {
+func (uh *UserHandler) DeleteListUser(c echo.Context) error {
 	stringUserID := c.Param("user_id")
 	if stringUserID == "" {
 		log.Printf("user.h.delete_user: user_id is empty")
@@ -209,7 +175,7 @@ func (uh *UserHandler) DeleteUser(c echo.Context) error {
 		})
 	}
 
-	userList, err := uh.userService.DeleteUserAndGetAllUsersAndExpand(uintUserID)
+	userList, err := uh.userService.DeleteListUserAndGetAllUsersWithRole(uintUserID)
 	if err != nil {
 		log.Printf("user.h.delete_user: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -227,5 +193,40 @@ func (uh *UserHandler) DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user has been deleted",
 		Data:    userList,
+	})
+}
+
+// ! Single User Details -----------------------------------------------------------
+func (uh *UserHandler) GetUserDetails(c echo.Context) error {
+	stringUserID := c.Param("user_id")
+	if stringUserID == "" {
+		log.Printf("user.h.get_user_by_id: user_id is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "user_id is empty",
+			Data:    nil,
+		})
+	}
+
+	uintUserID, err := common.ConvertStringOfNumbersToUint(stringUserID)
+	if err != nil {
+		log.Printf("user.h.get_user_by_id: %v", err)
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "user_id is invalid format",
+			Data:    nil,
+		})
+	}
+
+	userData, err := uh.userService.GetSingleUserByIDAndExpand(uintUserID)
+	if err != nil {
+		log.Printf("user.h.get_user_by_id: %v", err)
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error getting user by Id",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "user data has been retrieved",
+		Data:    userData,
 	})
 }

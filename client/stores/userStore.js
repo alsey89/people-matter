@@ -32,7 +32,17 @@ export const useUserStore = defineStore("user-store", {
     getCurrentUserDepartment: (state) =>
       state.currentUserData?.assignedJob?.job?.department?.name,
     //* single user data
-
+    getSingleUserData: (state) => state.singleUserData,
+    getSingleUserAvatarUrl: (state) => state.singleUserData?.avatarUrl,
+    getSingleUserFullName: (state) =>
+      state.singleUserData?.firstName + " " + state.singleUserData?.lastName,
+    getSingleUserUserId: (state) => state.singleUserData?.userId,
+    getSingleUserEmail: (state) => state.singleUserData?.email,
+    getSingleUserIsAdmin: (state) => state.singleUserData?.isAdmin,
+    getSingleUserTitle: (state) =>
+      state.singleUserData?.assignedJob?.job?.title?.name,
+    getSingleUserDepartment: (state) =>
+      state.singleUserData?.assignedJob?.job?.department?.name,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
@@ -130,6 +140,7 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     //! User API Calls
+    //* current
     async fetchCurrentUserData() {
       this.isLoading = true;
       try {
@@ -158,11 +169,12 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
-    async fetchOneUserData(userId) {
+    //* all users
+    async fetchAllUsersData() {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/v1/user/${userId}`,
+          `http://localhost:3001/api/v1/user/list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -171,23 +183,6 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        this.singleUserData = response.data.data;
-      } catch (error) {
-        this.handleError(error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async fetchAllUsersData() {
-      this.isLoading = true;
-      try {
-        const response = await axios.get(`http://localhost:3001/api/v1/user`, {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          withCredentials: true,
-        });
         this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
@@ -200,7 +195,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.post(
-          "http://localhost:3001/api/v1/user",
+          "http://localhost:3001/api/v1/user/list",
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -229,7 +224,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/user/${userId}`,
+          `http://localhost:3001/api/v1/user/list/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -251,7 +246,7 @@ export const useUserStore = defineStore("user-store", {
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `http://localhost:3001/api/v1/user/${userId}`,
+          `http://localhost:3001/api/v1/user/list/${userId}`,
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -273,6 +268,27 @@ export const useUserStore = defineStore("user-store", {
         }
       } catch (error) {
         this.handleError(error);
+      }
+    },
+    //* single user details
+    async fetchSingleUserData(userId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/v1/user/${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        this.singleUserData = response.data.data;
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.isLoading = false;
       }
     },
     //! Utilities

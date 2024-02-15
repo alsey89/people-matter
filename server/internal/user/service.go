@@ -39,11 +39,11 @@ func (us *UserService) GetUserByEmail(email string) (*schema.User, error) {
 	return existingUser, nil
 }
 
-//! User -----------------------------------------------------------
+//! All Users List -----------------------------------------------------------
 
-func (us *UserService) GetAllUsersAndExpand() ([]*schema.User, error) {
+func (us *UserService) GetAllUsersWithRole() ([]*schema.User, error) {
 
-	existingUsers, err := us.userRepository.ReadAllAndExpand()
+	existingUsers, err := us.userRepository.ReadAllAndExpandRole()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
 	}
@@ -51,25 +51,13 @@ func (us *UserService) GetAllUsersAndExpand() ([]*schema.User, error) {
 	return existingUsers, nil // Return the filtered users
 }
 
-func (us *UserService) GetUserByIDAndExpand(ID uint) (*schema.User, error) {
-	var existingUser *schema.User
-	var err error
-
-	existingUser, err = us.userRepository.ReadAndExpand(ID)
-	if err != nil {
-		return nil, fmt.Errorf("user.s.get_user_by_id: %w", err)
-	}
-
-	return existingUser, nil
-}
-
-func (us *UserService) CreateNewUserAndGetAllUsersAndExpand(newUser *schema.User) ([]*schema.User, error) {
+func (us *UserService) CreateListUserAndGetAllUsersWithRole(newUser *schema.User) ([]*schema.User, error) {
 	_, err := us.userRepository.Create(newUser)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
 	}
 
-	expandedUserList, err := us.GetAllUsersAndExpand()
+	expandedUserList, err := us.GetAllUsersWithRole()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
 	}
@@ -77,13 +65,13 @@ func (us *UserService) CreateNewUserAndGetAllUsersAndExpand(newUser *schema.User
 	return expandedUserList, nil
 }
 
-func (us *UserService) UpdateUserAndGetAllUsersAndExpand(userID uint, updateData schema.User) ([]*schema.User, error) {
+func (us *UserService) UpdateListUserAndGetAllUsersWithRole(userID uint, updateData schema.User) ([]*schema.User, error) {
 	_, err := us.userRepository.Update(userID, updateData)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.update_user: %w", err)
 	}
 
-	expandedUserList, err := us.GetAllUsersAndExpand()
+	expandedUserList, err := us.GetAllUsersWithRole()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
 	}
@@ -91,16 +79,29 @@ func (us *UserService) UpdateUserAndGetAllUsersAndExpand(userID uint, updateData
 	return expandedUserList, nil
 }
 
-func (us *UserService) DeleteUserAndGetAllUsersAndExpand(userID uint) ([]*schema.User, error) {
+func (us *UserService) DeleteListUserAndGetAllUsersWithRole(userID uint) ([]*schema.User, error) {
 	err := us.userRepository.Delete(userID)
 	if err != nil {
 		return nil, fmt.Errorf("s.delete_user: %w", err)
 	}
 
-	expandedUserList, err := us.GetAllUsersAndExpand()
+	expandedUserList, err := us.GetAllUsersWithRole()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.create_new_user: %w", err)
 	}
 
 	return expandedUserList, nil
+}
+
+// ! Single User Details -----------------------------------------------------------
+func (us *UserService) GetSingleUserByIDAndExpand(ID uint) (*schema.User, error) {
+	var existingUser *schema.User
+	var err error
+
+	existingUser, err = us.userRepository.ReadByIDAndExpandRole(ID)
+	if err != nil {
+		return nil, fmt.Errorf("user.s.get_user_by_id: %w", err)
+	}
+
+	return existingUser, nil
 }

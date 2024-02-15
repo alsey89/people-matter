@@ -34,28 +34,6 @@ func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
 	return newUser, nil
 }
 
-// note: Preloads role (assignedJob > job > title and department)
-func (ur UserRepository) ReadAndExpand(UserID uint) (*schema.User, error) {
-	var user schema.User
-	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").First(&user, "id = ?", UserID)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read: %w", result.Error)
-	}
-
-	return &user, nil
-}
-
-// note: Preloads roles (assignedJob > job > title and department)
-func (ur UserRepository) ReadAllAndExpand() ([]*schema.User, error) {
-	var users []*schema.User
-	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Find(&users)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
-	}
-
-	return users, nil
-}
-
 func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
 	var user schema.User
 	result := ur.client.Where("email = ?", email).First(&user)
@@ -92,4 +70,34 @@ func (ur UserRepository) Delete(UserID uint) error {
 	}
 
 	return nil
+}
+
+// Expanded operations --------------------------------------------------------
+
+// note: Preloads roles (assignedJob > job > title and department)
+func (ur UserRepository) ReadAllAndExpandRole() ([]*schema.User, error) {
+	var users []*schema.User
+	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
+	}
+
+	return users, nil
+}
+
+// note: Preloads all association for user (contactInfo, emergencyContact, assignedJob, payments, leave, attendance)
+func (ur UserRepository) ReadByIDAndExpandRole(UserID uint) (*schema.User, error) {
+	var user schema.User
+	result := ur.client.Preload("ContactInfo").
+		Preload("EmergencyContact").
+		Preload("AssignedJob").
+		Preload("Payments").
+		Preload("Leave").
+		Preload("Attendance").
+		First(&user, "id = ?", UserID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read: %w", result.Error)
+	}
+
+	return &user, nil
 }

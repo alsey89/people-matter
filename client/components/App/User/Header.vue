@@ -14,6 +14,7 @@
 <script setup>
 import { useRoute } from 'vue-router';
 const route = useRoute()
+const userStore = useUserStore()
 
 const activeRoute = computed(() => {
     return route.path
@@ -48,4 +49,8 @@ const getTabClasses = (tabRoute) => {
         'mt-2 px-1 md:px-2 py-1 text-gray-300 border-gray-500 border-b-black border-l border-t border-r border-b-2 hover:cursor-not-allowed': isDisabled,
     };
 };
+
+onMounted(() => {
+    userStore.fetchSingleUserData(userId)
+})
 </script>  
