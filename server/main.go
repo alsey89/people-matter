@@ -64,6 +64,8 @@ func main() {
 		Skipper: func(c echo.Context) bool {
 			if c.Request().URL.Path == "/api/v1/auth/signin" ||
 				c.Request().URL.Path == "/api/v1/auth/signup" ||
+				c.Request().URL.Path == "/api/v1/auth/signout" ||
+				c.Request().URL.Path == "/api/v1/auth/csrf" ||
 				c.Request().URL.Path == "/api/v1/auth/password/reset" {
 				return true
 			}
@@ -101,6 +103,7 @@ func main() {
 	authRoutes.POST("/signup", authHandler.Signup)
 	authRoutes.POST("/signout", authHandler.Signout)
 	authRoutes.GET("/check", authHandler.CheckAuth)
+	authRoutes.GET("/csrf", authHandler.GetCSRFToken)
 	//* User Routes
 	userRoutes := e.Group("api/v1/user")
 	// current user

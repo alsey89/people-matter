@@ -128,6 +128,20 @@ export const useUserStore = defineStore("user-store", {
         this.isLoading = false;
       }
     },
+    async getCsrfToken() {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/v1/auth/csrf",
+          {
+            withCredentials: true,
+          }
+        );
+        return response.data.data.csrfToken;
+      } catch (error) {
+        console.error("Error:", error.response);
+        this.handleError(error);
+      }
+    },
     async checkAuth() {
       try {
         await axios.get("http://localhost:3001/api/v1/auth/check", {

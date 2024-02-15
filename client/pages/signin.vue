@@ -63,5 +63,6 @@ const submitForm = async () => {
 const showForm = ref(false);
 onMounted(() => {
   showForm.value = true;
+  userStore.getCsrfToken();
 });
 </script>
