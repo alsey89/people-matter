@@ -16,35 +16,18 @@ func GetClient() *gorm.DB {
 		return client
 	}
 
-	pgUser := viper.GetString("POSTGRES_USER")
-	if pgUser == "" {
-		pgUser = "postgres"
-	}
-	pgPassword := viper.GetString("POSTGRES_PASSWORD")
-	if pgPassword == "" {
-		pgPassword = "postgres"
-	}
-	pgHost := viper.GetString("POSTGRES_HOST")
-	if pgHost == "" {
-		pgHost = "postgres"
-	}
-	pgPort := viper.GetString("POSTGRES_PORT")
-	if pgPort == "" {
-		pgPort = "5432"
-	}
-	pgDB := viper.GetString("POSTGRES_DB")
-	if pgDB == "" {
-		pgDB = "verve"
-	}
-
-	//! local postgres
-	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", pgHost, pgUser, pgPassword, pgDB, pgPort)
-	//!throwaway supabase for easy visualization
-	dsn := "user=postgres.ehpdytlwkuavpscqllsr password=sv0d88szHm5P5Syx host=aws-0-ap-northeast-1.pooler.supabase.com port=5432 dbname=postgres"
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		viper.GetString("db.host"),
+		viper.GetString("db.user"),
+		viper.GetString("db.password"),
+		viper.GetString("db.dbname"),
+		viper.GetString("db.port"),
+		viper.GetString("db.sslmode"),
+	)
 
 	var err error
 	client, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		TranslateError: true, // ! this is needed to translate postgres errors to gorm errors
+		TranslateError: true, //* this is needed to translate postgres errors to gorm errors
 	})
 	if err != nil {
 		panic(err)

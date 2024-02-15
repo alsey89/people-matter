@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -35,12 +34,9 @@ import (
 func main() {
 	e := echo.New()
 
-	//! Load Config
-	viper.SetConfigFile("dev.env")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
-	}
+	//! Config
+	setup.InitConfig()
+
 	//! Load DB
 	client := setup.GetClient()
 	//! Middleware
@@ -50,16 +46,27 @@ func main() {
 		AllowCredentials: true,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
 	}))
-	e.Use(middleware.Logger())
-	// e.Use(middleware.Secure()) //todo: enable in production
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup:    "cookie:_csrf",
-		CookiePath:     "/",
-		CookieDomain:   "localhost",
-		CookieSecure:   viper.GetBool("IS_PRODUCTION"),
-		CookieHTTPOnly: true,
-		// CookieSameSite: http.SameSiteStrictMode, //todo: enable in production
-	}))
+	if viper.GetBool("IS_PRODUCTION") {
+		e.Use(middleware.Secure())
+		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+			TokenLookup:    "cookie:_csrf",
+			CookiePath:     "/",
+			CookieDomain:   viper.GetString("PRODUCTION_DOMAIN"),
+			CookieSecure:   true,
+			CookieHTTPOnly: true,
+			CookieSameSite: http.SameSiteStrictMode,
+		}))
+	} else {
+		// e.Use(middleware.Secure()) //! this is not needed for development
+		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+			TokenLookup:    "cookie:_csrf",
+			CookiePath:     "/",
+			CookieDomain:   "localhost",
+			CookieSecure:   false,
+			CookieHTTPOnly: true,
+			CookieSameSite: http.SameSiteLaxMode,
+		}))
+	}
 	e.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: func(c echo.Context) bool {
 			if c.Request().URL.Path == "/api/v1/auth/signin" ||
@@ -75,6 +82,7 @@ func main() {
 		SigningMethod: "HS256",
 		TokenLookup:   "cookie:jwt",
 	}))
+	e.Use(middleware.Logger())
 	//! Swagger
 	e.Static("/swagger", "docs")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
