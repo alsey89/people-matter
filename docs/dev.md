@@ -1,6 +1,20 @@
 # Dev Environment
 
-## Docker-compose for setup
+## Setup
+
+### Local Environmental Variables
+
+A config.yaml file with sensible default/temporary values **is included** in the repository. This is for convenience during development. This should **NOT** be used in production.
+
+Config files are managed with:
+
+- viper: https://github.com/spf13/viper
+
+Default behavior:
+
+- if environmental variables are supplied, viper will use **environmental variables**
+- else if config.local.yaml exists, viper will use **config.local.yaml**
+- else, viper will fall back to the default **config.yaml**
 
 ### Spinning up
 
@@ -11,7 +25,7 @@ docker-compose up
 
 ### Usage
 
-After the containers have been set up, the application FE can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development, the env file is included in the repo and secure features have been disabled.
+After the containers have been set up, the client can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development.
 
 ### Shutting down
 
@@ -21,18 +35,23 @@ docker-compose down --remove-orphans
 
 ### Troubleshooting
 
-- for node_module errors try deleting the node modules folder, then spin up docker-compose
-- for "cannot find defineNuxtConfig" errors, try:
-  - setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
-  - deleting the node modules folder and the .nuxt folder. Then, do an npm install outside of the container (client) before spinning up docker-compose.
+- for node_module errors:
+  1. delete the node modules folder
+  2. cd into client
+  3. run `npm install`
+  4. spin up containers
+- for "cannot find defineNuxtConfig" errors:
+  try:
+  1. run `npx nuxi cleanup`
+  2. step 1 to 4 under "for node_module errors"
+     if problem persists, try:
+  3. setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
 
 ---
 
 # Documentation
 
-## Server
-
-- library: [swaggo](github.com/swaggo/swag)
+- library: [swaggo](https://github.com/swaggo/swag)
 - middleware: [echo swagger](https://github.com/swaggo/echo-swagger)
 
 ### Generate swagger documentation
@@ -57,6 +76,7 @@ swag init
 - architecture follows framework conventions
 - components subfolders are arranged by function
 - NB folder contains neobrutalism design components
+- todo: further organize components and document them
 
 ## Server
 
@@ -86,6 +106,7 @@ Each domain contains:
 
 - Model: structs specific to the domain
 - Error: errors specific to the domain
+- Routes: API routes specific to the domain
 - Handler: API interfaces specific to the domain
   1. Claims validation & setting
   2. Cookies validation & setting

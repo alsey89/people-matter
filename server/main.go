@@ -107,42 +107,13 @@ func main() {
 	//! Routes
 	//* Auth Routes
 	authRoutes := e.Group("api/v1/auth")
-	authRoutes.POST("/signin", authHandler.Signin)
-	authRoutes.POST("/signup", authHandler.Signup)
-	authRoutes.POST("/signout", authHandler.Signout)
-	authRoutes.GET("/check", authHandler.CheckAuth)
-	authRoutes.GET("/csrf", authHandler.GetCSRFToken)
+	auth.SetupAuthRoutes(authRoutes, authHandler)
 	//* User Routes
 	userRoutes := e.Group("api/v1/user")
-	// current user
-	userRoutes.GET("/current", userHandler.GetCurrentUser)
-	// user list
-	userRoutes.GET("/list", userHandler.GetUsersList)
-	userRoutes.POST("/list", userHandler.CreateListUser)
-	userRoutes.PUT("/list/:user_id", userHandler.UpdateListUser)
-	userRoutes.DELETE("/list/:user_id", userHandler.DeleteListUser)
-	// single user details
-	userRoutes.GET("/:user_id", userHandler.GetUserDetails)
+	user.SetupUserRoutes(userRoutes, userHandler)
 	//* Company Routes
 	companyRoutes := e.Group("api/v1/company")
-	// main
-	companyRoutes.POST("", companyHandler.CreateCompany)
-	companyRoutes.GET("/default", companyHandler.GetCompanyDataExpandDefault)
-	companyRoutes.GET("/:company_id", companyHandler.GetCompanyDataExpandID)
-	companyRoutes.PUT("/:company_id", companyHandler.UpdateCompany)
-	companyRoutes.DELETE("/:company_id", companyHandler.DeleteCompany)
-	// department
-	companyRoutes.POST("/:company_id/department", companyHandler.CreateDepartment)
-	companyRoutes.PUT("/:company_id/department/:department_id", companyHandler.UpdateDepartment)
-	companyRoutes.DELETE("/:company_id/department/:department_id", companyHandler.DeleteDepartment)
-	// location
-	companyRoutes.POST("/:company_id/location", companyHandler.CreateLocation)
-	companyRoutes.PUT("/:company_id/location/:location_id", companyHandler.UpdateLocation)
-	companyRoutes.DELETE("/:company_id/location/:location_id", companyHandler.DeleteLocation)
-	// job
-	companyRoutes.POST("/:company_id/job", companyHandler.CreateJob)
-	companyRoutes.PUT("/:company_id/job/:job_id", companyHandler.UpdateJob)
-	companyRoutes.DELETE("/:company_id/job/:job_id", companyHandler.DeleteJob)
+	company.SetupCompanyRoutes(companyRoutes, companyHandler)
 
 	//! START THE SERVER
 	e.Logger.Fatal(e.Start(":" + viper.GetString("SERVER_PORT")))
