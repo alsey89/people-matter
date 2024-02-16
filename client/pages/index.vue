@@ -1,13 +1,20 @@
 <template>
     <div class="w-full flex justify-center items-center">
         <NBCard class="min-w-full">
-            <div class="flex flex-col gap-4">
+            This is a placeholder for the home page.
+            You are currently logged in as:
+            <div>
+                {{ userStore.getCurrentUserFullName }}
+                {{ userStore.getCurrentUserTitle }}
+                {{ userStore.getCurrentUserDepartment }}
+            </div>
+            <!-- <div class="flex flex-col gap-4">
                 <div v-for="(value, key) in userStore.getCurrentUserData" :key="key">
                     <NBText class="text-center">
                         {{ key }}: {{ value }}
                     </NBText>
                 </div>
-            </div>
+            </div> -->
             <NBButtonSquare @click="userStore.signout">
                 <NBText class="px-4"> Sign Out </NBText>
             </NBButtonSquare>

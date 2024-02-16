@@ -31,7 +31,7 @@ func (as *AuthService) Signup(email string, password string) (*schema.User, erro
 		IsAdmin:   false,
 	}
 
-	createdUser, err := as.userService.CreateNewAccount(&newUser) //* this adds the ID to newUser
+	createdUser, err := as.userService.CreateNewUser(&newUser) //* this adds the ID to newUser
 	if err != nil {
 		return nil, fmt.Errorf("auth.s.signup: %w", err)
 	}

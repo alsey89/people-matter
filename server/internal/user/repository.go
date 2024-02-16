@@ -24,6 +24,7 @@ func NewUserRepository(client *gorm.DB) *UserRepository {
 }
 
 // Basic CRUD operations ------------------------------------------------------
+
 func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
 	result := ur.client.Create(newUser)
 	if result.Error != nil {
@@ -31,26 +32,6 @@ func (ur UserRepository) Create(newUser *schema.User) (*schema.User, error) {
 	}
 
 	return newUser, nil
-}
-
-func (ur UserRepository) ReadAll() ([]*schema.User, error) {
-	var users []*schema.User
-	result := ur.client.Find(&users)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
-	}
-
-	return users, nil
-}
-
-func (ur UserRepository) Read(UserID uint) (*schema.User, error) {
-	var user schema.User
-	result := ur.client.First(&user, "id = ?", UserID)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read: %w", result.Error)
-	}
-
-	return &user, nil
 }
 
 func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
@@ -65,24 +46,58 @@ func (ur UserRepository) ReadByEmail(email string) (*schema.User, error) {
 
 func (ur UserRepository) Update(UserID uint, updateData schema.User) (*schema.User, error) {
 	var user schema.User
-	result := ur.client.First(&user, "id = ?", UserID)
-	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.update: %w", result.Error)
+
+	updateDataMap := map[string]interface{}{
+		"Email":      updateData.Email,
+		"FirstName":  updateData.FirstName,
+		"MiddleName": updateData.MiddleName,
+		"LastName":   updateData.LastName,
+		"IsAdmin":    updateData.IsAdmin,
 	}
 
-	result = ur.client.Model(&user).Updates(updateData)
+	result := ur.client.Model(&user).Where("id = ?", UserID).Updates(updateDataMap)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("user.r.update: %w", result.Error)
 	}
 
 	return &user, nil
 }
 
 func (ur UserRepository) Delete(UserID uint) error {
-	result := ur.client.Delete(&schema.User{}, "id = ?", UserID)
+	result := ur.client.Unscoped().Delete(&schema.User{}, "id = ?", UserID)
 	if result.Error != nil {
 		return fmt.Errorf("user.r.delete: %w", result.Error)
 	}
 
 	return nil
+}
+
+// Expanded operations --------------------------------------------------------
+
+// note: Preloads roles (assignedJob > job > title and department)
+func (ur UserRepository) ReadAllAndExpandRole() ([]*schema.User, error) {
+	var users []*schema.User
+	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
+	}
+
+	return users, nil
+}
+
+// note: Preloads all association for user (contactInfo, emergencyContact, assignedJob, payments, leave, attendance)
+func (ur UserRepository) ReadByIDAndExpandRole(UserID uint) (*schema.User, error) {
+	var user schema.User
+	result := ur.client.Preload("ContactInfo").
+		Preload("EmergencyContact").
+		Preload("AssignedJob").
+		Preload("Payments").
+		Preload("Leave").
+		Preload("Attendance").
+		First(&user, "id = ?", UserID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user.r.read: %w", result.Error)
+	}
+
+	return &user, nil
 }

@@ -262,3 +262,10 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 		},
 	})
 }
+
+func (ah *AuthHandler) GetCSRFToken(c echo.Context) error {
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "csrf token has been set",
+		Data:    nil,
+	})
+}
