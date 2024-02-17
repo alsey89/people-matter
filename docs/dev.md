@@ -1,8 +1,6 @@
-# Dev Environment
+# Set Up
 
-## Setup
-
-### Local Environmental Variables
+## Local Environmental Variables
 
 A config.yaml file with sensible default/temporary values **is included** in the repository. This is for convenience during development. This should **NOT** be used in production.
 
@@ -16,67 +14,52 @@ Default behavior:
 - else if config.local.yaml exists, viper will use **config.local.yaml**
 - else, viper will fall back to the default **config.yaml**
 
-### Spinning up
+## Spinning up
 
 ```
 docker-compose build
 docker-compose up
 ```
 
-### Usage
+## Usage
 
 After the containers have been set up, the client can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development.
 
-### Shutting down
+## Shutting down
 
 ```
 docker-compose down --remove-orphans
 ```
 
-### Troubleshooting
+## Troubleshooting
 
-- for node_module errors:
+- For node_module errors:
   1. delete the node modules folder
   2. cd into client
   3. run `npm install`
   4. spin up containers
-- for "cannot find defineNuxtConfig" errors:
-  try:
-  1. run `npx nuxi cleanup`
-  2. step 1 to 4 under "for node_module errors"
-     if problem persists, try:
-  3. setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
+- For "cannot find defineNuxtConfig" errors
+  - try:
+    1. run `npx nuxi cleanup`
+    2. step 1 to 4 under "for node_module errors"
+  - if problem persists, try: 3. setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
 
 ---
 
-# Documentation
-
-- library: [swaggo](https://github.com/swaggo/swag)
-- middleware: [echo swagger](https://github.com/swaggo/echo-swagger)
-
-### Generate swagger documentation
-
-```
-cd server
-swag init
-```
-
-### Accessing swagger documentation
-
-[SWAGGER LINK](http://localhost:3001/swagger/index.html)
-
----
-
-# Architecture
+# Architectural Information
 
 ## Client
 
 - language: javascript
 - framework: Nuxt3
 - architecture follows framework conventions
-- components subfolders are arranged by function
-- NB folder contains neobrutalism design components
-- todo: further organize components and document them
+- Components:
+  - components subfolders are arranged by function
+  - NB folder contains neobrutalism design components
+  - todo: further organize components and document them
+- Store:
+- library: pinia, pinia-persisted-state
+-
 
 ## Server
 
@@ -134,3 +117,23 @@ Schema domain:
 - A local postgreSQL database included in docker-compose setup
 - start/db.go will establish a connection on spin up, will panic if the connection fails
 - if using pgAdmin4 to connect to the local postgres container, use `host:localhost`
+
+---
+
+# API Documentation
+
+- library: [swaggo](https://github.com/swaggo/swag)
+- middleware: [echo swagger](https://github.com/swaggo/echo-swagger)
+
+### Generate swagger documentation
+
+```
+cd server
+swag init
+```
+
+### Accessing swagger documentation
+
+[SWAGGER LINK](http://localhost:3001/swagger/index.html)
+
+---

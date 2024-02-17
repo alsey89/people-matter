@@ -1,14 +1,52 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-12">
-        <div class="col-span-1 md:col-span-3 order-1 md:order-2 bg-red-500">
-            <div class="flex flex-col gap-2">
-                <AppImage shape="circle" :src="userStore.getSingleUserAvatarUrl || 'defaultAvatar.jpg'" />
+    <NBCard v-if="userStore.getSingleUserData">
+        <div class="flex flex-col gap-2 px-2">
+            <h1 class="text-lg font-bold">
+                Contact Information
+            </h1>
+            <div>
+                Email: {{ userStore.getSingleUserEmail || "No Data" }}
+            </div>
+            <div>
+                Mobile: {{ userStore.getSingleUserMobile || "No Data" }}
+            </div>
+            <div>
+                Address: {{ userStore.getSingleUserFullAddress || "No Data" }}
             </div>
         </div>
-        <div class="col-span-1 md:col-span-9 order-2 md:order-1 bg-blue-500">
-            user details
+    </NBCard>
+    <NBCard v-else>
+        <div v-if="userStore.isLoading">
+            Loading...
         </div>
-    </div>
+        <div v-else class="m-auto">
+            No Data
+        </div>
+    </NBCard>
+    <NBCard v-if="userStore.getSingleUserEmergencyContactFullName">
+        <div class="flex flex-col gap-2 px-2">
+            <h1 class="text-lg font-bold">
+                Emergency Contact Information
+            </h1>
+            <div>
+                Name: {{ userStore.getSingleUserEmergencyContactFullName }}
+            </div>
+            <div>
+                Email: {{ userStore.getSingleUserEmergencyContactEmail || "No Data" }}
+            </div>
+            <div>
+                Mobile: {{ userStore.getSingleUserEmergencyContactMobile || "No Data" }}
+            </div>
+            <div>
+                Relation: {{ userStore.getSingleUserEmergencyContactRelation || "No Data" }}
+            </div>
+        </div>
+    </NBCard>
+    <NBCard v-else>
+        <div class="m-auto">
+            No Data
+        </div>
+    </NBCard>
 </template>
 
 <script setup>
@@ -22,3 +60,26 @@ const userStore = useUserStore();
 
 const route = useRouter().currentRoute.value
 </script>
+
+type ContactInfo struct {
+	gorm.Model
+	UserID     uint   `json:"userId"`
+	Address    string `json:"address"`
+	City       string `json:"city"`
+	State      string `json:"state"`
+	PostalCode string `json:"postalCode"`
+	Country    string `json:"country"`
+	Mobile     string `json:"mobile"`
+	Email      string `json:"email"`
+}
+
+type EmergencyContact struct {
+	gorm.Model
+	UserID     uint    `json:"userId"`
+	FirstName  string  `json:"firstName"`
+	MiddleName *string `json:"middleName"`
+	LastName   string  `json:"lastName"`
+	Relation   string  `json:"relation"`
+	Mobile     string  `json:"mobile"`
+	Email      string  `json:"email"`
+}

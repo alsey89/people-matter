@@ -13,7 +13,7 @@
                 </div>
                 <div class="flex flex-grow overflow-y-auto px-2">
                     <div v-auto-animate class="w-full h-full flex flex-col gap-4">
-                        <!-- !Users Header -->
+                        <!-- !Users List Tabs -->
                         <AppUsersHeader />
                         <!-- !Content -->
                         <router-view></router-view>

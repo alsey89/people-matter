@@ -1,4 +1,5 @@
 import axios from "axios";
+import Fullscreen from "~/layouts/fullscreen.vue";
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
@@ -20,6 +21,7 @@ export const useUserStore = defineStore("user-store", {
     //* complete data
     getCurrentUserData: (state) => state.currentUserData,
     getAllUsersData: (state) => state.allUsersData,
+    getSingleUserData: (state) => state.singleUserData,
     //* current user data
     getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
     getCurrentUserFullName: (state) =>
@@ -32,10 +34,21 @@ export const useUserStore = defineStore("user-store", {
     getCurrentUserDepartment: (state) =>
       state.currentUserData?.assignedJob?.job?.department?.name,
     //* single user data
-    getSingleUserData: (state) => state.singleUserData,
+    //main
     getSingleUserAvatarUrl: (state) => state.singleUserData?.avatarUrl,
-    getSingleUserFullName: (state) =>
-      state.singleUserData?.firstName + " " + state.singleUserData?.lastName,
+    getSingleUserFullName: (state) => {
+      let fullName = "";
+      if (state.singleUserData?.firstName) {
+        fullName += state.singleUserData?.firstName;
+      }
+      if (state.singleUserData?.middleName) {
+        fullName += " " + state.singleUserData?.middleName;
+      }
+      if (state.singleUserData?.lastName) {
+        fullName += " " + state.singleUserData?.lastName;
+      }
+      return fullName;
+    },
     getSingleUserUserId: (state) => state.singleUserData?.userId,
     getSingleUserEmail: (state) => state.singleUserData?.email,
     getSingleUserIsAdmin: (state) => state.singleUserData?.isAdmin,
@@ -43,6 +56,59 @@ export const useUserStore = defineStore("user-store", {
       state.singleUserData?.assignedJob?.job?.title?.name,
     getSingleUserDepartment: (state) =>
       state.singleUserData?.assignedJob?.job?.department?.name,
+    //contact info
+    getSingleUserContactInfo: (state) => state.singleUserData?.contactInfo,
+    getSingleUserMobile: (state) => state.singleUserData?.contactInfo?.mobile,
+    getSingleUserAddress: (state) => state.singleUserData?.contactInfo?.address,
+    getSingleUserCity: (state) => state.singleUserData?.contactInfo?.city,
+    getSingleUserState: (state) => state.singleUserData?.contactInfo?.state,
+    getSingleUserPostalCode: (state) =>
+      state.singleUserData?.contactInfo?.postalCode,
+    getSingleUserCountry: (state) => state.singleUserData?.contactInfo?.country,
+    getSingleUserFullAddress: (state) => {
+      let fullAddress = "";
+      if (state.singleUserData?.contactInfo?.address) {
+        fullAddress += state.singleUserData?.contactInfo?.address;
+      }
+      if (state.singleUserData?.contactInfo?.city) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.city;
+      }
+      if (state.singleUserData?.contactInfo?.state) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.state;
+      }
+      if (state.singleUserData?.contactInfo?.postalCode) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.postalCode;
+      }
+      return fullAddress;
+    },
+    //emergency contact
+    getSingleUserEmergencyContact: (state) =>
+      state.singleUserData?.emergencyContact,
+    getSingleUserEmergencyContactName: (state) =>
+      state.singleUserData?.emergencyContact?.firstName,
+    getSingleUserEmergencyContactLastName: (state) =>
+      state.singleUserData?.emergencyContact?.lastName,
+    getSingleUserEmergencyContactMiddleName: (state) =>
+      state.singleUserData?.emergencyContact?.middleName,
+    getSingleUserEmergencyContactFullName: (state) => {
+      let fullName = "";
+      if (state.singleUserData?.emergencyContact?.firstName) {
+        fullName += state.singleUserData?.emergencyContact?.firstName;
+      }
+      if (state.singleUserData?.emergencyContact?.middleName) {
+        fullName += " " + state.singleUserData?.emergencyContact?.middleName;
+      }
+      if (state.singleUserData?.emergencyContact?.lastName) {
+        fullName += " " + state.singleUserData?.emergencyContact?.lastName;
+      }
+      return fullName;
+    },
+    getSingleUserEmergencyContactMobile: (state) =>
+      state.singleUserData?.emergencyContact?.mobile,
+    getSingleUserEmergencyContactEmail: (state) =>
+      state.singleUserData?.emergencyContact?.email,
+    getSingleUserEmergencyContactRelation: (state) =>
+      state.singleUserData?.emergencyContact?.relation,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
