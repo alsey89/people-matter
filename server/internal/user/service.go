@@ -43,7 +43,7 @@ func (us *UserService) GetUserByEmail(email string) (*schema.User, error) {
 
 func (us *UserService) GetAllUsersWithRole() ([]*schema.User, error) {
 
-	existingUsers, err := us.userRepository.ReadAllAndExpandRole()
+	existingUsers, err := us.userRepository.ReadAllAndPreloadJobTitleDepartment()
 	if err != nil {
 		return nil, fmt.Errorf("user.s.get_all_users: %w", err)
 	}
@@ -98,7 +98,7 @@ func (us *UserService) GetSingleUserByIDAndExpand(ID uint) (*schema.User, error)
 	var existingUser *schema.User
 	var err error
 
-	existingUser, err = us.userRepository.ReadByIDAndExpandRole(ID)
+	existingUser, err = us.userRepository.ReadByIDAndPreloadJobTitleDepartment(ID)
 	if err != nil {
 		return nil, fmt.Errorf("user.s.get_user_by_id: %w", err)
 	}

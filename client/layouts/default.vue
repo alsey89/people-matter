@@ -21,9 +21,4 @@
 </template>
 
 <script setup>
-const companyStore = useCompanyStore()
-
-if (!companyStore.getCompanyData) {
-    companyStore.fetchCompany()
-}
 </script>

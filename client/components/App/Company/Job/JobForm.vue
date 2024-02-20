@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full flex flex-col gap-4">
-        <NBCard class="flex flex-col p-4">
+        <UICard class="flex flex-col p-4">
             <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
                 <!-- Input for Title -->
                 <div v-auto-animate class="flex flex-col gap-2">
@@ -70,13 +70,13 @@
                 </div>
                 <!-- Submit Button -->
                 <div class="w-full mt-4">
-                    <NBButtonSquare type="submit" size="md" textSize="md"
+                    <UIButtonSquare type="submit" size="md" textSize="md"
                         class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                         Submit
-                    </NBButtonSquare>
+                    </UIButtonSquare>
                 </div>
             </form>
-        </NBCard>
+        </UICard>
     </div>
 </template>
 

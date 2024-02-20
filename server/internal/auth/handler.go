@@ -79,9 +79,9 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:      newUser.ID, // Store the ObjectId
-		IsAdmin: newUser.IsAdmin,
-		Email:   newUser.Email,
+		ID:    newUser.ID, // Store the ObjectId
+		Role:  newUser.Role,
+		Email: newUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
@@ -161,9 +161,9 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:      existingUser.ID, // Store the ObjectId
-		IsAdmin: existingUser.IsAdmin,
-		Email:   existingUser.Email,
+		ID:    existingUser.ID, // Store the ObjectId
+		Role:  existingUser.Role,
+		Email: existingUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},

@@ -93,17 +93,6 @@ export const useCompanyStore = defineStore("company-store", {
           }
         );
         const isSuccess = this.handleSuccess(response);
-        if (isSuccess) {
-          persistedState.sessionStorage.setItem("companyId", this.companyId);
-          persistedState.sessionStorage.setItem(
-            "companyName",
-            this.companyName
-          );
-          persistedState.sessionStorage.setItem(
-            "companyLogoUrl",
-            this.companyLogoUrl
-          );
-        }
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -491,6 +480,13 @@ export const useCompanyStore = defineStore("company-store", {
           response.data.data.expandedCompany?.departments;
         this.companyLocations = response.data.data.expandedCompany?.locations;
         this.companyJobs = response.data.data.expandedCompany?.jobs;
+        // session storage
+        persistedState.sessionStorage.setItem("companyId", this.companyId);
+        persistedState.sessionStorage.setItem("companyName", this.companyName);
+        persistedState.sessionStorage.setItem(
+          "companyLogoUrl",
+          this.companyLogoUrl
+        );
         return true;
       } else {
         return false;

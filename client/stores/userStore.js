@@ -7,13 +7,6 @@ export const useUserStore = defineStore("user-store", {
     currentUserData: null,
     allUsersData: null,
     singleUserData: null,
-    //* current user data
-    currentUserfirstName: null,
-    currentUserLastName: null,
-    currentUserMiddleName: null,
-    currentUserNickName: null,
-    currentUserEmail: null,
-    currentUserAvatarUrl: null,
     //* store
     isLoading: false,
   }),
@@ -51,7 +44,7 @@ export const useUserStore = defineStore("user-store", {
     },
     getSingleUserUserId: (state) => state.singleUserData?.userId,
     getSingleUserEmail: (state) => state.singleUserData?.email,
-    getSingleUserIsAdmin: (state) => state.singleUserData?.isAdmin,
+    getSingleUserRole: (state) => state.singleUserData?.role,
     getSingleUserTitle: (state) =>
       state.singleUserData?.assignedJob?.job?.title?.name,
     getSingleUserDepartment: (state) =>
@@ -187,7 +180,7 @@ export const useUserStore = defineStore("user-store", {
           }
         );
         sessionStorage.clear();
-        return navigateTo("/signin");
+        return navigateTo("/auth/signin");
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -202,7 +195,6 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        return response.data.data.csrfToken;
       } catch (error) {
         console.error("Error:", error.response);
         this.handleError(error);
@@ -216,12 +208,13 @@ export const useUserStore = defineStore("user-store", {
       } catch (error) {
         console.error("Error:", error.response);
         sessionStorage.clear();
-        return navigateTo("/signin", { external: true });
+        return navigateTo("/auth/signin", { external: true });
       }
     },
     //! User API Calls
     //* current
     async fetchCurrentUserData() {
+      this.currentUserData = null;
       this.isLoading = true;
       try {
         const response = await axios.get(
@@ -234,14 +227,9 @@ export const useUserStore = defineStore("user-store", {
             withCredentials: true,
           }
         );
-        this.currentUserData = response.data.data;
-        this.currentUserId = response.data.data.ID;
-        this.currentUserfirstName = response.data.data.firstName;
-        this.currentUserLastName = response.data.data.lastName;
-        this.currentUserMiddleName = response.data.data.middleName;
-        this.currentUserNickName = response.data.data.nickName;
-        this.currentUserEmail = response.data.data.email;
-        this.currentUserAvatarUrl = response.data.data.avatarUrl;
+        if (response.status === 200) {
+          this.currentUserData = response.data.data;
+        }
       } catch (error) {
         console.error("Error:", error.response);
         this.handleError(error);
@@ -251,6 +239,7 @@ export const useUserStore = defineStore("user-store", {
     },
     //* all users
     async fetchAllUsersData() {
+      this.allUsersData = null;
       this.isLoading = true;
       try {
         const response = await axios.get(
@@ -352,6 +341,7 @@ export const useUserStore = defineStore("user-store", {
     },
     //* single user details
     async fetchSingleUserData(userId) {
+      this.singleUserData = null;
       this.isLoading = true;
       try {
         const response = await axios.get(
@@ -380,7 +370,7 @@ export const useUserStore = defineStore("user-store", {
         switch (error.response.status) {
           case 401:
             messageStore.setError("Invalid credentials.");
-            return navigateTo("/signin");
+            return navigateTo("/auth/signin");
           case 403:
             messageStore.setError("Access denied.");
             return navigateTo("/");

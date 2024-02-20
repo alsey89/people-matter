@@ -1,22 +1,22 @@
 <template>
-    <NBCard id="modal" class="w-full h-full">
-        <NBCardHeader>
+    <UICard id="modal" class="w-full h-full">
+        <UICardHeader>
             Confirmation Required
-        </NBCardHeader>
+        </UICardHeader>
         <div>
             {{ confirmationModalMessage }}
         </div>
-        <NBCardFooter>
+        <UICardFooter>
             <div class="flex justify-end gap-2">
-                <NBButtonSquare @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
+                <UIButtonSquare @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
                     Confirm
-                </NBButtonSquare>
-                <NBButtonSquare @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
+                </UIButtonSquare>
+                <UIButtonSquare @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
                     Cancel
-                </NBButtonSquare>
+                </UIButtonSquare>
             </div>
-        </NBCardFooter>
-    </NBCard>
+        </UICardFooter>
+    </UICard>
 </template>
 
 <script setup>

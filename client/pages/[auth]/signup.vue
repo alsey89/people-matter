@@ -1,51 +1,52 @@
 <template>
   <div class="w-full h-screen flex items-center justify-center">
     <div v-auto-animate class="w-full flex flex-col justify-center items-center">
-      <NBCard v-if="showForm" class="bg-gray-100">
+      <UICard v-if="showForm" class="bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
-          <NBCardHeader>
-            <NBText>
+          <UICardHeader>
+            <UIText>
               Sign Up for Verve HR
-            </NBText>
-          </NBCardHeader>
+            </UIText>
+          </UICardHeader>
           <!-- ----------------------------------------- -->
           <form class="w-full flex flex-col justify-center items-center gap-4" @submit.prevent="submitForm">
-            <NBFormField>
+            <UIFormField>
               <template v-slot:icon>
                 <Icon name="material-symbols:attach-email-outline" />
               </template>
               <input type="email" v-model="email" class="h-8 w-full focus:outline-primary px-1" maxlength="256"
                 placeholder="Email Address" required />
-            </NBFormField>
+            </UIFormField>
 
-            <NBFormField>
+            <UIFormField>
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
               <input type="password" v-model="password" class="h-10 w-full focus:outline-primary px-1" maxlength="256"
                 name="password" placeholder="Password (min 6 characters)" required />
-            </NBFormField>
-            <NBFormField>
+            </UIFormField>
+            <UIFormField>
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
               <input type="password" v-model="confirmPassword" class="h-10 w-full focus:outline-primary px-1"
                 maxlength="256" name="confirmPassword" placeholder="Repeat Password" required />
-            </NBFormField>
-            <NBButtonSquare size="lg" class="w-full bg-primary hover:bg-primary-dark text-white">
+            </UIFormField>
+            <UIButtonSquare size="lg" class="w-full bg-primary hover:bg-primary-dark text-white">
               Sign Up
-            </NBButtonSquare>
+            </UIButtonSquare>
           </form>
           <!-- ----------------------------------------- -->
-          <NBCardFooter>
+          <UICardFooter>
             <div class="flex gap-2">
               Already have an account?
-              <button @click="navigateTo('/signin')" class="text-primary hover:text-primary-dark hover:underline">Sign
+              <button @click="navigateTo('/auth/signin')"
+                class="text-primary hover:text-primary-dark hover:underline">Sign
                 In</button>
             </div>
-          </NBCardFooter>
+          </UICardFooter>
         </div>
-      </NBCard>
+      </UICard>
     </div>
   </div>
 </template>

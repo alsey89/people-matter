@@ -1,5 +1,5 @@
 <template>
-    <NBCard>
+    <UICard>
         <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
                 <label for="name">Name*</label>
@@ -12,12 +12,12 @@
             </div>
             <!-- todo: add more fields if needed -->
             <div class="w-full">
-                <NBButtonSquare type="submit" size="xs" textSize="md"
+                <UIButtonSquare type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">Submit
-                </NBButtonSquare>
+                </UIButtonSquare>
             </div>
         </form>
-    </NBCard>
+    </UICard>
 </template>
   
 <script setup>

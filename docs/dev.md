@@ -55,10 +55,10 @@ docker-compose down --remove-orphans
 - architecture follows framework conventions
 - Components:
   - components subfolders are arranged by function
-  - NB folder contains neobrutalism design components
+  - UI folder contains neobrutalism design components
   - todo: further organize components and document them
 - Store:
-- library: pinia, pinia-persisted-state
+  - library: pinia, pinia-persisted-state
 -
 
 ## Server

@@ -8,16 +8,16 @@
             <div class=" items-center  text-lg font-bold"> Departments </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- show/hide details Button -->
-                <NBButtonSquare size="xs" @click="handleToggleAllDepartmentsButtonClick">
+                <UIButtonSquare size="xs" @click="handleToggleAllDepartmentsButtonClick">
                     <Icon v-if="expandedDepartmentIndex == 'all'" name="solar:list-arrow-up-bold"
                         class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                </NBButtonSquare>
+                </UIButtonSquare>
                 <!-- !add department button -->
-                <NBButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
+                <UIButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
                     <Icon v-if="showDepartmentForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </NBButtonSquare>
+                </UIButtonSquare>
             </div>
         </div>
         <!-- !department form -->
@@ -28,35 +28,35 @@
         <!-- !department list -->
         <div v-if="companyStore.getCompanyDepartments?.length > 0"
             v-for="(department, index) in companyStore.companyDepartments" :key="department.ID">
-            <NBCard v-auto-animate>
-                <NBCardHeader>
+            <UICard v-auto-animate>
+                <UICardHeader>
                     <div v-auto-animate @click="handleExpandDepartmentButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p :class="{ 'text-primary text-xl': expandedDepartmentIndex === index }">
                             {{ department.name }}
                         </p>
                         <div class="flex gap-4">
-                            <NBButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
+                            <UIButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
-                            <NBButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
+                            </UIButtonSquare>
+                            <UIButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
+                            </UIButtonSquare>
                         </div>
                     </div>
-                </NBCardHeader>
+                </UICardHeader>
                 <div v-if="department.description && expandedDepartmentIndex == index || department.description && expandedDepartmentIndex == 'all'"
                     class="px-2">
                     <MDRender :content="department.description" />
                 </div>
-            </NBCard>
+            </UICard>
         </div>
         <div v-else>
-            <NBCard>
+            <UICard>
                 <div class="m-auto">
                     No Data
                 </div>
-            </NBCard>
+            </UICard>
         </div>
     </div>
 </template>

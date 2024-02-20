@@ -8,16 +8,16 @@
             <div class="text-lg font-bold"> Jobs </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- !toggle job action buttons -->
-                <NBButtonSquare @click="handleToggleAllJobsButtonClick" size="xs">
+                <UIButtonSquare @click="handleToggleAllJobsButtonClick" size="xs">
                     <Icon v-if="expandedJobIndex == 'all'" name="solar:list-arrow-up-bold"
                         class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                </NBButtonSquare>
+                </UIButtonSquare>
                 <!-- !add job button -->
-                <NBButtonSquare @click="handleAddJobButtonClick" size="xs">
+                <UIButtonSquare @click="handleAddJobButtonClick" size="xs">
                     <Icon v-if="showJobForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </NBButtonSquare>
+                </UIButtonSquare>
             </div>
         </div>
         <!-- !Job Form -->
@@ -27,23 +27,23 @@
         <!-- !Job List -->
         <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="(job, index) in companyStore.getCompanyJobs"
             :key="job.ID">
-            <NBCard v-auto-animate>
-                <NBCardHeader>
+            <UICard v-auto-animate>
+                <UICardHeader>
                     <div v-auto-animate @click="handleExpandJobButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p :class="{ 'text-primary text-xl': expandedJobIndex === index }">
                             {{ job.title }}
                         </p>
                         <div class="flex gap-4">
-                            <NBButtonSquare size="xs" @click.stop="handleEditJobButtonClick(job)">
+                            <UIButtonSquare size="xs" @click.stop="handleEditJobButtonClick(job)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
-                            <NBButtonSquare size="xs" @click.stop="handleDeleteJobButtonClick(job)">
+                            </UIButtonSquare>
+                            <UIButtonSquare size="xs" @click.stop="handleDeleteJobButtonClick(job)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
+                            </UIButtonSquare>
                         </div>
                     </div>
-                </NBCardHeader>
+                </UICardHeader>
                 <div v-if="expandedJobIndex == index || expandedJobIndex == 'all'" class="px-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex flex-col flex-wrap gap-2">
@@ -106,14 +106,14 @@
                         </div>
                     </div>
                 </div>
-            </NBCard>
+            </UICard>
         </div>
         <div v-else>
-            <NBCard>
+            <UICard>
                 <div class="flex justify-center items-center">
                     No Data
                 </div>
-            </NBCard>
+            </UICard>
         </div>
     </div>
 </template>

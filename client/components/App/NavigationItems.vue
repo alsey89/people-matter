@@ -1,23 +1,23 @@
 <template>
-    <NBMenuItemNavigation navigateTo="/" :class="{ 'border-l-2 border-l-primary': activeRoute === '/' }"
+    <UIMenuItemNavigation navigateTo="/" :class="{ 'border-l-2 border-l-primary': activeRoute === '/' }"
         class="hover:bg-secondary-bg">
         Home
-    </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/company" :class="{ 'border-l-2 border-l-primary': activeRoute === '/company' }"
+    </UIMenuItemNavigation>
+    <UIMenuItemNavigation navigateTo="/company" :class="{ 'border-l-2 border-l-primary': activeRoute === '/company' }"
         class="hover:bg-secondary-bg">
         Company
-    </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/user" :class="{ 'border-l-2 border-l-primary': activeRoute === '/user' }"
+    </UIMenuItemNavigation>
+    <UIMenuItemNavigation navigateTo="/user/list" :class="{ 'border-l-2 border-l-primary': activeRoute === '/user' }"
         class="hover:bg-secondary-bg">
         Users
-    </NBMenuItemNavigation>
-    <!-- <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
+    </UIMenuItemNavigation>
+    <UIMenuItemNavigation navigateTo="/user" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
         class="hover:bg-secondary-bg">
-        Salary
-    </NBMenuItemNavigation> -->
-    <NBMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
+        Profile
+    </UIMenuItemNavigation>
+    <UIMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
         Signout
-    </NBMenuItem>
+    </UIMenuItem>
 </template>
   
 <script setup>

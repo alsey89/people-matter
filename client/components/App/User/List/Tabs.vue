@@ -22,7 +22,7 @@ const activeRoute = computed(() => {
 })
 
 const tabs = computed(() => [
-    { name: 'Users', to: `/user` },
+    { name: 'Users', to: `/user/list` },
 ]);
 const handleTabSelect = (tabRoute) => {
     if (activeRoute.value == tabRoute) {

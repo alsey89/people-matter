@@ -3,7 +3,7 @@
         <client-only>
             <div v-if="activeRoute.startsWith('/company')" @click="handleTabSelect(tab.to)" v-for=" tab  in  tabs "
                 :key="tab.name" :class="getTabClasses(tab.to)"
-                class="min-w-24 text-center text-base font-bold rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]">
+                class="min-w-12 md:min-w-24 text-center text-sm md:text-base font-bold rounded-t-md cursor-pointer shadow-[2px_0px_0px_rgba(0,0,0,1)]">
                 {{ tab.name }}
             </div>
             <div class="mt-auto flex-grow border-b-2 border-black"></div>
@@ -39,7 +39,7 @@ const getTabClasses = (tabRoute) => {
     let isDisabled = tabRoute.includes('null')
     return {
         // active tab
-        'mt-1 px-4 py-1.5 text-primary border-black border-l border-t border-r': activeRoute.value == tabRoute && !isDisabled,
+        'mt-1 px-4 py-1.5 text-primary border-black border-l border-t border-r border-b-transparent': activeRoute.value == tabRoute && !isDisabled,
         // inactive tab
         'mt-2 px-2 py-1 text-gray-500 border-gray-500 border-b-black border-l border-t border-r border-b-2': activeRoute.value != tabRoute && !isDisabled,
         // disabled tab

@@ -1,15 +1,15 @@
 <template>
-    <NBMenu>
-        <NBMenuItemNavigation navigateTo="/" class="hover:bg-secondary-bg">
+    <UIMenu>
+        <UIMenuItemNavigation navigateTo="/" class="hover:bg-secondary-bg">
             Home
-        </NBMenuItemNavigation>
-        <NBMenuItemNavigation navigateTo="/signin" class="hover:bg-secondary-bg">
+        </UIMenuItemNavigation>
+        <UIMenuItemNavigation navigateTo="/signin" class="hover:bg-secondary-bg">
             Sign In
-        </NBMenuItemNavigation>
-        <NBMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
+        </UIMenuItemNavigation>
+        <UIMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
             Signout
-        </NBMenuItem>
-    </NBMenu>
+        </UIMenuItem>
+    </UIMenu>
 </template>
 
 <script setup>

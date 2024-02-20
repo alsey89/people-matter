@@ -1,52 +1,56 @@
 <template>
-    <NBCard v-if="userStore.getSingleUserData">
-        <div class="flex flex-col gap-2 px-2">
-            <h1 class="text-lg font-bold">
+    <!-- !Confirmation Modal -->
+    <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
+        @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
+    <!--! Content -->
+    <div v-if="userStore.getSingleUserData" class="flex flex-col gap-4">
+        <UICard>
+            <h1 class="text-lg font-bold px-2">
                 Contact Information
             </h1>
-            <div>
-                Email: {{ userStore.getSingleUserEmail || "No Data" }}
+            <div class="flex flex-col gap-2 px-2">
+                <div>
+                    Email: {{ userStore.getSingleUserEmail || "No Data" }}
+                </div>
+                <div>
+                    Mobile: {{ userStore.getSingleUserMobile || "No Data" }}
+                </div>
+                <div>
+                    Address: {{ userStore.getSingleUserFullAddress || "No Data" }}
+                </div>
             </div>
-            <div>
-                Mobile: {{ userStore.getSingleUserMobile || "No Data" }}
+        </UICard>
+        <UICard v-if="userStore.getSingleUserEmergencyContact">
+            <h1 class="text-lg font-bold px-2">
+                Emergency Contact Information
+            </h1>
+            <div v-if="userStore.getSingleUserEmergencyContact" class="flex flex-col gap-2 px-2">
+                <div>
+                    Name: {{ userStore.getSingleUserEmergencyContactFullName }}
+                </div>
+                <div>
+                    Email: {{ userStore.getSingleUserEmergencyContactEmail || "No Data" }}
+                </div>
+                <div>
+                    Mobile: {{ userStore.getSingleUserEmergencyContactMobile || "No Data" }}
+                </div>
+                <div>
+                    Relation: {{ userStore.getSingleUserEmergencyContactRelation || "No Data" }}
+                </div>
             </div>
-            <div>
-                Address: {{ userStore.getSingleUserFullAddress || "No Data" }}
+            <div v-else class="m-auto">
+                No Data
             </div>
-        </div>
-    </NBCard>
-    <NBCard v-else>
+        </UICard>
+    </div>
+    <UICard v-else>
         <div v-if="userStore.isLoading">
             Loading...
         </div>
         <div v-else class="m-auto">
             No Data
         </div>
-    </NBCard>
-    <NBCard v-if="userStore.getSingleUserEmergencyContactFullName">
-        <div class="flex flex-col gap-2 px-2">
-            <h1 class="text-lg font-bold">
-                Emergency Contact Information
-            </h1>
-            <div>
-                Name: {{ userStore.getSingleUserEmergencyContactFullName }}
-            </div>
-            <div>
-                Email: {{ userStore.getSingleUserEmergencyContactEmail || "No Data" }}
-            </div>
-            <div>
-                Mobile: {{ userStore.getSingleUserEmergencyContactMobile || "No Data" }}
-            </div>
-            <div>
-                Relation: {{ userStore.getSingleUserEmergencyContactRelation || "No Data" }}
-            </div>
-        </div>
-    </NBCard>
-    <NBCard v-else>
-        <div class="m-auto">
-            No Data
-        </div>
-    </NBCard>
+    </UICard>
 </template>
 
 <script setup>
@@ -58,28 +62,18 @@ definePageMeta({
 
 const userStore = useUserStore();
 
-const route = useRouter().currentRoute.value
+const showConfirmationModal = ref(false);
+
+const userFormData = reactive({
+    userFormType: null,
+    userId: null,
+
+    // personal information
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+});
+
 </script>
 
-type ContactInfo struct {
-	gorm.Model
-	UserID     uint   `json:"userId"`
-	Address    string `json:"address"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	PostalCode string `json:"postalCode"`
-	Country    string `json:"country"`
-	Mobile     string `json:"mobile"`
-	Email      string `json:"email"`
-}
-
-type EmergencyContact struct {
-	gorm.Model
-	UserID     uint    `json:"userId"`
-	FirstName  string  `json:"firstName"`
-	MiddleName *string `json:"middleName"`
-	LastName   string  `json:"lastName"`
-	Relation   string  `json:"relation"`
-	Mobile     string  `json:"mobile"`
-	Email      string  `json:"email"`
-}

@@ -8,10 +8,10 @@
             <h1 class="text-lg font-bold"> Locations </h1>
             <div v-auto-animate class="flex gap-4">
                 <!-- !add location button -->
-                <NBButtonSquare @click="handleAddLocationButtonClick" size="xs">
+                <UIButtonSquare @click="handleAddLocationButtonClick" size="xs">
                     <Icon v-if="showLocationForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </NBButtonSquare>
+                </UIButtonSquare>
             </div>
         </div>
         <!-- !location form -->
@@ -21,34 +21,34 @@
         <!-- !location list -->
         <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
             :key="location.ID">
-            <NBCard v-auto-animate>
-                <NBCardHeader>
+            <UICard v-auto-animate>
+                <UICardHeader>
                     <div v-auto-animate class="flex justify-between items-center px-2">
                         <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
                         <div class="flex gap-4">
-                            <NBButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
+                            <UIButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
-                            <NBButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
+                            </UIButtonSquare>
+                            <UIButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </NBButtonSquare>
+                            </UIButtonSquare>
                         </div>
                     </div>
-                </NBCardHeader>
+                </UICardHeader>
                 <div class="px-2">
                     <p>Phone: {{ location.phone || "No number listed" }}</p>
                     <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
                         location.country }} {{
         location.postalCode }}</p>
                 </div>
-            </NBCard>
+            </UICard>
         </div>
         <div v-else>
-            <NBCard>
+            <UICard>
                 <div class="m-auto">
                     No Data
                 </div>
-            </NBCard>
+            </UICard>
         </div>
     </div>
 </template>

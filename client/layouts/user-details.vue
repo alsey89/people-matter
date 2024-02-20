@@ -14,35 +14,7 @@
                 <div class="flex flex-grow overflow-y-auto px-2">
                     <div v-auto-animate class="w-full h-full flex flex-col gap-4">
                         <!-- !User Details Tabs -->
-                        <app-user-header />
-                        <!-- !User Details -->
-                        <div class="min-h-max flex gap-2 items-center border-b-2 border-black py-2 pr-4">
-                            <AppImage :src="userStore.getSingleUserAvatarUrl || 'defaultAvatar.jpg'" shape="circle"
-                                class="w-8 h-8" />
-                            <h1 class="text-lg font-bold"> {{ userStore.getSingleUserFullName }} </h1>
-                        </div>
-                        <!-- <NBCard v-if="userStore.getSingleUserData">
-                            <div class="flex justify-between items-center p-2">
-                                <div class="flex gap-4 items-center">
-                                    <AppImage :src="userStore.getSingleUserAvatarUrl || 'defaultAvatar.jpg'" shape="square"
-                                        class="w-8 h-8" />
-                                    <div class="flex flex-col overflow-x-hidden">
-                                        <h1 class="text-sm md:text-base text-nowrap font-bold"> {{
-                                            userStore.getSingleUserFullName }}
-                                        </h1>
-                                        <p class="text-sm md:text-base"> Unassigned </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </NBCard>
-                        <NBCard v-else>
-                            <div v-if="userStore.isLoading">
-                                Loading...
-                            </div>
-                            <div v-else class="m-auto">
-                                No Data
-                            </div>
-                        </NBCard> -->
+                        <app-user-tabs />
                         <!-- !Content -->
                         <router-view></router-view>
                     </div>
@@ -53,7 +25,15 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router';
+
 const userStore = useUserStore();
 
+const route = useRoute();
+const userId = route.params.id;
+
+onBeforeMount(() => {
+    userStore.fetchSingleUserData(userId);
+});
 </script>
 
