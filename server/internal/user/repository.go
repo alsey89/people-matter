@@ -100,6 +100,8 @@ func (ur UserRepository) ReadByIDAndPreloadJobTitleDepartment(UserID uint) (*sch
 		Preload("ContactInfo").
 		Preload("EmergencyContact").
 		Preload("AssignedJob.Job").
+		Preload("AssignedJob.Job.Department").
+		Preload("AssignedJob.Job.Location").
 		Preload("Payments").
 		Preload("Leave").
 		Preload("Attendance").
