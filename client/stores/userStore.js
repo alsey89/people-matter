@@ -107,12 +107,12 @@ export const useUserStore = defineStore("user-store", {
   actions: {
     //! Auth API Calls
     async signin({ email, password }) {
-      const runtimeConfig = useRuntimeConfig();
-      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       const messageStore = useMessageStore();
       const companyStore = useCompanyStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
           `${apiBaseUrl}/api/v1/auth/signin`,
           {
@@ -143,8 +143,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/auth/signup",
+          `${apiBaseUrl}/api/v1/auth/signup`,
           {
             username: username,
             email: email,
@@ -173,8 +175,10 @@ export const useUserStore = defineStore("user-store", {
     async signout() {
       this.isLoading = true;
       try {
-        await axios.post(
-          "http://localhost:3001/api/v1/auth/signout",
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
+        const response = await axios.post(
+          `${apiBaseUrl}/api/v1/auth/signout`,
           {},
           {
             withCredentials: true,
@@ -189,9 +193,12 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     async getCsrfToken() {
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/auth/csrf",
+        await axios.get(
+          `${apiBaseUrl}/api/v1/auth/csrf-token`,
+          {},
           {
             withCredentials: true,
           }
@@ -202,8 +209,10 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     async checkAuth() {
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        await axios.get("http://localhost:3001/api/v1/auth/check", {
+        await axios.get(`${apiBaseUrl}/api/v1/auth/check`, {
           withCredentials: true,
         });
       } catch (error) {
@@ -217,17 +226,16 @@ export const useUserStore = defineStore("user-store", {
     async fetchCurrentUserData() {
       this.currentUserData = null;
       this.isLoading = true;
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/user/current",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${apiBaseUrl}/api/v1/user/current`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
         if (response.status === 200) {
           this.currentUserData = response.data.data;
         }
@@ -243,16 +251,15 @@ export const useUserStore = defineStore("user-store", {
       this.allUsersData = null;
       this.isLoading = true;
       try {
-        const response = await axios.get(
-          `http://localhost:3001/api/v1/user/list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
+        const response = await axios.get(`${apiBaseUrl}/api/v1/user/list`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
         this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
@@ -264,8 +271,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/user/list",
+          `${apiBaseUrl}/api/v1/user/list`,
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -293,8 +302,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/user/list/${userId}`,
+          `${apiBaseUrl}/api/v1/user/list/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -315,8 +326,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/user/list/${userId}`,
+          `${apiBaseUrl}/api/v1/user/list/${userId}`,
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -345,8 +358,10 @@ export const useUserStore = defineStore("user-store", {
       this.singleUserData = null;
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.get(
-          `http://localhost:3001/api/v1/user/${userId}`,
+          `${apiBaseUrl}/api/v1/user/list/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
