@@ -361,7 +361,7 @@ export const useUserStore = defineStore("user-store", {
         const runtimeConfig = useRuntimeConfig();
         const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.get(
-          `${apiBaseUrl}/api/v1/user/list/${userId}`,
+          `${apiBaseUrl}/api/v1/user/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
