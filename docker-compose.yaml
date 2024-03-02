@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrms
+    restart: on-failure
 
   server:
     build: ./server
@@ -15,6 +16,7 @@ services:
       - "3001:3001"
     depends_on:
       - postgres
+    restart: on-failure
 
   client:
     build: ./client
@@ -23,3 +25,4 @@ services:
     depends_on:
       - server
       - postgres
+    restart: on-failure

@@ -2,6 +2,7 @@
 
 #! Environment type
 is_production: false
+server_port: 3001
 
 #! Local PostgreSQL
 db:
