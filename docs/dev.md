@@ -1,4 +1,4 @@
-# Set Up
+# Set Up for Development
 
 ## Local Environmental Variables
 
@@ -43,6 +43,18 @@ docker-compose down --remove-orphans
     1. run `npx nuxi cleanup`
     2. step 1 to 4 under "for node_module errors"
   - if problem persists, try: 3. setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
+
+## For deployment
+
+- edit docker-compose.deploy.yaml
+- BASE_API_URL should point to the backend directly (OR)
+- BASE_API_URL can point to the domain and Nginx can route it to the backend
+
+when deploying as a docker-compose setup use:
+
+```
+docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml up -d
+```
 
 ---
 

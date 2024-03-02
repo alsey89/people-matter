@@ -13,7 +13,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiUrl: "http://localhost:3001/api/v1",
+      // localhost3001 in local development or the production API URL
+      apiBaseUrl: process.env.API_BASE_URL,
     },
   },
   devtools: {

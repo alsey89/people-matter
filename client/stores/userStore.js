@@ -1,5 +1,4 @@
 import axios from "axios";
-import Fullscreen from "~/layouts/fullscreen.vue";
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
@@ -108,12 +107,14 @@ export const useUserStore = defineStore("user-store", {
   actions: {
     //! Auth API Calls
     async signin({ email, password }) {
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       const messageStore = useMessageStore();
       const companyStore = useCompanyStore();
       this.isLoading = true;
       try {
         const response = await axios.post(
-          "http://localhost:3001/api/v1/auth/signin",
+          `${apiBaseUrl}/api/v1/auth/signin`,
           {
             email: email,
             password: password,

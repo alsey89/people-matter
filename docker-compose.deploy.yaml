@@ -1,0 +1,5 @@
+version: "3.8"
+services:
+  client:
+    environment:
+      API_BASE_URL: "https://yourdomain.com"

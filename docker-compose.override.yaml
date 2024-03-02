@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  postgres:
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/postgresql/data
+
+  server:
+    volumes:
+      - ./server:/app
+
+  client:
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      API_BASE_URL: http://localhost:3001

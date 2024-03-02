@@ -245,20 +245,11 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 		})
 	}
 
-	isAdmin, ok := claims["isAdmin"].(bool)
-	if !ok {
-		log.Printf("auth.check_auth: error asserting isAdmin: %v", claims["isAdmin"])
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "admin status not found",
-			Data:    nil,
-		})
-	}
-
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "success",
 		Data: echo.Map{
-			"Authenticated": true,
-			"IsAdmin":       isAdmin,
+			"authenticated": true,
+			"role":          claims["role"],
 		},
 	})
 }

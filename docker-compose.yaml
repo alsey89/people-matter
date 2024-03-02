@@ -8,16 +8,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: verve
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
 
   server:
     build: ./server
     ports:
       - "3001:3001"
-    volumes:
-      - ./server:/app
     depends_on:
       - postgres
 
@@ -25,9 +20,6 @@ services:
     build: ./client
     ports:
       - "3000:3000"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
     depends_on:
       - server
       - postgres
