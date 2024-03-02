@@ -280,8 +280,10 @@ export const useCompanyStore = defineStore("company-store", {
     async createLocation({ companyId, locationFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/location`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/location`,
           {
             name: locationFormData.locationName,
             phone: locationFormData.locationPhone,
