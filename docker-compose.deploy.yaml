@@ -3,3 +3,7 @@ services:
   client:
     environment:
       API_BASE_URL: "https://hrms.michaelchen.me"
+  server:
+    environment:
+      IS_PRODUCTION: "true"
+      PRODUCTION_DOMAIN: "michaelchen.me"

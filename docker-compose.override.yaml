@@ -8,6 +8,8 @@ services:
   server:
     volumes:
       - ./server:/app
+    environment:
+      IS_PRODUCTION: "false"
 
   client:
     volumes:
