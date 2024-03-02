@@ -7,3 +7,4 @@ services:
     environment:
       IS_PRODUCTION: "true"
       PRODUCTION_DOMAIN: "michaelchen.me"
+      SERVER_PORT: "3001"
