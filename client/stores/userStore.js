@@ -197,7 +197,7 @@ export const useUserStore = defineStore("user-store", {
       const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
         await axios.get(
-          `${apiBaseUrl}/api/v1/auth/csrf-token`,
+          `${apiBaseUrl}/api/v1/auth/csrf`,
           {},
           {
             withCredentials: true,
