@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: verve
+      POSTGRES_DB: hrms
     restart: on-failure
 
   server:
