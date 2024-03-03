@@ -1,11 +1,23 @@
 <template>
   <div class="w-full h-screen flex items-center justify-center">
     <div v-auto-animate class="w-full flex flex-col justfiy-center items-center">
-      <UICard v-if="showForm" class="bg-gray-100">
+      <UICard v-if="showForm" class="min-w-100 bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
           <UICardHeader>
             <UIText>
               Sign In To Verve HR
+            </UIText>
+            <UIText class="text-sm text-gray-500">
+              Test Credentials: <br />
+              Email:
+              <span class="text-primary">
+                test@michaelchen.me
+              </span>
+              <br />
+              Password:
+              <span class="text-primary">
+                testtesttest
+              </span>
             </UIText>
           </UICardHeader>
           <!-- ----------------------------------------- -->
@@ -18,6 +30,7 @@
                 name="name" placeholder="Email Address" required />
             </UIFormField>
             <UIFormField>
+
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
@@ -29,14 +42,14 @@
             </UIButtonSquare>
           </form>
           <!-- ----------------------------------------- -->
-          <UICardFooter>
+          <!-- <UICardFooter>
             <div class="flex gap-2">
               Already have an account?
               <button @click="navigateTo('/auth/signup')"
                 class="text-primary hover:text-primary-dark hover:underline">Sign
                 Up</button>
             </div>
-          </UICardFooter>
+          </UICardFooter> -->
         </div>
       </UICard>
     </div>

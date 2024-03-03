@@ -401,7 +401,7 @@ export const useUserStore = defineStore("user-store", {
             break;
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/");
+            return navigateTo("/auth/signin");
         }
       } else if (error.request) {
         // The request was made but no response was received
