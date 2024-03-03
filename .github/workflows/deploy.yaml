@@ -1,0 +1,28 @@
+name: Deploy to Droplet
+
+on:
+  push:
+    branches:
+      - dev # Set this to your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to Server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+            cd harms
+            docker-compose down --remove-orphans
+            git pull
+            docker-compose build
+            docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml up -d
+          EOF
