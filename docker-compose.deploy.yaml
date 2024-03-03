@@ -10,7 +10,7 @@ services:
       SERVER_PORT: "3001"
       DB_HOST: "aws-0-ap-northeast-1.pooler.supabase.com"
       DB_USER: "postgres.ehpdytlwkuavpscqllsr"
-      PASSWORD: "sv0d88szHm5P5Syx"
+      DB_PASSWORD: "sv0d88szHm5P5Syx"
       DB_DBNAME: "postgres"
       DB_PORT: "5432"
       DB_SSLMODE: "require"
