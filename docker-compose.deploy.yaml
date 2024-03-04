@@ -9,6 +9,7 @@ services:
       args:
         - BUILD_ENV=production
     environment:
+      FAVICON_PATH: "app/favicon.ico"
       API_BASE_URL: ${API_BASE_URL}
     command: ["node", ".output/server/index.mjs"]
   server:
