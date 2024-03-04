@@ -1,21 +1,9 @@
 version: "3.8"
 services:
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: hrms
-    restart: on-failure
-
   server:
     build: ./server
     ports:
       - "3001:3001"
-    depends_on:
-      - postgres
     restart: on-failure
 
   client:
@@ -24,5 +12,4 @@ services:
       - "3000:3000"
     depends_on:
       - server
-      - postgres
     restart: on-failure

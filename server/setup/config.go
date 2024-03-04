@@ -25,7 +25,7 @@ func InitConfig() {
 	}
 
 	// Override with values from the local configuration file if it exists.
-	localConfig := "config.local"
+	localConfig := "config.override"
 	_, err = os.Stat(localConfig + ".yaml")
 	if err == nil {
 		viper.SetConfigName(localConfig) // specific local config file name

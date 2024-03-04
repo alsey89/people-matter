@@ -1,19 +1,32 @@
 version: "3.8"
 services:
-  postgres:
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
-
-  server:
-    volumes:
-      - ./server:/app
-    environment:
-      IS_PRODUCTION: "false"
-
   client:
+    depends_on:
+      - server
+      - postgres
     volumes:
       - ./client:/app
       - /app/node_modules
     environment:
       API_BASE_URL: http://localhost:3001
+
+  server:
+    depends_on:
+      - postgres
+    volumes:
+      - ./server:/app
+    environment:
+      IS_PRODUCTION: "false"
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hrms
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/postgresql/data
+    restart: on-failure
