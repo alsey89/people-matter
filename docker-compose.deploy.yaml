@@ -1,9 +1,18 @@
 version: "3.8"
 services:
   client:
+    build:
+      context: ./client
+      args:
+        - BUILD_ENV=production
     environment:
-      API_BASE_URL: "https://hrms.michaelchen.me"
+      API_BASE_URL: ${API_BASE_URL}
+    command: ["node", ".output/server/index.mjs"]
   server:
+    build:
+      context: ./server
+      args:
+        - BUILD_ENV=production
     environment:
       IS_PRODUCTION: "true"
       PRODUCTION_DOMAIN: "michaelchen.me"
@@ -14,3 +23,4 @@ services:
       DB_DBNAME: ${DB_DBNAME}
       DB_PORT: ${DB_PORT}
       DB_SSLMODE: ${DB_SSLMODE}
+    command: ["go", "run", "main.go"]

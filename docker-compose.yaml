@@ -1,13 +1,15 @@
 version: "3.8"
 services:
   server:
-    build: ./server
+    build:
+      context: ./server
     ports:
       - "3001:3001"
     restart: on-failure
 
   client:
-    build: ./client
+    build:
+      context: ./client
     ports:
       - "3000:3000"
     depends_on:

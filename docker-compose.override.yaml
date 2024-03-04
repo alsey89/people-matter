@@ -1,6 +1,10 @@
 version: "3.8"
 services:
   client:
+    build:
+      context: ./client
+      args:
+        - BUILD_ENV=development
     depends_on:
       - server
       - postgres
@@ -9,14 +13,20 @@ services:
       - /app/node_modules
     environment:
       API_BASE_URL: http://localhost:3001
+    command: ["bun", "run", "dev"]
 
   server:
+    build:
+      context: ./server
+      args:
+        - BUILD_ENV=development
     depends_on:
       - postgres
     volumes:
       - ./server:/app
     environment:
       IS_PRODUCTION: "false"
+    command: ["air"]
 
   postgres:
     image: postgres:latest
@@ -29,4 +39,3 @@ services:
     volumes:
       - ./database:/docker-entrypoint-initdb.d
       - ./database/data:/var/lib/postgresql/data
-    restart: on-failure
