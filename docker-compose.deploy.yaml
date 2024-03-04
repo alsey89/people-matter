@@ -1,3 +1,6 @@
+#* Deployment setup, no hot-reload, no volume mapping, no database. Runs server with "go run main.go" and client with a build step. Passes database connection details via .env file.
+#* Should run with: docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml --build
+
 version: "3.8"
 services:
   client:
@@ -15,7 +18,7 @@ services:
         - BUILD_ENV=production
     environment:
       IS_PRODUCTION: "true"
-      PRODUCTION_DOMAIN: "michaelchen.me"
+      PRODUCTION_DOMAIN: ${PRODUCTION_DOMAIN}
       SERVER_PORT: "3001"
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}

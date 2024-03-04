@@ -1,3 +1,6 @@
+#* Local development setup, maps volumes and runs with hot-reload for both server and client, passes args to Dockerfile at build step.
+#* If this file exists, it will automatically override the base docker-compose file, no need to specify with -f.
+
 version: "3.8"
 services:
   client:
