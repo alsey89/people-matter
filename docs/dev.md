@@ -11,8 +11,8 @@ Config files are managed with:
 Default behavior:
 
 - if environmental variables are supplied, viper will use **environmental variables**
-- else if config.local.yaml exists, viper will use **config.local.yaml**
-- else, viper will fall back to the default **config.yaml**
+- else viper will fall back to the default **config.yaml**
+- if **config.override.yaml** exists, it will override config.yaml
 
 ## Spinning up
 
