@@ -4,20 +4,20 @@
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full max-h-32" />
         <!-- !Job Header -->
-        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
+        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-6">
             <div class="text-lg font-bold"> Jobs </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- !toggle job action buttons -->
-                <UIButtonSquare @click="handleToggleAllJobsButtonClick" size="xs">
+                <Button @click="handleToggleAllJobsButtonClick" size="xs">
                     <Icon v-if="expandedJobIndex == 'all'" name="solar:list-arrow-up-bold"
                         class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                </UIButtonSquare>
+                </Button>
                 <!-- !add job button -->
-                <UIButtonSquare @click="handleAddJobButtonClick" size="xs">
+                <Button @click="handleAddJobButtonClick" size="xs">
                     <Icon v-if="showJobForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </UIButtonSquare>
+                </Button>
             </div>
         </div>
         <!-- !Job Form -->
@@ -27,23 +27,23 @@
         <!-- !Job List -->
         <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="(job, index) in companyStore.getCompanyJobs"
             :key="job.ID">
-            <UICard v-auto-animate>
-                <UICardHeader>
+            <Card v-auto-animate>
+                <CardHeader>
                     <div v-auto-animate @click="handleExpandJobButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p :class="{ 'text-primary text-xl': expandedJobIndex === index }">
                             {{ job.title }}
                         </p>
                         <div class="flex gap-4">
-                            <UIButtonSquare size="xs" @click.stop="handleEditJobButtonClick(job)">
+                            <Button size="xs" @click.stop="handleEditJobButtonClick(job)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
-                            <UIButtonSquare size="xs" @click.stop="handleDeleteJobButtonClick(job)">
+                            </Button>
+                            <Button size="xs" @click.stop="handleDeleteJobButtonClick(job)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
+                            </Button>
                         </div>
                     </div>
-                </UICardHeader>
+                </CardHeader>
                 <div v-if="expandedJobIndex == index || expandedJobIndex == 'all'" class="px-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex flex-col flex-wrap gap-2">
@@ -85,7 +85,7 @@
                         <div>
                             <p class="font-semibold">Manager:</p>
                             <p v-if="companyStore.getManagerJobById(job.managerId)">{{
-                                companyStore.getManagerJobById(job.managerId) }}</p>
+            companyStore.getManagerJobById(job.managerId) }}</p>
                             <p v-else>No Data</p>
                         </div>
                         <div>
@@ -95,25 +95,25 @@
                         <div>
                             <p class="font-semibold">Location:</p>
                             <p v-if="companyStore.getLocationNameById(job.locationId)">{{
-                                companyStore.getLocationNameById(job.locationId) }}</p>
+            companyStore.getLocationNameById(job.locationId) }}</p>
                             <p v-else>No Data</p>
                         </div>
                         <div>
                             <p class="font-semibold">Department:</p>
                             <p v-if="companyStore.getDepartmentNameById(job.departmentId)">{{
-                                companyStore.getDepartmentNameById(job.departmentId) }}</p>
+            companyStore.getDepartmentNameById(job.departmentId) }}</p>
                             <p v-else>No Data</p>
                         </div>
                     </div>
                 </div>
-            </UICard>
+            </Card>
         </div>
         <div v-else>
-            <UICard>
+            <Card>
                 <div class="flex justify-center items-center">
                     No Data
                 </div>
-            </UICard>
+            </Card>
         </div>
     </div>
 </template>

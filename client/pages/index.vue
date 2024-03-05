@@ -1,6 +1,6 @@
 <template>
     <div class="w-full flex justify-center items-center">
-        <UICard class="min-w-full">
+        <Card class="min-w-full">
             This is a placeholder for the home page.
             You are currently logged in as:
             <div>
@@ -15,10 +15,10 @@
                     </UIText>
                 </div>
             </div> -->
-            <UIButtonSquare @click="userStore.signout">
+            <Button @click="userStore.signout">
                 <UIText class="px-4"> Sign Out </UIText>
-            </UIButtonSquare>
-        </UICard>
+            </Button>
+        </Card>
     </div>
 </template>
 

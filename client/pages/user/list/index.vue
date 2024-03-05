@@ -7,10 +7,10 @@
         <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
             <h1 class="text-lg font-bold"> All Users </h1>
             <!-- !add user button -->
-            <UIButtonSquare @click="handleAddUserButtonClick" size="xs">
+            <Button @click="handleAddUserButtonClick" size="xs">
                 <Icon v-if="showUserForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                 <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-            </UIButtonSquare>
+            </Button>
         </div>
         <div v-auto-animate class="w-full flex flex-col gap-4">
             <!-- !New User Form -->
@@ -18,13 +18,13 @@
             <!-- !User List -->
             <div v-if="userStore.getAllUsersData && userStore.getAllUsersData.length > 0"
                 v-for="user in userStore.getAllUsersData" :key="user.ID">
-                <UICard @click="handleUserDetailsClick(user.ID)" class="hover:bg-secondary-bg hover:cursor-pointer">
+                <Card @click="handleUserDetailsClick(user.ID)" class="hover:bg-secondary-bg hover:cursor-pointer">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
                             <AppImage :src="user.avatarUrl || '/defaultAvatar.jpg'" shape="square" class="w-8 h-8" />
                             <div class="flex flex-col gap-1 overflow-x-hidden">
                                 <h1 class="text-sm md:text-base text-nowrap font-bold"> {{ user.firstName }} {{
-                                    user.middleName || "" }} {{ user.lastName || '' }}
+            user.middleName || "" }} {{ user.lastName || '' }}
                                     <span v-if="user.role != 'user'"> [{{ user.role }}]</span>
                                 </h1>
                                 <div class="flex gap-2 text-sm md:text-base">
@@ -41,18 +41,18 @@
                             </div>
                         </div>
                         <div class="flex gap-4">
-                            <UIButtonSquare size="xs" @click.stop="handleEditUserButtonClick(user)">
+                            <Button size="xs" @click.stop="handleEditUserButtonClick(user)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
-                            <UIButtonSquare size="xs" @click.stop="handleDeleteUserButtonClick(user)">
+                            </Button>
+                            <Button size="xs" @click.stop="handleDeleteUserButtonClick(user)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
+                            </Button>
                         </div>
                     </div>
-                </UICard>
+                </Card>
             </div>
             <div v-else>
-                <UICard>
+                <Card>
                     <client-only>
                         <div v-if="userStore.isLoading">
                             Loading...
@@ -61,7 +61,7 @@
                             No Data
                         </div>
                     </client-only>
-                </UICard>
+                </Card>
             </div>
         </div>
     </div>
@@ -166,4 +166,3 @@ const handleDeleteUserButtonClick = (user) => {
     };
 };
 </script>
-

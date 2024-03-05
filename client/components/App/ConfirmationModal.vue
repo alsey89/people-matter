@@ -1,22 +1,22 @@
 <template>
-    <UICard id="modal" class="w-full h-full">
-        <UICardHeader>
+    <Card id="modal" class="w-full h-full">
+        <CardHeader>
             Confirmation Required
-        </UICardHeader>
+        </CardHeader>
         <div>
             {{ confirmationModalMessage }}
         </div>
-        <UICardFooter>
+        <CardFooter>
             <div class="flex justify-end gap-2">
-                <UIButtonSquare @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
+                <Button @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
                     Confirm
-                </UIButtonSquare>
-                <UIButtonSquare @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
+                </Button>
+                <Button @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
                     Cancel
-                </UIButtonSquare>
+                </Button>
             </div>
-        </UICardFooter>
-    </UICard>
+        </CardFooter>
+    </Card>
 </template>
 
 <script setup>

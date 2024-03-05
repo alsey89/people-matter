@@ -1,10 +1,11 @@
 <template>
-    <UICard class="w-full">
+    <Card class="w-full">
         <div class="flex flex-col gap-4 p-2">
             <div v-if="userFormData.userFormType == 'add'">
                 <h1 class="font-bold underline"> Create New User </h1>
                 <p>
-                    This will create a new user account. An email will be sent to the designated email, asking the user to
+                    This will create a new user account. An email will be sent to the designated email, asking the user
+                    to
                     set
                     their password and complete their profile.
                 </p>
@@ -35,14 +36,14 @@
                     </div>
                 </div>
                 <div class="w-full flex justify-end">
-                    <UIButtonSquare type="submit" size="xs" textSize="md"
+                    <Button type="submit" size="xs" textSize="md"
                         class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                         Submit
-                    </UIButtonSquare>
+                    </Button>
                 </div>
             </form>
         </div>
-    </UICard>
+    </Card>
 </template>
 
 <script setup>

@@ -1,5 +1,5 @@
 <template>
-    <UICard class="w-full">
+    <Card class="w-full">
         <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4 p-2">
             <div class="flex flex-wrap md:flex-nowrap justify-between gap-4">
                 <div class="w-full md:w-1/2 flex flex-col">
@@ -52,13 +52,13 @@
                 </div>
             </div>
             <div class="w-full flex justify-end">
-                <UIButtonSquare type="submit" size="xs" textSize="md"
+                <Button type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                     Submit
-                </UIButtonSquare>
+                </Button>
             </div>
         </form>
-    </UICard>
+    </Card>
 </template>
 
 <script setup>
@@ -72,4 +72,3 @@ const handleSubmit = () => {
     emit('submit');
 };
 </script>
-

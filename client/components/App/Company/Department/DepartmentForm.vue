@@ -1,9 +1,10 @@
 <template>
-    <UICard>
+    <Card>
         <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
                 <label for="name">Name*</label>
-                <input v-model="formData.departmentName" type="text" id="name" class="focus:outline-primary p-1" required />
+                <input v-model="formData.departmentName" type="text" id="name" class="focus:outline-primary p-1"
+                    required />
             </div>
             <div class="flex flex-col">
                 <label for="description">Description</label>
@@ -12,14 +13,14 @@
             </div>
             <!-- todo: add more fields if needed -->
             <div class="w-full">
-                <UIButtonSquare type="submit" size="xs" textSize="md"
+                <Button type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">Submit
-                </UIButtonSquare>
+                </Button>
             </div>
         </form>
-    </UICard>
+    </Card>
 </template>
-  
+
 <script setup>
 const { formData } = defineProps({
     formData: Object
@@ -31,4 +32,3 @@ const handleSubmit = () => {
     emit('submit');
 };
 </script>
-  

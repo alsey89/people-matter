@@ -4,14 +4,14 @@
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
         <!-- !Location Header -->
-        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
+        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-6">
             <h1 class="text-lg font-bold"> Locations </h1>
             <div v-auto-animate class="flex gap-4">
                 <!-- !add location button -->
-                <UIButtonSquare @click="handleAddLocationButtonClick" size="xs">
+                <Button @click="handleAddLocationButtonClick" size="xs">
                     <Icon v-if="showLocationForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </UIButtonSquare>
+                </Button>
             </div>
         </div>
         <!-- !location form -->
@@ -21,34 +21,34 @@
         <!-- !location list -->
         <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
             :key="location.ID">
-            <UICard v-auto-animate>
-                <UICardHeader>
+            <Card v-auto-animate>
+                <CardHeader>
                     <div v-auto-animate class="flex justify-between items-center px-2">
                         <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
                         <div class="flex gap-4">
-                            <UIButtonSquare size="xs" @click.stop="handleEditLocationButtonClick(location)">
+                            <Button size="xs" @click.stop="handleEditLocationButtonClick(location)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
-                            <UIButtonSquare size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
+                            </Button>
+                            <Button size="xs" @click.stop="handleDeleteLocationButtonClick(location)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
+                            </Button>
                         </div>
                     </div>
-                </UICardHeader>
+                </CardHeader>
                 <div class="px-2">
                     <p>Phone: {{ location.phone || "No number listed" }}</p>
                     <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
-                        location.country }} {{
-        location.postalCode }}</p>
+            location.country }} {{
+            location.postalCode }}</p>
                 </div>
-            </UICard>
+            </Card>
         </div>
         <div v-else>
-            <UICard>
+            <Card>
                 <div class="m-auto">
                     No Data
                 </div>
-            </UICard>
+            </Card>
         </div>
     </div>
 </template>

@@ -4,20 +4,20 @@
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
         <!-- !Department Header -->
-        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
+        <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-6">
             <div class=" items-center  text-lg font-bold"> Departments </div>
             <div v-auto-animate class="flex gap-4">
                 <!-- show/hide details Button -->
-                <UIButtonSquare size="xs" @click="handleToggleAllDepartmentsButtonClick">
+                <Button size="xs" @click="handleToggleAllDepartmentsButtonClick">
                     <Icon v-if="expandedDepartmentIndex == 'all'" name="solar:list-arrow-up-bold"
                         class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="solar:list-arrow-down-bold" class="h-6 w-6" />
-                </UIButtonSquare>
+                </Button>
                 <!-- !add department button -->
-                <UIButtonSquare @click="handleAddDepartmentButtonClick" size="xs">
+                <Button @click="handleAddDepartmentButtonClick" size="xs">
                     <Icon v-if="showDepartmentForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                     <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-                </UIButtonSquare>
+                </Button>
             </div>
         </div>
         <!-- !department form -->
@@ -28,35 +28,35 @@
         <!-- !department list -->
         <div v-if="companyStore.getCompanyDepartments?.length > 0"
             v-for="(department, index) in companyStore.companyDepartments" :key="department.ID">
-            <UICard v-auto-animate>
-                <UICardHeader>
+            <Card v-auto-animate>
+                <CardHeader>
                     <div v-auto-animate @click="handleExpandDepartmentButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
                         <p :class="{ 'text-primary text-xl': expandedDepartmentIndex === index }">
                             {{ department.name }}
                         </p>
                         <div class="flex gap-4">
-                            <UIButtonSquare size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
+                            <Button size="xs" @click.stop="handleEditDepartmentButtonClick(department)">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
-                            <UIButtonSquare size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
+                            </Button>
+                            <Button size="xs" @click.stop="handleDeleteDepartmentButtonClick(department)">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
+                            </Button>
                         </div>
                     </div>
-                </UICardHeader>
+                </CardHeader>
                 <div v-if="department.description && expandedDepartmentIndex == index || department.description && expandedDepartmentIndex == 'all'"
                     class="px-2">
                     <MDRender :content="department.description" />
                 </div>
-            </UICard>
+            </Card>
         </div>
         <div v-else>
-            <UICard>
+            <Card>
                 <div class="m-auto">
                     No Data
                 </div>
-            </UICard>
+            </Card>
         </div>
     </div>
 </template>

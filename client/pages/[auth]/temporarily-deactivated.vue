@@ -1,13 +1,13 @@
 <template>
   <div class="w-full h-screen flex items-center justify-center">
     <div v-auto-animate class="w-full flex flex-col justify-center items-center">
-      <UICard v-if="showForm" class="bg-gray-100">
+      <Card v-if="showForm" class="bg-gray-100">
         <div class="flex flex-col gap-4 p-4">
-          <UICardHeader>
+          <CardHeader>
             <UIText>
               Sign Up for Verve HR
             </UIText>
-          </UICardHeader>
+          </CardHeader>
           <!-- ----------------------------------------- -->
           <form class="w-full flex flex-col justify-center items-center gap-4" @submit.prevent="submitForm">
             <UIFormField>
@@ -19,6 +19,7 @@
             </UIFormField>
 
             <UIFormField>
+
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
@@ -26,27 +27,28 @@
                 name="password" placeholder="Password (min 6 characters)" required />
             </UIFormField>
             <UIFormField>
+
               <template v-slot:icon>
                 <Icon name="material-symbols:lock-outline" />
               </template>
               <input type="password" v-model="confirmPassword" class="h-10 w-full focus:outline-primary px-1"
                 maxlength="256" name="confirmPassword" placeholder="Repeat Password" required />
             </UIFormField>
-            <UIButtonSquare size="lg" class="w-full bg-primary hover:bg-primary-dark text-white">
+            <Button size="lg" class="w-full bg-primary hover:bg-primary-dark text-white">
               Sign Up
-            </UIButtonSquare>
+            </Button>
           </form>
           <!-- ----------------------------------------- -->
-          <UICardFooter>
+          <CardFooter>
             <div class="flex gap-2">
               Already have an account?
               <button @click="navigateTo('/auth/signin')"
                 class="text-primary hover:text-primary-dark hover:underline">Sign
                 In</button>
             </div>
-          </UICardFooter>
+          </CardFooter>
         </div>
-      </UICard>
+      </Card>
     </div>
   </div>
 </template>

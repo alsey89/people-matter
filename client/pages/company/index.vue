@@ -7,21 +7,21 @@
         <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-4">
             <h1 class="text-lg font-bold"> Company </h1>
             <!-- !Add Company Button -->
-            <UIButtonSquare v-if="!companyStore.getCompanyData" @click="handleAddCompanyButtonClick" size="xs">
+            <Button v-if="!companyStore.getCompanyData" @click="handleAddCompanyButtonClick" size="xs">
                 <Icon v-if="showCompanyForm" name="material-symbols:close" class="text-primary-dark h-6 w-6" />
                 <Icon v-else name="material-symbols:add" class="h-6 w-6" />
-            </UIButtonSquare>
-            <UIButtonSquare v-if="showCompanyForm" @click="showCompanyForm = false" size="xs">
+            </Button>
+            <Button v-if="showCompanyForm" @click="showCompanyForm = false" size="xs">
                 <Icon name="material-symbols:close" class="text-primary-dark h-6 w-6" />
-            </UIButtonSquare>
+            </Button>
         </div>
         <div v-auto-animate class="w-full flex flex-col gap-4">
             <!-- !New Company Form -->
             <AppCompanyForm v-if="showCompanyForm" :formData="companyFormData" @submit="handleCompanyFormSubmit" />
             <!-- !Company List -->
             <div v-if="companyStore.getCompanyData">
-                <UICard class="w-full">
-                    <div class="flex justify-between items-center p-2">
+                <Card class="w-full">
+                    <div class="flex justify-between items-center p-4">
                         <div class="flex gap-4 items-center">
                             <AppLogo :src="companyStore.getCompanyLogoUrl || '/defaultLogo.png'" class="w-24 h-24"
                                 shape="square" />
@@ -39,25 +39,25 @@
                             </div>
                         </div>
                         <div class="flex flex-col md:flex-row flex-wrap md:flex-nowrap gap-2 md:gap-4">
-                            <UIButtonSquare size="xs" @click.stop="handleEditCompanyButtonClick">
+                            <Button size="xs" @click.stop="handleEditCompanyButtonClick">
                                 <Icon name="material-symbols:edit" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
-                            <UIButtonSquare size="xs" @click.stop="handleDeleteCompanyButtonClick">
+                            </Button>
+                            <Button size="xs" @click.stop="handleDeleteCompanyButtonClick">
                                 <Icon name="material-symbols:delete" class="h-6 w-6 hover:text-primary" />
-                            </UIButtonSquare>
+                            </Button>
                         </div>
                     </div>
-                </UICard>
+                </Card>
             </div>
             <div v-else>
-                <UICard>
+                <Card>
                     <div v-if="companyStore.isLoading">
                         Loading...
                     </div>
                     <div v-else class="m-auto">
                         No Data
                     </div>
-                </UICard>
+                </Card>
             </div>
         </div>
     </div>

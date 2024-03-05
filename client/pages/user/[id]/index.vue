@@ -4,7 +4,7 @@
         @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full" />
     <!--! Content -->
     <div v-if="userStore.getSingleUserData" class="flex flex-col gap-4">
-        <UICard>
+        <Card>
             <h1 class="text-lg font-bold px-2">
                 Contact Information
             </h1>
@@ -19,8 +19,8 @@
                     Address: {{ userStore.getSingleUserFullAddress || "No Data" }}
                 </div>
             </div>
-        </UICard>
-        <UICard v-if="userStore.getSingleUserEmergencyContact">
+        </Card>
+        <Card v-if="userStore.getSingleUserEmergencyContact">
             <h1 class="text-lg font-bold px-2">
                 Emergency Contact Information
             </h1>
@@ -41,16 +41,16 @@
             <div v-else class="m-auto">
                 No Data
             </div>
-        </UICard>
+        </Card>
     </div>
-    <UICard v-else>
+    <Card v-else>
         <div v-if="userStore.isLoading">
             Loading...
         </div>
         <div v-else class="m-auto">
             No Data
         </div>
-    </UICard>
+    </Card>
 </template>
 
 <script setup>
@@ -76,4 +76,3 @@ const userFormData = reactive({
 });
 
 </script>
-
