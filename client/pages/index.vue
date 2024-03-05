@@ -1,21 +1,3 @@
-<script setup lang="ts">
-
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
-</script>
-
 <template>
   <div class="md:hidden w-full flex items-center justify-center">
     <div v-auto-animate class="w-full flex flex-col justfiy-center items-center">
@@ -168,3 +150,11 @@ import {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const companyStore = useCompanyStore()
+
+onBeforeMount(() => {
+  companyStore.fetchCompany()
+})
+</script>

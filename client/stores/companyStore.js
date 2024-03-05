@@ -530,7 +530,7 @@ export const useCompanyStore = defineStore("company-store", {
             break;
           case 401:
             messageStore.setError("Invalid credentials.");
-            return navigateTo("/signin");
+            return navigateTo("/auth/signin");
           case 403:
             messageStore.setError("Access denied.");
             return navigateTo("/");
@@ -545,7 +545,7 @@ export const useCompanyStore = defineStore("company-store", {
             break;
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/");
+            return navigateTo("/auth/signin");
         }
       } else if (error.request) {
         // The request was made but no response was received
