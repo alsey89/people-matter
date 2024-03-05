@@ -20,8 +20,8 @@
             <AppCompanyForm v-if="showCompanyForm" :formData="companyFormData" @submit="handleCompanyFormSubmit" />
             <!-- !Company List -->
             <div v-if="companyStore.getCompanyData">
-                <Card class="w-full">
-                    <div class="flex justify-between items-center p-4">
+                <Card class="w-full p-4">
+                    <div class="flex justify-between items-center">
                         <div class="flex gap-4 items-center">
                             <AppLogo :src="companyStore.getCompanyLogoUrl || '/defaultLogo.png'" class="w-24 h-24"
                                 shape="square" />

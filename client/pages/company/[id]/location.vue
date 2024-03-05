@@ -21,9 +21,9 @@
         <!-- !location list -->
         <div v-if="companyStore.getCompanyLocations?.length > 0" v-for="location in companyStore.companyLocations"
             :key="location.ID">
-            <Card v-auto-animate>
+            <Card v-auto-animate class="py-4 px-6">
                 <CardHeader>
-                    <div v-auto-animate class="flex justify-between items-center px-2">
+                    <div v-auto-animate class="flex justify-between items-center">
                         <div>{{ location.name }} <span v-if="location.isHeadOffice">[Head Office]</span></div>
                         <div class="flex gap-4">
                             <Button size="xs" @click.stop="handleEditLocationButtonClick(location)">
@@ -35,12 +35,14 @@
                         </div>
                     </div>
                 </CardHeader>
-                <div class="px-2">
-                    <p>Phone: {{ location.phone || "No number listed" }}</p>
-                    <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
+                <CardContent>
+                    <div>
+                        <p>Phone: {{ location.phone || "No number listed" }}</p>
+                        <p>Address: {{ location.address }}, {{ location.city }}, {{ location.state }}, {{
             location.country }} {{
             location.postalCode }}</p>
-                </div>
+                    </div>
+                </CardContent>
             </Card>
         </div>
         <div v-else>

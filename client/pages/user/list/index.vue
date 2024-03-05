@@ -18,7 +18,7 @@
             <!-- !User List -->
             <div v-if="userStore.getAllUsersData && userStore.getAllUsersData.length > 0"
                 v-for="user in userStore.getAllUsersData" :key="user.ID">
-                <Card @click="handleUserDetailsClick(user.ID)" class="hover:bg-secondary-bg hover:cursor-pointer">
+                <Card @click="handleUserDetailsClick(user.ID)" class="p-2 hover:bg-secondary-bg hover:cursor-pointer">
                     <div class="flex justify-between items-center p-2">
                         <div class="flex gap-4 items-center">
                             <AppImage :src="user.avatarUrl || '/defaultAvatar.jpg'" shape="square" class="w-8 h-8" />

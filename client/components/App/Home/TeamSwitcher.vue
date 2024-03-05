@@ -39,24 +39,24 @@ import {
 
 const groups = [
     {
-        label: 'Personal Account',
+        label: 'Headquarters',
         teams: [
             {
-                label: 'Alicia Koch',
-                value: 'personal',
+                label: 'Headhquarters',
+                value: 'headquarters',
             },
         ],
     },
     {
-        label: 'Teams',
+        label: 'Branches',
         teams: [
             {
-                label: 'Acme Inc.',
-                value: 'acme-inc',
+                label: 'Taipei Branch',
+                value: 'taipei',
             },
             {
-                label: 'Monsters Inc.',
-                value: 'monsters',
+                label: 'Taichung Branch',
+                value: 'taichung',
             },
         ],
     },
@@ -81,11 +81,11 @@ const selectedTeam = ref<Team>(groups[0].teams[0])
                         <AvatarFallback>SC</AvatarFallback>
                     </Avatar>
                     {{ selectedTeam.label }}
-                    <CaretSortIcon class="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                    <Icon name="radix-icons:caret-sort" class="ml-auto h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <!-- <PopoverContent class="w-[200px] p-0">
-                <Command :filter-function="(list, term) => list.filter(i => i.label?.toLowerCase()?.includes(term))">
+            <PopoverContent class="w-[200px] p-0">
+                <Command>
                     <CommandList>
                         <CommandInput placeholder="Search team..." />
                         <CommandEmpty>No team found.</CommandEmpty>
@@ -101,7 +101,7 @@ const selectedTeam = ref<Team>(groups[0].teams[0])
                                     <AvatarFallback>SC</AvatarFallback>
                                 </Avatar>
                                 {{ team.label }}
-                                <CheckIcon :class="cn('ml-auto h-4 w-4',
+                                <Icon name="radix-icons:check" :class="cn('ml-auto h-4 w-4',
         selectedTeam.value === team.value
             ? 'opacity-100'
             : 'opacity-0',
@@ -112,19 +112,16 @@ const selectedTeam = ref<Team>(groups[0].teams[0])
                     <CommandSeparator />
                     <CommandList>
                         <CommandGroup>
-                            <DialogTrigger as-child>
-                                <CommandItem value="create-team" @select="() => {
-        open = false
-        showNewTeamDialog = true
+                            <CommandItem value="create-team" @select="() => {
+        navigateTo('/company/1/location')
     }">
-                                    <PlusCircledIcon class="mr-2 h-5 w-5" />
-                                    Create Team
-                                </CommandItem>
-                            </DialogTrigger>
+                                <Icon name="radix-icons:plus-circled" class="mr-2 h-5 w-5" />
+                                Add New Location
+                            </CommandItem>
                         </CommandGroup>
                     </CommandList>
                 </Command>
-            </PopoverContent> -->
+            </PopoverContent>
         </Popover>
         <DialogContent>
             <DialogHeader>

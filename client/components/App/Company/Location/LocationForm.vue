@@ -1,6 +1,6 @@
 <template>
-    <Card class="w-full">
-        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4 p-2">
+    <Card class="w-full p-4">
+        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4">
             <div class="flex flex-wrap md:flex-nowrap justify-between gap-4">
                 <div class="w-full md:w-1/2 flex flex-col">
                     <label for="name">Name*</label>

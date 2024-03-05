@@ -8,6 +8,7 @@ interface Props extends /* @vue-ignore */ PrimitiveProps {
   variant?: ButtonVariants['variant']
   size?: ButtonVariants['size']
   as?: string
+  asChild?: boolean
   class?: HTMLAttributes['class']
 }
 

@@ -28,7 +28,7 @@
         <!-- !department list -->
         <div v-if="companyStore.getCompanyDepartments?.length > 0"
             v-for="(department, index) in companyStore.companyDepartments" :key="department.ID">
-            <Card v-auto-animate>
+            <Card v-auto-animate class="p-4">
                 <CardHeader>
                     <div v-auto-animate @click="handleExpandDepartmentButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
@@ -45,10 +45,12 @@
                         </div>
                     </div>
                 </CardHeader>
-                <div v-if="department.description && expandedDepartmentIndex == index || department.description && expandedDepartmentIndex == 'all'"
-                    class="px-2">
-                    <MDRender :content="department.description" />
-                </div>
+                <CardContent v-auto-animate>
+                    <div v-if="department.description && expandedDepartmentIndex == index || department.description && expandedDepartmentIndex == 'all'"
+                        class="px-2">
+                        <MDRender :content="department.description" />
+                    </div>
+                </CardContent>
             </Card>
         </div>
         <div v-else>

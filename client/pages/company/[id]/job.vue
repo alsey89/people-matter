@@ -27,7 +27,7 @@
         <!-- !Job List -->
         <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="(job, index) in companyStore.getCompanyJobs"
             :key="job.ID">
-            <Card v-auto-animate>
+            <Card v-auto-animate class="p-4">
                 <CardHeader>
                     <div v-auto-animate @click="handleExpandJobButtonClick(index)"
                         class="flex justify-between items-center px-2 hover:cursor-pointer">
@@ -44,68 +44,70 @@
                         </div>
                     </div>
                 </CardHeader>
-                <div v-if="expandedJobIndex == index || expandedJobIndex == 'all'" class="px-2">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex flex-col flex-wrap gap-2">
-                            <p class="font-semibold border-b py-1">Description:</p>
-                            <p v-if="job.description">
-                                <MDRender :content="job.description" />
-                            </p>
-                            <p v-else>
-                                No Data
-                            </p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <p class="font-semibold border-b py-1">Duties:</p>
-                            <p v-if="job.duties">
-                                <MDRender :content="job.duties" />
-                            </p>
-                            <p v-else>
-                                No Data
-                            </p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <p class="font-semibold border-b py-1">Qualifications:</p>
-                            <p v-if="job.qualifications">
-                                <MDRender :content="job.qualifications" />
-                            </p>
-                            <p v-else>
-                                No Data
-                            </p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <p class="font-semibold border-b py-1">Experience:</p>
-                            <p v-if="job.experience">
-                                <MDRender :content="job.experience" />
-                            </p>
-                            <p v-else>
-                                No Data
-                            </p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">Manager:</p>
-                            <p v-if="companyStore.getManagerJobById(job.managerId)">{{
+                <CardContent v-auto-animate>
+                    <div v-if="expandedJobIndex == index || expandedJobIndex == 'all'" class="px-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col flex-wrap gap-2">
+                                <p class="font-semibold border-b py-1">Description:</p>
+                                <p v-if="job.description">
+                                    <MDRender :content="job.description" />
+                                </p>
+                                <p v-else>
+                                    No Data
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <p class="font-semibold border-b py-1">Duties:</p>
+                                <p v-if="job.duties">
+                                    <MDRender :content="job.duties" />
+                                </p>
+                                <p v-else>
+                                    No Data
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <p class="font-semibold border-b py-1">Qualifications:</p>
+                                <p v-if="job.qualifications">
+                                    <MDRender :content="job.qualifications" />
+                                </p>
+                                <p v-else>
+                                    No Data
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <p class="font-semibold border-b py-1">Experience:</p>
+                                <p v-if="job.experience">
+                                    <MDRender :content="job.experience" />
+                                </p>
+                                <p v-else>
+                                    No Data
+                                </p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Manager:</p>
+                                <p v-if="companyStore.getManagerJobById(job.managerId)">{{
             companyStore.getManagerJobById(job.managerId) }}</p>
-                            <p v-else>No Data</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">Salary Range:</p>
-                            <p>{{ job.minSalary }} - {{ job.maxSalary }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">Location:</p>
-                            <p v-if="companyStore.getLocationNameById(job.locationId)">{{
+                                <p v-else>No Data</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Salary Range:</p>
+                                <p>{{ job.minSalary }} - {{ job.maxSalary }}</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Location:</p>
+                                <p v-if="companyStore.getLocationNameById(job.locationId)">{{
             companyStore.getLocationNameById(job.locationId) }}</p>
-                            <p v-else>No Data</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">Department:</p>
-                            <p v-if="companyStore.getDepartmentNameById(job.departmentId)">{{
+                                <p v-else>No Data</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Department:</p>
+                                <p v-if="companyStore.getDepartmentNameById(job.departmentId)">{{
             companyStore.getDepartmentNameById(job.departmentId) }}</p>
-                            <p v-else>No Data</p>
+                                <p v-else>No Data</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </CardContent>
             </Card>
         </div>
         <div v-else>

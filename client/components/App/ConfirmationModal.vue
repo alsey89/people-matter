@@ -3,9 +3,11 @@
         <CardHeader>
             Confirmation Required
         </CardHeader>
-        <div>
-            {{ confirmationModalMessage }}
-        </div>
+        <CardContent>
+            <div>
+                {{ confirmationModalMessage }}
+            </div>
+        </CardContent>
         <CardFooter>
             <div class="flex justify-end gap-2">
                 <Button @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
