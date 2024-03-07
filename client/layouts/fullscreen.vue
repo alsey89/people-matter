@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full inset-0 bg-primary-bg">
-        <router-view></router-view>
+        <slot />
     </div>
 </template>
 
