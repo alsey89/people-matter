@@ -14,16 +14,15 @@ Default behavior:
 - else viper will fall back to the default **config.yaml**
 - if **config.override.yaml** exists, it will override config.yaml
 
-## Spinning up
+## Spinning up locally
 
 ```
-docker-compose build
-docker-compose up
+docker-compose up --build
 ```
 
 ## Usage
 
-After the containers have been set up, the client can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001]. Since the project is in development.
+After the containers have been set up locally, the client can be accessed at [http://localhost:3000]. The server can be accessed at [http://localhost:3001].
 
 ## Shutting down
 
@@ -50,7 +49,7 @@ docker-compose down --remove-orphans
 - BASE_API_URL should point to the backend directly (OR)
 - BASE_API_URL can point to the domain and Nginx can route it to the backend
 
-when deploying as a docker-compose setup use:
+- when deploying as a docker-compose setup use:
 
 ```
 docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml up -d
@@ -67,11 +66,11 @@ docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml up -d
 - architecture follows framework conventions
 - Components:
   - components subfolders are arranged by function
-  - UI folder contains neobrutalism design components
-  - todo: further organize components and document them
+  - "ui" folder contains shadcn-vue components
+    - the tailwind classes of the components in the components folder are global
+    - the tailwind classes of the components in the pages override the global if applied
 - Store:
   - library: pinia, pinia-persisted-state
--
 
 ## Server
 
@@ -127,7 +126,7 @@ Schema domain:
 ## Database
 
 - A local postgreSQL database included in docker-compose setup
-- start/db.go will establish a connection on spin up, will panic if the connection fails
+- startup/db.go will establish a connection on spin up, will panic if the connection fails
 - if using pgAdmin4 to connect to the local postgres container, use `host:localhost`
 
 ---
@@ -136,6 +135,11 @@ Schema domain:
 
 - library: [swaggo](https://github.com/swaggo/swag)
 - middleware: [echo swagger](https://github.com/swaggo/echo-swagger)
+- to access the swagger page:
+
+```
+http://localhost:3001/swagger
+```
 
 ### Generate swagger documentation
 
@@ -149,3 +153,7 @@ swag init
 [SWAGGER LINK](http://localhost:3001/swagger/index.html)
 
 ---
+
+### Git Conventions
+
+Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)

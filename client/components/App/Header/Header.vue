@@ -10,13 +10,13 @@
                 </div>
                 <div v-else> No Company Data </div>
             </button>
-            <button v-if="isMobileView">
+            <button v-show="isMobileView">
                 <Icon v-if="!showSidebar" @click="handleToggleMenuButtonClick" name="solar:list-down-bold"
                     class="w-6 h-6 text-primary font-bold" />
                 <Icon v-else @click="handleToggleMenuButtonClick" name="solar:list-up-bold"
                     class="w-6 h-6 text-primary font-bold" />
             </button>
-            <AppHeaderAvatarMenu v-else />
+            <AppHeaderAvatarMenu v-show="!isMobileView" />
         </div>
     </div>
 </template>
