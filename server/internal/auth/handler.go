@@ -79,9 +79,9 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:      newUser.ID, // Store the ObjectId
-		IsAdmin: newUser.IsAdmin,
-		Email:   newUser.Email,
+		ID:    newUser.ID, // Store the ObjectId
+		Role:  newUser.Role,
+		Email: newUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
@@ -161,9 +161,9 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:      existingUser.ID, // Store the ObjectId
-		IsAdmin: existingUser.IsAdmin,
-		Email:   existingUser.Email,
+		ID:    existingUser.ID, // Store the ObjectId
+		Role:  existingUser.Role,
+		Email: existingUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
@@ -245,20 +245,11 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 		})
 	}
 
-	isAdmin, ok := claims["isAdmin"].(bool)
-	if !ok {
-		log.Printf("auth.check_auth: error asserting isAdmin: %v", claims["isAdmin"])
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "admin status not found",
-			Data:    nil,
-		})
-	}
-
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "success",
 		Data: echo.Map{
-			"Authenticated": true,
-			"IsAdmin":       isAdmin,
+			"authenticated": true,
+			"role":          claims["role"],
 		},
 	})
 }

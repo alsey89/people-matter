@@ -1,30 +1,29 @@
 <template>
-    <NBMenuItemNavigation navigateTo="/" :class="{ 'border-l-2 border-l-primary': activeRoute === '/' }"
-        class="hover:bg-secondary-bg">
+    <NuxtLink to="/" :class="{ 'border-l-4 border-l-primary': activeRoute === '/' }" class="p-2 hover:bg-secondary-bg">
         Home
-    </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/company" :class="{ 'border-l-2 border-l-primary': activeRoute === '/company' }"
-        class="hover:bg-secondary-bg">
+    </NuxtLink>
+    <NuxtLink to="/company" :class="{ 'border-l-4 border-l-primary': activeRoute === '/company' }"
+        class="p-2 hover:bg-secondary-bg">
         Company
-    </NBMenuItemNavigation>
-    <NBMenuItemNavigation navigateTo="/user" :class="{ 'border-l-2 border-l-primary': activeRoute === '/user' }"
-        class="hover:bg-secondary-bg">
+    </NuxtLink>
+    <NuxtLink to="/user/list" :class="{ 'border-l-4 border-l-primary': activeRoute === '/user/list' }"
+        class="p-2 hover:bg-secondary-bg">
         Users
-    </NBMenuItemNavigation>
-    <!-- <NBMenuItemNavigation navigateTo="/salary" :class="{ 'border-l-2 border-l-primary': activeRoute === '/salary' }"
-        class="hover:bg-secondary-bg">
-        Salary
-    </NBMenuItemNavigation> -->
-    <NBMenuItem @click="userStore.signout" class="hover:bg-secondary-bg">
+    </NuxtLink>
+    <NuxtLink to="/user" :class="{ 'border-l-4 border-l-primary': activeRoute === '/user' }"
+        class="p-2 hover:bg-secondary-bg">
+        Profile
+    </NuxtLink>
+    <Button @click="userStore.signout" class="mt-auto hover:bg-secondary-bg">
         Signout
-    </NBMenuItem>
+    </Button>
 </template>
-  
+
 <script setup>
 const userStore = useUserStore()
 
-const { navigateTo } = defineProps({
-    navigateTo: String,
+const { to } = defineProps({
+    to: String,
     required: true,
 })
 

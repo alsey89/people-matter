@@ -6,13 +6,6 @@ export const useUserStore = defineStore("user-store", {
     currentUserData: null,
     allUsersData: null,
     singleUserData: null,
-    //* current user data
-    currentUserfirstName: null,
-    currentUserLastName: null,
-    currentUserMiddleName: null,
-    currentUserNickName: null,
-    currentUserEmail: null,
-    currentUserAvatarUrl: null,
     //* store
     isLoading: false,
   }),
@@ -20,6 +13,7 @@ export const useUserStore = defineStore("user-store", {
     //* complete data
     getCurrentUserData: (state) => state.currentUserData,
     getAllUsersData: (state) => state.allUsersData,
+    getSingleUserData: (state) => state.singleUserData,
     //* current user data
     getCurrentUserAvatarUrl: (state) => state.currentUserData?.avatarUrl,
     getCurrentUserFullName: (state) =>
@@ -32,17 +26,81 @@ export const useUserStore = defineStore("user-store", {
     getCurrentUserDepartment: (state) =>
       state.currentUserData?.assignedJob?.job?.department?.name,
     //* single user data
-    getSingleUserData: (state) => state.singleUserData,
+    //main
     getSingleUserAvatarUrl: (state) => state.singleUserData?.avatarUrl,
-    getSingleUserFullName: (state) =>
-      state.singleUserData?.firstName + " " + state.singleUserData?.lastName,
+    getSingleUserFullName: (state) => {
+      let fullName = "";
+      if (state.singleUserData?.firstName) {
+        fullName += state.singleUserData?.firstName;
+      }
+      if (state.singleUserData?.middleName) {
+        fullName += " " + state.singleUserData?.middleName;
+      }
+      if (state.singleUserData?.lastName) {
+        fullName += " " + state.singleUserData?.lastName;
+      }
+      return fullName;
+    },
     getSingleUserUserId: (state) => state.singleUserData?.userId,
     getSingleUserEmail: (state) => state.singleUserData?.email,
-    getSingleUserIsAdmin: (state) => state.singleUserData?.isAdmin,
+    getSingleUserRole: (state) => state.singleUserData?.role,
     getSingleUserTitle: (state) =>
       state.singleUserData?.assignedJob?.job?.title?.name,
     getSingleUserDepartment: (state) =>
       state.singleUserData?.assignedJob?.job?.department?.name,
+    //contact info
+    getSingleUserContactInfo: (state) => state.singleUserData?.contactInfo,
+    getSingleUserMobile: (state) => state.singleUserData?.contactInfo?.mobile,
+    getSingleUserAddress: (state) => state.singleUserData?.contactInfo?.address,
+    getSingleUserCity: (state) => state.singleUserData?.contactInfo?.city,
+    getSingleUserState: (state) => state.singleUserData?.contactInfo?.state,
+    getSingleUserPostalCode: (state) =>
+      state.singleUserData?.contactInfo?.postalCode,
+    getSingleUserCountry: (state) => state.singleUserData?.contactInfo?.country,
+    getSingleUserFullAddress: (state) => {
+      let fullAddress = "";
+      if (state.singleUserData?.contactInfo?.address) {
+        fullAddress += state.singleUserData?.contactInfo?.address;
+      }
+      if (state.singleUserData?.contactInfo?.city) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.city;
+      }
+      if (state.singleUserData?.contactInfo?.state) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.state;
+      }
+      if (state.singleUserData?.contactInfo?.postalCode) {
+        fullAddress += ", " + state.singleUserData?.contactInfo?.postalCode;
+      }
+      return fullAddress;
+    },
+    //emergency contact
+    getSingleUserEmergencyContact: (state) =>
+      state.singleUserData?.emergencyContact,
+    getSingleUserEmergencyContactName: (state) =>
+      state.singleUserData?.emergencyContact?.firstName,
+    getSingleUserEmergencyContactLastName: (state) =>
+      state.singleUserData?.emergencyContact?.lastName,
+    getSingleUserEmergencyContactMiddleName: (state) =>
+      state.singleUserData?.emergencyContact?.middleName,
+    getSingleUserEmergencyContactFullName: (state) => {
+      let fullName = "";
+      if (state.singleUserData?.emergencyContact?.firstName) {
+        fullName += state.singleUserData?.emergencyContact?.firstName;
+      }
+      if (state.singleUserData?.emergencyContact?.middleName) {
+        fullName += " " + state.singleUserData?.emergencyContact?.middleName;
+      }
+      if (state.singleUserData?.emergencyContact?.lastName) {
+        fullName += " " + state.singleUserData?.emergencyContact?.lastName;
+      }
+      return fullName;
+    },
+    getSingleUserEmergencyContactMobile: (state) =>
+      state.singleUserData?.emergencyContact?.mobile,
+    getSingleUserEmergencyContactEmail: (state) =>
+      state.singleUserData?.emergencyContact?.email,
+    getSingleUserEmergencyContactRelation: (state) =>
+      state.singleUserData?.emergencyContact?.relation,
     //* store
     getIsLoading: (state) => state.isLoading,
   },
@@ -53,8 +111,10 @@ export const useUserStore = defineStore("user-store", {
       const companyStore = useCompanyStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/auth/signin",
+          `${apiBaseUrl}/api/v1/auth/signin`,
           {
             email: email,
             password: password,
@@ -83,8 +143,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/auth/signup",
+          `${apiBaseUrl}/api/v1/auth/signup`,
           {
             username: username,
             email: email,
@@ -113,15 +175,17 @@ export const useUserStore = defineStore("user-store", {
     async signout() {
       this.isLoading = true;
       try {
-        await axios.post(
-          "http://localhost:3001/api/v1/auth/signout",
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
+        const response = await axios.post(
+          `${apiBaseUrl}/api/v1/auth/signout`,
           {},
           {
             withCredentials: true,
           }
         );
         sessionStorage.clear();
-        return navigateTo("/signin");
+        return navigateTo("/auth/signin");
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -129,53 +193,52 @@ export const useUserStore = defineStore("user-store", {
       }
     },
     async getCsrfToken() {
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/auth/csrf",
+        await axios.get(
+          `${apiBaseUrl}/api/v1/auth/csrf`,
+          {},
           {
             withCredentials: true,
           }
         );
-        return response.data.data.csrfToken;
       } catch (error) {
         console.error("Error:", error.response);
         this.handleError(error);
       }
     },
     async checkAuth() {
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        await axios.get("http://localhost:3001/api/v1/auth/check", {
+        await axios.get(`${apiBaseUrl}/api/v1/auth/check`, {
           withCredentials: true,
         });
       } catch (error) {
         console.error("Error:", error.response);
         sessionStorage.clear();
-        return navigateTo("/signin", { external: true });
+        return navigateTo("/auth/signin", { external: true });
       }
     },
     //! User API Calls
     //* current
     async fetchCurrentUserData() {
+      this.currentUserData = null;
       this.isLoading = true;
+      const runtimeConfig = useRuntimeConfig();
+      const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/user/current",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
-        this.currentUserData = response.data.data;
-        this.currentUserId = response.data.data.ID;
-        this.currentUserfirstName = response.data.data.firstName;
-        this.currentUserLastName = response.data.data.lastName;
-        this.currentUserMiddleName = response.data.data.middleName;
-        this.currentUserNickName = response.data.data.nickName;
-        this.currentUserEmail = response.data.data.email;
-        this.currentUserAvatarUrl = response.data.data.avatarUrl;
+        const response = await axios.get(`${apiBaseUrl}/api/v1/user/current`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
+        if (response.status === 200) {
+          this.currentUserData = response.data.data;
+        }
       } catch (error) {
         console.error("Error:", error.response);
         this.handleError(error);
@@ -185,18 +248,18 @@ export const useUserStore = defineStore("user-store", {
     },
     //* all users
     async fetchAllUsersData() {
+      this.allUsersData = null;
       this.isLoading = true;
       try {
-        const response = await axios.get(
-          `http://localhost:3001/api/v1/user/list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: true,
-          }
-        );
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
+        const response = await axios.get(`${apiBaseUrl}/api/v1/user/list`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        });
         this.handleSuccess(response);
       } catch (error) {
         this.handleError(error);
@@ -208,8 +271,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/user/list",
+          `${apiBaseUrl}/api/v1/user/list`,
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -237,8 +302,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/user/list/${userId}`,
+          `${apiBaseUrl}/api/v1/user/list/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -259,8 +326,10 @@ export const useUserStore = defineStore("user-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/user/list/${userId}`,
+          `${apiBaseUrl}/api/v1/user/list/${userId}`,
           {
             email: userFormData.email,
             firstName: userFormData.firstName,
@@ -286,10 +355,13 @@ export const useUserStore = defineStore("user-store", {
     },
     //* single user details
     async fetchSingleUserData(userId) {
+      this.singleUserData = null;
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.get(
-          `http://localhost:3001/api/v1/user/${userId}`,
+          `${apiBaseUrl}/api/v1/user/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -314,7 +386,7 @@ export const useUserStore = defineStore("user-store", {
         switch (error.response.status) {
           case 401:
             messageStore.setError("Invalid credentials.");
-            return navigateTo("/signin");
+            return navigateTo("/auth/signin");
           case 403:
             messageStore.setError("Access denied.");
             return navigateTo("/");
@@ -329,7 +401,7 @@ export const useUserStore = defineStore("user-store", {
             break;
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/");
+            return navigateTo("/auth/signin");
         }
       } else if (error.request) {
         // The request was made but no response was received

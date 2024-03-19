@@ -1,0 +1,44 @@
+#* Local development setup, maps volumes and runs with hot-reload for both server and client, passes args to Dockerfile at build step.
+#* If this file exists, it will automatically override the base docker-compose file, no need to specify with -f.
+
+version: "3.8"
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        - BUILD_ENV=development
+    depends_on:
+      - server
+      - postgres
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      API_BASE_URL: http://localhost:3001
+    command: ["bun", "run", "dev"]
+
+  server:
+    build:
+      context: ./server
+      args:
+        - BUILD_ENV=development
+    depends_on:
+      - postgres
+    volumes:
+      - ./server:/app
+    environment:
+      IS_PRODUCTION: "false"
+    command: ["air"]
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hrms
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/postgresql/data

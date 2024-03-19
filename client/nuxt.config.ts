@@ -1,19 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ssr: false,
   app: {
     head: {
       link: [
         {
           rel: "icon",
           type: "image/x-icon",
-          href: "/favicon.ico",
+          href: process.env.FAVICON_PATH || "/favicon.ico",
         },
       ],
     },
   },
   runtimeConfig: {
     public: {
-      apiUrl: "http://localhost:3001/api/v1",
+      // localhost3001 in local development or the production API URL
+      apiBaseUrl: process.env.API_BASE_URL,
     },
   },
   devtools: {
@@ -28,5 +30,17 @@ export default defineNuxtConfig({
     "nuxt-icon",
     "@pinia-plugin-persistedstate/nuxt",
     "@formkit/auto-animate/nuxt",
+    "shadcn-nuxt",
   ],
+  shadcn: {
+    /**
+     * Prefix for all the imported component
+     */
+    prefix: "",
+    /**
+     * Directory that the component lives in.
+     * @default "./components/ui"
+     */
+    componentDir: "./components/ui",
+  },
 });

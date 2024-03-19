@@ -1,33 +1,17 @@
 version: "3.8"
 services:
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: verve
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
-
   server:
-    build: ./server
+    build:
+      context: ./server
     ports:
       - "3001:3001"
-    volumes:
-      - ./server:/app
-    depends_on:
-      - postgres
+    restart: on-failure
 
   client:
-    build: ./client
+    build:
+      context: ./client
     ports:
       - "3000:3000"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
     depends_on:
       - server
-      - postgres
+    restart: on-failure

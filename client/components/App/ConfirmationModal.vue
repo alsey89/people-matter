@@ -1,22 +1,24 @@
 <template>
-    <NBCard id="modal" class="w-full h-full">
-        <NBCardHeader>
+    <Card id="modal" class="w-full h-full">
+        <CardHeader>
             Confirmation Required
-        </NBCardHeader>
-        <div>
-            {{ confirmationModalMessage }}
-        </div>
-        <NBCardFooter>
-            <div class="flex justify-end gap-2">
-                <NBButtonSquare @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
-                    Confirm
-                </NBButtonSquare>
-                <NBButtonSquare @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
-                    Cancel
-                </NBButtonSquare>
+        </CardHeader>
+        <CardContent>
+            <div>
+                {{ confirmationModalMessage }}
             </div>
-        </NBCardFooter>
-    </NBCard>
+        </CardContent>
+        <CardFooter>
+            <div class="flex justify-end gap-2">
+                <Button @click=handleConfirmButtonClick size="md" class="px-4 hover:bg-secondary-bg">
+                    Confirm
+                </Button>
+                <Button @click="handleCancelButtonClick" size="md" class="px-2 hover:bg-secondary-bg">
+                    Cancel
+                </Button>
+            </div>
+        </CardFooter>
+    </Card>
 </template>
 
 <script setup>

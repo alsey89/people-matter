@@ -13,8 +13,7 @@ type User struct {
 	Email      string     `json:"email"      gorm:"uniqueIndex"`
 	Password   string     `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
 	AvatarURL  string     `json:"avatarUrl"  gorm:"type:text"`
-	IsAdmin    bool       `json:"isAdmin"    gorm:"default:false"`
-	IsEmployee bool       `json:"isEmployee" gorm:"default:false"`
+	Role       string     `json:"role"       gorm:"enum:admin,manager,user;default:user"`
 	IsActive   bool       `json:"isActive"   gorm:"default:true"`
 	LastLogin  *time.Time `json:"lastLogin"  gorm:"default:null"`
 
@@ -37,6 +36,13 @@ type User struct {
 	Leave      []Leave      `json:"leave"`
 	Attendance []Attendance `json:"attendance"`
 }
+
+// enum constants for User.Role
+const (
+	RoleAdmin   = "admin"
+	RoleManager = "manager"
+	RoleUser    = "user"
+)
 
 type ContactInfo struct {
 	gorm.Model
