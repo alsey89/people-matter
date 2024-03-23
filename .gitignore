@@ -24,12 +24,13 @@ logs
 !.env.example
 
 # Local config files
-config.local.yaml
+config.override.yaml
 
 # air temp folder
 tmp
 .air.toml
 
+#persisted db data
 database/data
 
 .vscode

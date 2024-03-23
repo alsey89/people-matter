@@ -1,6 +1,6 @@
 <template>
-    <NBCard class="w-full">
-        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4 p-2">
+    <Card class="w-full p-4">
+        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4">
             <div class="flex flex-wrap md:flex-nowrap justify-between gap-4">
                 <div class="w-full md:w-3/4 flex-flex-col gap-4">
                     <div class="flex flex-col">
@@ -26,13 +26,13 @@
                 </div>
                 <div class="w-full md:w-1/4 flex justify-center">
                     <!-- todo: logo upload -->
-                    <NBButtonSquare type="button" size="xs" textsize="xs" class="w-full block md:hidden">
+                    <Button type="button" size="xs" textsize="xs" class="w-full block md:hidden">
                         <div class="flex justify-center items-center gap-2">
                             <Icon name="material-symbols:upload" class="h-6 w-6" />
                             Upload Photo
                         </div>
-                    </NBButtonSquare>
-                    <AppLogo :src="`${formData.companyLogoUrl}`" shape="square"
+                    </Button>
+                    <AppLogo :src="`${formData.companyLogoUrl}` || '/defaultLogo.png'" shape="square"
                         class="hidden md:block w-full border-2 border-black hover:cursor-pointer" />
                 </div>
             </div>
@@ -68,13 +68,13 @@
                 </div>
             </div>
             <div class="w-full flex justify-end">
-                <NBButtonSquare type="submit" size="xs" textSize="md"
+                <Button type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                     Submit
-                </NBButtonSquare>
+                </Button>
             </div>
         </form>
-    </NBCard>
+    </Card>
 </template>
 
 <script setup>

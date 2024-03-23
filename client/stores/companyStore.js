@@ -82,8 +82,10 @@ export const useCompanyStore = defineStore("company-store", {
     async fetchCompany() {
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.get(
-          "http://localhost:3001/api/v1/company/default",
+          `${apiBaseUrl}/api/v1/company/default`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -93,17 +95,6 @@ export const useCompanyStore = defineStore("company-store", {
           }
         );
         const isSuccess = this.handleSuccess(response);
-        if (isSuccess) {
-          persistedState.sessionStorage.setItem("companyId", this.companyId);
-          persistedState.sessionStorage.setItem(
-            "companyName",
-            this.companyName
-          );
-          persistedState.sessionStorage.setItem(
-            "companyLogoUrl",
-            this.companyLogoUrl
-          );
-        }
       } catch (error) {
         this.handleError(error);
       } finally {
@@ -113,8 +104,10 @@ export const useCompanyStore = defineStore("company-store", {
     async createCompany({ companyFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          "http://localhost:3001/api/v1/company",
+          `${apiBaseUrl}/api/v1/company`,
           {
             name: companyFormData.companyName,
             phone: companyFormData.companyPhone,
@@ -147,8 +140,10 @@ export const useCompanyStore = defineStore("company-store", {
       const messageStore = useMessageStore();
       const companyId = companyFormData.companyId;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}`,
           {
             name: companyFormData.companyName,
             phone: companyFormData.companyPhone,
@@ -181,8 +176,10 @@ export const useCompanyStore = defineStore("company-store", {
       const messageStore = useMessageStore();
       this.isLoading = true;
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -204,10 +201,11 @@ export const useCompanyStore = defineStore("company-store", {
     //! Department API Calls
     async createDepartment({ companyId, departmentFormData }) {
       const messageStore = useMessageStore();
-      console.log("department form data: ", departmentFormData);
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/department`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/department`,
           {
             name: departmentFormData.departmentName,
             description: departmentFormData.departmentDescription,
@@ -231,8 +229,10 @@ export const useCompanyStore = defineStore("company-store", {
     async updateDepartment({ companyId, departmentFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentFormData.departmentId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/department/${departmentFormData.departmentId}`,
           {
             name: departmentFormData.departmentName,
             description: departmentFormData.departmentDescription,
@@ -256,8 +256,10 @@ export const useCompanyStore = defineStore("company-store", {
     async deleteDepartment({ companyId, departmentId }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}/department/${departmentId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/department/${departmentId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -278,8 +280,10 @@ export const useCompanyStore = defineStore("company-store", {
     async createLocation({ companyId, locationFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/location`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/location`,
           {
             name: locationFormData.locationName,
             phone: locationFormData.locationPhone,
@@ -310,8 +314,10 @@ export const useCompanyStore = defineStore("company-store", {
     async updateLocation({ companyId, locationFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}/location/${locationFormData.locationId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/location/${locationFormData.locationId}`,
           {
             name: locationFormData.locationName,
             phone: locationFormData.locationPhone,
@@ -342,8 +348,10 @@ export const useCompanyStore = defineStore("company-store", {
     async deleteLocation({ companyId, locationId }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}/location/${locationId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/location/${locationId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -363,8 +371,10 @@ export const useCompanyStore = defineStore("company-store", {
     //! Job API Calls
     async fetchJobList({ companyId }) {
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.get(
-          `http://localhost:3001/api/v1/job/company/${companyId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/job`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -381,8 +391,10 @@ export const useCompanyStore = defineStore("company-store", {
     async createJob({ companyId, jobFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.post(
-          `http://localhost:3001/api/v1/company/${companyId}/job`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/job`,
           {
             title: jobFormData.jobTitle,
             departmentId: jobFormData.jobDepartmentId,
@@ -414,8 +426,10 @@ export const useCompanyStore = defineStore("company-store", {
     async updateJob({ companyId, jobId, jobFormData }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.put(
-          `http://localhost:3001/api/v1/company/${companyId}/job/${jobId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/job/${jobId}`,
           {
             title: jobFormData.jobTitle,
             departmentId: jobFormData.jobDepartmentId,
@@ -447,8 +461,10 @@ export const useCompanyStore = defineStore("company-store", {
     async deleteJob({ companyId, jobId }) {
       const messageStore = useMessageStore();
       try {
+        const runtimeConfig = useRuntimeConfig();
+        const apiBaseUrl = runtimeConfig.public.apiBaseUrl;
         const response = await axios.delete(
-          `http://localhost:3001/api/v1/company/${companyId}/job/${jobId}`,
+          `${apiBaseUrl}/api/v1/company/${companyId}/job/${jobId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -491,6 +507,13 @@ export const useCompanyStore = defineStore("company-store", {
           response.data.data.expandedCompany?.departments;
         this.companyLocations = response.data.data.expandedCompany?.locations;
         this.companyJobs = response.data.data.expandedCompany?.jobs;
+        // session storage
+        persistedState.sessionStorage.setItem("companyId", this.companyId);
+        persistedState.sessionStorage.setItem("companyName", this.companyName);
+        persistedState.sessionStorage.setItem(
+          "companyLogoUrl",
+          this.companyLogoUrl
+        );
         return true;
       } else {
         return false;
@@ -507,7 +530,7 @@ export const useCompanyStore = defineStore("company-store", {
             break;
           case 401:
             messageStore.setError("Invalid credentials.");
-            return navigateTo("/signin");
+            return navigateTo("/auth/signin");
           case 403:
             messageStore.setError("Access denied.");
             return navigateTo("/");
@@ -522,7 +545,7 @@ export const useCompanyStore = defineStore("company-store", {
             break;
           default:
             messageStore.setError("Something went wrong.");
-            return navigateTo("/");
+            return navigateTo("/auth/signin");
         }
       } else if (error.request) {
         // The request was made but no response was received

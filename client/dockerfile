@@ -2,12 +2,21 @@ FROM node AS base
 WORKDIR /app
 
 COPY package.json ./
+
+# Install bun globally and project dependencies with bun
 RUN npm install -g bun
 RUN bun install
 
+# Copy the rest of the files
 COPY . .
+
+# Define a build argument for the build environment
+ARG BUILD_ENV
+
+# Conditional build step based on BUILD_ENV argument
+RUN if [ "$BUILD_ENV" = "production" ] ; then bun run build ; else echo "Skipping build step"; fi
 
 EXPOSE 3000
 
-# Command to run the application in development mode with hot reload
+# Default command, can be overridden from docker-compose or docker run
 CMD ["bun", "run", "dev"]

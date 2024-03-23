@@ -73,7 +73,8 @@ func main() {
 				c.Request().URL.Path == "/api/v1/auth/signup" ||
 				c.Request().URL.Path == "/api/v1/auth/signout" ||
 				c.Request().URL.Path == "/api/v1/auth/csrf" ||
-				c.Request().URL.Path == "/api/v1/auth/password/reset" {
+				c.Request().URL.Path == "/api/v1/auth/password/reset" ||
+				c.Request().URL.Path == "/swagger" {
 				return true
 			}
 			return false

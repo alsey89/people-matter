@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full flex flex-col gap-4">
-        <NBCard class="flex flex-col p-4">
+        <Card class="flex flex-col p-4">
             <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
                 <!-- Input for Title -->
                 <div v-auto-animate class="flex flex-col gap-2">
@@ -27,19 +27,19 @@
                 <!-- Input for Manager -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="manager"> Manager </label>
-                    <AppDropdown v-model="jobFormData.jobManagerId" :options="companyStore.getCompanyJobs" :required="false"
-                        @selected="handleManagerSelection" />
+                    <AppDropdown v-model="jobFormData.jobManagerId" :options="companyStore.getCompanyJobs"
+                        :required="false" @selected="handleManagerSelection" />
                 </div>
                 <!-- Input for Salary Range -->
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="salaryRange"> Salary Range [optional] </label>
                     <div class="flex items-center gap-2">
-                        <input v-model.number="jobFormData.jobMinSalary" type="number" name="salaryRange" id="salaryRange"
-                            placeholder="Min"
+                        <input v-model.number="jobFormData.jobMinSalary" type="number" name="salaryRange"
+                            id="salaryRange" placeholder="Min"
                             class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                         -
-                        <input v-model.number="jobFormData.jobMaxSalary" type="number" name="salaryRange" id="salaryRange"
-                            placeholder="Max"
+                        <input v-model.number="jobFormData.jobMaxSalary" type="number" name="salaryRange"
+                            id="salaryRange" placeholder="Max"
                             class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary" />
                     </div>
                 </div>
@@ -70,17 +70,17 @@
                 </div>
                 <!-- Submit Button -->
                 <div class="w-full mt-4">
-                    <NBButtonSquare type="submit" size="md" textSize="md"
+                    <Button type="submit" size="md" textSize="md"
                         class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                         Submit
-                    </NBButtonSquare>
+                    </Button>
                 </div>
             </form>
-        </NBCard>
+        </Card>
     </div>
 </template>
 
-  
+
 <script setup>
 const companyStore = useCompanyStore()
 
@@ -103,4 +103,3 @@ const handleSubmit = () => {
     emit('submit');
 };
 </script>
-  

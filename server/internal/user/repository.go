@@ -48,11 +48,15 @@ func (ur UserRepository) Update(UserID uint, updateData schema.User) (*schema.Us
 	var user schema.User
 
 	updateDataMap := map[string]interface{}{
-		"Email":      updateData.Email,
 		"FirstName":  updateData.FirstName,
 		"MiddleName": updateData.MiddleName,
 		"LastName":   updateData.LastName,
-		"IsAdmin":    updateData.IsAdmin,
+		"Nickname":   updateData.Nickname,
+
+		"Email":     updateData.Email,
+		"AvatarURL": updateData.AvatarURL,
+		"Role":      updateData.Role,
+		"IsActive":  updateData.IsActive,
 	}
 
 	result := ur.client.Model(&user).Where("id = ?", UserID).Updates(updateDataMap)
@@ -75,22 +79,29 @@ func (ur UserRepository) Delete(UserID uint) error {
 // Expanded operations --------------------------------------------------------
 
 // note: Preloads roles (assignedJob > job > title and department)
-func (ur UserRepository) ReadAllAndExpandRole() ([]*schema.User, error) {
+func (ur UserRepository) ReadAllAndPreloadJobTitleDepartment() ([]*schema.User, error) {
 	var users []*schema.User
-	result := ur.client.Preload("AssignedJob.Job.Title").Preload("AssignedJob.Job.Department").Find(&users)
+	result := ur.client.
+		Preload("AssignedJob.Job").
+		Preload("AssignedJob.Job.Department").
+		Preload("AssignedJob.Job.Location").
+		Find(&users)
 	if result.Error != nil {
-		return nil, fmt.Errorf("user.r.read_all: %w", result.Error)
+		return nil, fmt.Errorf("user.r.read_all_and_preload_title_department: %w", result.Error)
 	}
 
 	return users, nil
 }
 
 // note: Preloads all association for user (contactInfo, emergencyContact, assignedJob, payments, leave, attendance)
-func (ur UserRepository) ReadByIDAndExpandRole(UserID uint) (*schema.User, error) {
+func (ur UserRepository) ReadByIDAndPreloadJobTitleDepartment(UserID uint) (*schema.User, error) {
 	var user schema.User
-	result := ur.client.Preload("ContactInfo").
+	result := ur.client.
+		Preload("ContactInfo").
 		Preload("EmergencyContact").
-		Preload("AssignedJob").
+		Preload("AssignedJob.Job").
+		Preload("AssignedJob.Job.Department").
+		Preload("AssignedJob.Job.Location").
 		Preload("Payments").
 		Preload("Leave").
 		Preload("Attendance").

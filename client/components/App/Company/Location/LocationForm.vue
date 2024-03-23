@@ -1,6 +1,6 @@
 <template>
-    <NBCard class="w-full">
-        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4 p-2">
+    <Card class="w-full p-4">
+        <form @submit.prevent="handleSubmit" class="w-full flex flex-col gap-4">
             <div class="flex flex-wrap md:flex-nowrap justify-between gap-4">
                 <div class="w-full md:w-1/2 flex flex-col">
                     <label for="name">Name*</label>
@@ -52,13 +52,13 @@
                 </div>
             </div>
             <div class="w-full flex justify-end">
-                <NBButtonSquare type="submit" size="xs" textSize="md"
+                <Button type="submit" size="xs" textSize="md"
                     class="min-w-full items-center text-lg font-bold bg-primary hover:bg-primary-dark">
                     Submit
-                </NBButtonSquare>
+                </Button>
             </div>
         </form>
-    </NBCard>
+    </Card>
 </template>
 
 <script setup>
@@ -72,4 +72,3 @@ const handleSubmit = () => {
     emit('submit');
 };
 </script>
-
