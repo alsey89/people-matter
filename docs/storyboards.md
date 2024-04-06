@@ -1,137 +1,157 @@
-# HRMS User Storyboards & Personas
+HRMS User Storyboards & Personas
 
-## 1. Super Admin (Company Management)
+1. Super Admin (Company Management)
 
-- **Name**: Alex Johnson
-- **Age**: 45
-- **Role**: CEO or Senior HR Manager
-- **Goals**: Oversee the entire organization, ensure HR compliance, strategic planning, and decision-making.
-- **Needs**: High-level reporting and analytics, access to all HR functionalities, ability to manage and approve top-level decisions.
-- **Challenges**: Balancing strategic planning with day-to-day HR issues, maintaining compliance with HR laws.
+- Name: Alex
+- Age: 45
+- Role: CEO, HR or high-level manager
+- Goals: Oversee the entire organization, ensure HR compliance, strategic planning, and decision-making.
+- Needs: High-level reporting and analytics, access to all HR functionalities, ability to manage and approve top-level decisions.
+- Challenges: Balancing strategic planning with day-to-day HR issues, maintaining compliance with HR laws.
 
-### Storyboard
+1. Setting Up
+   - Alex can sign up and go through super admin onboarding
+   - Alex can set up company info, locations, job positions, etc.
+   - Alex can edit company info, locations, job positions, etc.
+2. User Management
+   - Alex can set up accounts for admins, HR, and employees. This will send them an email asking them to set up their profile.
+   - Alex can manage admin roles and permissions, making sure they have the right access to do their job.
+3. System Overview
+   - Alex can view a company-wide dashboard, showing key HR metrics like:
+     - total employees
+     - payroll statistics
+     - compliance alerts
+     - trends and analytics
+4. Policy Updates
+   - Alex can update company wide HR policies and rules. Doing so would notify the relevant managers and employees.
+5. Audit and Compliance
 
-1. **Setting Up**
-   - Alex signs up and goes through admin onboarding, setting up company info, locations, job positions, etc.
-2. **System Overview**
-   - He logs into the HRMS, views the company-wide dashboard with key metrics like total employees, payroll stats, and compliance alerts.
-3. **Strategic Decision Making**
-   - Reviews detailed reports and trends in the analytics section for strategic decisions.
-4. **Policy Updates**
-   - Updates company-wide HR policies and procedures in the policy management section.
-5. **User Management**
-   - Manages user roles and permissions, adjusting access for admins and managers across locations.
-6. **Audit and Compliance**
-   - Reviews audit logs and compliance reports, identifying areas for improvement.
+   - Alex can review company audit trail logs
+   - Alex can review compliance documents and notes
 
-## 2. Admin (Location Manager)
+6. Admin (Location Management)
 
-- **Name**: Maria Chen
-- **Age**: 37
-- **Role**: Office Manager or Local HR Manager
-- **Goals**: Manage local HR operations, implement policies, and handle local HR issues.
-- **Needs**: Access to employee records, payroll management, recruitment tools, and performance management for their location.
-- **Challenges**: Managing local HR tasks efficiently while aligning with company policies.
+- Name: Maria
+- Age: 37
+- Role: Location Manager
+- Goals: Manage local HR operations and handle local HR issues.
+- Needs: Access to employee records, payroll management, recruitment tools, and performance management for their location.
+- Challenges: Managing local HR tasks efficiently while aligning with company policies.
 
-### Storyboard
+1. Local Dashboard Access
+   - Marian can view her location-specific dashboard with local employee statistics
+   - Maria can see a list of HR tasks that need to be signed off
+2. Employee Management
+   - Maria can set up accounts for employees. This will send them an email asking them to set up their profile.
+   - Maria can view and edit employee records
+   - Maria can view and sign off on employee rosters
+   - Maria can view employee attendance records, and override hours/days if necessary
+   - Maria can view and sign off employee leave applications
+   - Maria can view, edit, and sign off salary slips
+   - Maria can view and manage job posts
+   - Maria can view and manage hiring processes
+3. Performance Reviews
+   - Maria can schedule and conduct performance reviews and 1-on-1 meetings
+   - Maria can view, edit and submit evaluation reports
+   - Maria can view, edit, and submit peer evaluation reports
+4. Training and Development
+   - Maria can assigns and track training programs for her location’s employees.
+5. Local Compliance and Reporting
 
-1. **Local Dashboard Access**
-   - Maria views her location-specific dashboard with local employee stats and HR tasks.
-2. **Employee Management**
-   - Manages employee records, new hires, and local HR issues.
-3. **Performance Reviews**
-   - Conducts performance reviews, scheduling sessions, and filling out evaluations.
-4. **Training and Development**
-   - Assigns and tracks training programs for her location’s employees.
-5. **Local Compliance and Reporting**
-   - Generates reports on local HR activities and compliance.
+   - Maria can generates reports on local HR activities and compliance.
 
-## 3. Full-Time Employee
+6. Full-Time Employee
 
-- **Name**: John Doe
-- **Age**: 28
-- **Role**: Software Developer
-- **Goals**: Complete tasks, career development, and benefit from company policies.
-- **Needs**: Update personal information, access payroll, submit leave requests, and view performance feedback.
-- **Challenges**: Finding HR information quickly, understanding company benefits and policies.
+- Name: John
+- Age: 28
+- Role:
+- Goals:
+- Needs:
+- Challenges:
 
-### Storyboard
+1. Personal Dashboard
+   - John can view company-wide announcements on the dashboard.
+   - John can view location-wide announcements on the dashboard.
+   - John can view his schedule and tasks on his dashboard.
+2. Information Update
+   - John can updates his personal info, bank details, and emergency contacts.
+3. Clocking In & out
+   - John can clock in and out by scanning a QR code or punching in an auto generated code.
+4. Leave Application
+   - John can apply for leave, viewing available balance and submitted requests.
+5. Payroll
+   - John can review his earnings, deductions, and net pay.
+6. Performance Feedback
+   - Joh can view feedback from manager and peers.
+7. Training and Benefits
 
-1. **Personal Dashboard**
-   - John views his schedule, tasks, and announcements on his dashboard.
-2. **Information Update**
-   - Updates personal info, bank details, and emergency contacts.
-3. **Leave Application**
-   - Applies for leave, viewing available balance and submitting requests.
-4. **Performance Feedback**
-   - Views feedback from reviews, sets goals, and acknowledges development areas.
-5. **Training and Benefits**
-   - Enrolls in training programs and reviews his benefits package.
+   - John can enroll in offered training programs.
+   - John can view his job benefits.
 
-## 4. Part-Time Employee
+8. Part-Time Employee
 
-- **Name**: Emily Rivera
-- **Age**: 22
-- **Role**: Part-Time Customer Service Representative
-- **Goals**: Balance work with personal commitments like education.
-- **Needs**: Flexible scheduling, access to work-related info, and submitting time-off requests.
-- **Challenges**: Limited access to benefits, feeling disconnected from the team.
+- Name: Emily
+- Age: 22
+- Role:
+- Goals:
+- Needs:
+- Challenges:
 
-### Storyboard
+1. Personal Dashboard
+   - Emily can view company-wide announcements on the dashboard.
+   - Emily can view location-wide announcements on the dashboard.
+   - Emily can view her weekly shifts on the dashboard.
+   - Emily can submit her her weekly availability on the dashboard.
+2. Clocking In & out
+   - Emily can clock in and out by scanning a QR code or punching in an auto generated code
+3. Leave Application
+   - Emily can apply for time-off, viewing available balance and submitted requests.
+4. Payroll
+   - Emily can review her earnings, deductions, and net pay.
+5. Performance Feedback
+   - Emily can view feedback from manager and peers.
+6. Training and Benefits
+   - Emily can view her part-time benefits.
 
-1. **Logging In and Schedule**
-   - Emily views her weekly schedule and shifts on the dashboard.
-2. **Clocking In**
-   - Clocks in using a simple button on her dashboard.
-3. **Accessing Payroll Information**
-   - Reviews her earnings, deductions, and net pay during breaks.
-4. **Requesting Time Off**
-   - Requests time off for events, navigating to the leave request section.
-5. **Clocking Out**
-   - Clocks out through the dashboard, confirming total hours.
-6. **Viewing Part-Time Benefits**
-   - Explores the part-time benefits section for entitlements and policy updates.
+---
 
-## 5. Internal HR Persona
+5. Internal HR Persona
 
-- **Name**: Sarah Kim
-- **Age**: 40
-- **Role**: Internal HR Manager
-- **Goals**: Efficiently manage HR processes within the company, improve employee satisfaction and retention.
-- **Needs**: Comprehensive access to HR management systems, effective communication tools, and detailed analytics for decision-making.
-- **Challenges**: Streamlining HR processes, addressing diverse employee needs, and maintaining up-to-date knowledge of HR regulations.
+- Name: Sarah Kim
+- Age: 40
+- Role: Internal HR Manager
+- Goals: Efficiently manage HR processes within the company, improve employee satisfaction and retention.
+- Needs: Comprehensive access to HR management systems, effective communication tools, and detailed analytics for decision-making.
+- Challenges: Streamlining HR processes, addressing diverse employee needs, and maintaining up-to-date knowledge of HR regulations.
 
-#### User Story
-
-1. **HR Process Management**
+1. HR Process Management
    - Sarah logs into the HRMS each day to manage and oversee various HR tasks like payroll processing, leave management, and benefits administration.
-2. **Employee Relations**
+2. Employee Relations
    - Handles employee queries and concerns, providing guidance on HR policies and procedures, and works to resolve any workplace conflicts.
-3. **Recruitment and Onboarding**
+3. Recruitment and Onboarding
    - Manages the recruitment process, from posting job ads to conducting interviews and overseeing the onboarding of new employees.
-4. **Training and Development**
+4. Training and Development
    - Identifies training needs and coordinates with departments to ensure employees receive necessary training and professional development opportunities.
-5. **Compliance and Reporting**
+5. Compliance and Reporting
+
    - Keeps abreast of legal requirements related to HR, ensuring the company remains compliant, and generates reports for management on HR metrics and trends.
 
-## 6. Shared HR Persona
+6. Shared HR Persona
 
-- **Name**: Lisa Wong
-- **Age**: 34
-- **Role**: Shared HR Consultant
-- **Goals**: Provide comprehensive HR support across multiple organizations, ensuring consistency and compliance in HR practices.
-- **Needs**: Access to a unified HR management system that can handle multiple company profiles, advanced reporting, and analytics capabilities.
-- **Challenges**: Balancing the varying HR needs of different companies, staying updated with multiple sets of regulations, and managing a diverse range of employee relations issues.
+- Name: Lisa
+- Age: 34
+- Role: Shared HR Consultant
+- Goals: Provide comprehensive HR support across multiple organizations, ensuring consistency and compliance in HR practices.
+- Needs: Access to a unified HR management system that can handle multiple company profiles, advanced reporting, and analytics capabilities.
+- Challenges: Balancing the varying HR needs of different companies, staying updated with multiple sets of regulations, and managing a diverse range of employee relations issues.
 
-#### User Story
-
-1. **Multi-Company Management**
+1. Multi-Company Management
    - Lisa accesses the HRMS to view and manage HR tasks for several companies, ensuring that each company’s HR policies and procedures are up-to-date and in compliance.
-2. **Cross-Company Collaboration**
+2. Cross-Company Collaboration
    - Coordinates with HR teams across companies to standardize HR processes, share best practices, and discuss common challenges.
-3. **Employee Onboarding and Offboarding**
+3. Employee Onboarding and Offboarding
    - Manages onboarding and offboarding processes for multiple companies, ensuring a smooth transition for employees entering or leaving the companies.
-4. **HR Advisory**
+4. HR Advisory
    - Provides HR consultancy services, including advice on HR strategies, compliance, and workforce planning to the management of the various companies.
-5. **Performance Management**
+5. Performance Management
    - Assists in the development and implementation of performance management systems across companies, facilitating regular performance reviews and feedback sessions.
