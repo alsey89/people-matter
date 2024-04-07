@@ -20,9 +20,19 @@ const (
 	DefaultLogLevel = "DEV"
 )
 
+type Config struct {
+	Host         string
+	Port         int
+	LogLevel     string
+	AllowOrigins string
+	AllowMethods string
+	AllowHeaders string
+}
+
 type HTTPServer struct {
 	logger *zap.Logger
 	server *echo.Echo
+	config *Config
 	scope  string
 }
 
@@ -34,26 +44,23 @@ type Params struct {
 }
 
 func Module(scope string) fx.Option {
-	var s *HTTPServer
-
 	return fx.Module(
 		scope,
 		fx.Provide(func(p Params) *HTTPServer {
 			logger := p.Logger.Named(scope)
 			server := echo.New()
+			config := loadConfig(scope)
 
 			s := &HTTPServer{
-				server: server,
 				logger: logger,
+				server: server,
+				config: config,
 				scope:  scope,
 			}
 
-			s.initDefaultConfigs()
-
 			return s
 		}),
-		fx.Populate(&s),
-		fx.Invoke(func(p Params) {
+		fx.Invoke(func(s *HTTPServer, p Params) {
 			p.Lifecycle.Append(
 				fx.Hook{
 					OnStart: s.onStart,
@@ -64,65 +71,38 @@ func Module(scope string) fx.Option {
 	)
 }
 
-func (s *HTTPServer) getConfigPath(key string) string {
-	return fmt.Sprintf("%s.%s", s.scope, key)
-}
+func loadConfig(scope string) *Config {
+	getConfigWithDefault := func(key string, defaultVal interface{}) interface{} {
+		scopedKey := fmt.Sprintf("%s.%s", scope, key)
+		if viper.IsSet(scopedKey) {
+			return viper.Get(scopedKey)
+		}
+		return defaultVal
+	}
 
-func (s *HTTPServer) initDefaultConfigs() {
-	viper.SetDefault(s.getConfigPath("host"), DefaultHost)
-	viper.SetDefault(s.getConfigPath("port"), DefaultPort)
-	viper.SetDefault(s.getConfigPath("log_level"), DefaultLogLevel)
+	return &Config{
+		Host:         getConfigWithDefault("host", DefaultHost).(string),
+		Port:         getConfigWithDefault("port", DefaultPort).(int),
+		LogLevel:     getConfigWithDefault("log_level", DefaultLogLevel).(string),
+		AllowOrigins: getConfigWithDefault("allow_origins", "*").(string),
+		AllowMethods: getConfigWithDefault("allow_methods", "GET,PUT,POST,DELETE").(string),
+		AllowHeaders: getConfigWithDefault("allow_headers", "Origin,Content-Type,Accept").(string),
+	}
 }
 
 func (s *HTTPServer) onStart(ctx context.Context) error {
-	//! Configurations ---------------------
-	port := viper.GetInt(s.getConfigPath("port"))
-	host := viper.GetString(s.getConfigPath("host"))
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 
-	logLevel := viper.GetString(s.getConfigPath("log_level"))
+	s.logger.Info("Starting HTTPServer", zap.String("address", addr))
 
-	allowOrigins := viper.GetString(s.getConfigPath("allow_origins"))
-	allowMethods := viper.GetString(s.getConfigPath("allow_methods"))
-	allowHeaders := viper.GetString(s.getConfigPath("allow_headers"))
-
-	s.logger.Info("Starting HTTPServer",
-		zap.String("address", addr),
-	)
-
-	//! Setup CORS ---------------------
-	corsConfig := middleware.CORSConfig{
-		AllowOrigins: strings.Split(allowOrigins, ","),
-		AllowMethods: strings.Split(allowMethods, ","),
-		AllowHeaders: strings.Split(allowHeaders, ","),
-	}
-	if allowOrigins == "" {
-		corsConfig.AllowOrigins = []string{"*"}
-	}
-	if allowMethods == "" {
-		corsConfig.AllowMethods = []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete}
-	}
-	if allowHeaders == "" {
-		corsConfig.AllowHeaders = []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}
-	}
-
-	s.server.Use(middleware.CORSWithConfig(corsConfig))
-
-	//! Setup Echo RequestLogger with zap based on log level ---------------------
-
-	requestLoggerConfig := s.setUpLogger(logLevel)
-
-	s.server.Use(middleware.RequestLoggerWithConfig(requestLoggerConfig))
-
-	//! Hello World ---------------------
+	s.configureCORS()
+	s.setUpRequestLogger()
 	s.server.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	})
 
-	//! Start the server ---------------------
 	go func() {
-		err := s.server.Start(addr)
-		if err != nil && err != http.ErrServerClosed {
+		if err := s.server.Start(addr); err != nil && err != http.ErrServerClosed {
 			s.logger.Fatal(err.Error())
 		}
 	}()
@@ -130,11 +110,41 @@ func (s *HTTPServer) onStart(ctx context.Context) error {
 	return nil
 }
 
-func (s *HTTPServer) setUpLogger(logLevel string) middleware.RequestLoggerConfig {
-	if logLevel == "" {
-		logLevel = DefaultLogLevel
+func (s *HTTPServer) onStop(context.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.server.Shutdown(ctx); err != nil {
+		s.logger.Error("server shutdown error", zap.Error(err))
 	}
 
+	s.logger.Info("server stopped")
+	return nil
+}
+
+func (s *HTTPServer) configureCORS() {
+	corsConfig := middleware.CORSConfig{
+		AllowOrigins: strings.Split(s.config.AllowOrigins, ","),
+		AllowMethods: strings.Split(s.config.AllowMethods, ","),
+		AllowHeaders: strings.Split(s.config.AllowHeaders, ","),
+	}
+	if s.config.AllowOrigins == "" {
+		corsConfig.AllowOrigins = []string{"*"}
+	}
+	if s.config.AllowMethods == "" {
+		corsConfig.AllowMethods = []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete}
+	}
+	if s.config.AllowHeaders == "" {
+		corsConfig.AllowHeaders = []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}
+	}
+
+	s.server.Use(middleware.CORSWithConfig(corsConfig))
+}
+
+// set up Echo RequestLogger with zap based on log level
+func (s *HTTPServer) setUpRequestLogger() {
+
+	// configure request logger according to log level
 	requestLoggerConfig := middleware.RequestLoggerConfig{
 		LogProtocol:  true,
 		LogMethod:    true,
@@ -145,7 +155,7 @@ func (s *HTTPServer) setUpLogger(logLevel string) middleware.RequestLoggerConfig
 		LogLatency:   true,
 		LogError:     true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			switch logLevel {
+			switch s.config.LogLevel {
 			case "DEV":
 				s.logger.Info("log level is set to DEV")
 				s.logger.Info("request",
@@ -179,28 +189,16 @@ func (s *HTTPServer) setUpLogger(logLevel string) middleware.RequestLoggerConfig
 					zap.String("protocol", v.Protocol),
 					zap.Any("error", v.Error),
 					zap.Any("request_body", c.Request().Body),
-					// todo: add more debug logs
+					// todo: add more debug logs if needed
 				)
 			default:
-				s.logger.Error("invalid log level", zap.String("log_level", logLevel))
+				s.logger.Error("invalid log level", zap.String("log_level", s.config.LogLevel))
 			}
 			return nil
 		},
 	}
-
-	return requestLoggerConfig
-}
-
-func (s *HTTPServer) onStop(context.Context) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err := s.server.Shutdown(ctx)
-	if err != nil {
-		s.logger.Error("server shutdown error", zap.Error(err))
-	}
-
-	s.logger.Info("server stopped")
-	return nil
+	// add request logger middleware
+	s.server.Use(middleware.RequestLoggerWithConfig(requestLoggerConfig))
 }
 
 func (s *HTTPServer) GetRouter() *echo.Echo {
