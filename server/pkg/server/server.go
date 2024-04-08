@@ -94,7 +94,7 @@ func loadConfig(scope string) *Config {
 func (s *HTTPServer) onStart(ctx context.Context) error {
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 
-	s.logger.Info("Starting HTTPServer", zap.String("address", addr))
+	s.logger.Info("Starting HTTPServer", zap.String("address", addr), zap.String("log_level", s.config.LogLevel))
 
 	s.configureCORS()
 	s.setUpRequestLogger()
