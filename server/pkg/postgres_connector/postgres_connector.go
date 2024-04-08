@@ -22,38 +22,39 @@ const (
 	DefaultLogLevel = gorm_logger.Error
 )
 
-type DBConfig struct {
+type Config struct {
 	Host     string
 	Port     int
 	DBName   string
 	User     string
 	Password string
 	SSLMode  string
+	LogLevel gorm_logger.LogLevel
 }
 
 type Database struct {
 	logger *zap.Logger
-	db     *gorm.DB
-	scope  string
+	config *Config
+
+	scope string
+	db    *gorm.DB
 }
 
-type DBParams struct {
+type Params struct {
 	fx.In
 
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 }
 
-func DBModule(scope string) fx.Option {
+func Module(scope string) fx.Option {
 	return fx.Module(
 		scope,
-		fx.Provide(func(p DBParams) *Database {
+		fx.Provide(func(p Params) *Database {
 			logger := p.Logger.Named(scope)
-			config := loadDBConfig(scope)
+			config := loadConfig(scope)
 
-			dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-				config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
-			db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+			db, err := setupDatabase(config, logger)
 			if err != nil {
 				logger.Fatal("Failed to connect to database", zap.Error(err))
 			}
@@ -61,12 +62,13 @@ func DBModule(scope string) fx.Option {
 			database := &Database{
 				logger: logger,
 				db:     db,
+				config: config,
 				scope:  scope,
 			}
 
 			return database
 		}),
-		fx.Invoke(func(d *Database, p DBParams) {
+		fx.Invoke(func(d *Database, p Params) {
 			p.Lifecycle.Append(
 				fx.Hook{
 					OnStart: d.onStart,
@@ -77,7 +79,7 @@ func DBModule(scope string) fx.Option {
 	)
 }
 
-func loadDBConfig(scope string) *DBConfig {
+func loadConfig(scope string) *Config {
 	getConfigWithDefault := func(key string, defaultVal interface{}) interface{} {
 		scopedKey := fmt.Sprintf("%s.%s", scope, key)
 		if viper.IsSet(scopedKey) {
@@ -86,18 +88,40 @@ func loadDBConfig(scope string) *DBConfig {
 		return defaultVal
 	}
 
-	return &DBConfig{
+	return &Config{
 		Host:     getConfigWithDefault("host", DefaultHost).(string),
 		Port:     getConfigWithDefault("port", DefaultPort).(int),
 		DBName:   getConfigWithDefault("dbname", DefaultDbName).(string),
 		User:     getConfigWithDefault("user", DefaultUser).(string),
 		Password: getConfigWithDefault("password", DefaultPassword).(string),
 		SSLMode:  getConfigWithDefault("sslmode", DefaultSSLMode).(string),
+		LogLevel: getConfigWithDefault("log_level", DefaultLogLevel).(gorm_logger.LogLevel),
 	}
 }
 
+func setupDatabase(config *Config, logger *zap.Logger) (*gorm.DB, error) {
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
+	gormConfig := &gorm.Config{
+		Logger: gorm_logger.Default.LogMode(config.LogLevel),
+	}
+
+	db, err := gorm.Open(postgres.Open(connectionString), gormConfig)
+	if err != nil {
+		logger.Error("Failed to connect to database", zap.Error(err))
+		return nil, err
+	}
+
+	return db, nil
+}
+
 func (d *Database) onStart(context.Context) error {
-	d.logger.Info("Starting database connection", zap.String("scope", d.scope))
+	d.logger.Info("Starting database connection",
+		zap.String("scope", d.scope),
+		zap.String("host", d.config.Host),
+		zap.Int("port", d.config.Port),
+		zap.String("dbname", d.config.DBName),
+	)
 	// todo: add startup logic if applicable
 
 	return nil

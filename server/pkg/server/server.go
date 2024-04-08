@@ -31,9 +31,10 @@ type Config struct {
 
 type HTTPServer struct {
 	logger *zap.Logger
-	server *echo.Echo
 	config *Config
+
 	scope  string
+	server *echo.Echo
 }
 
 type Params struct {
