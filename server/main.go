@@ -12,7 +12,7 @@ func main() {
 	app := fx.New(
 		logger.Module(),
 		server.Module("server"),
-		postgres_connector.DBModule("database"),
+		postgres_connector.Module("database"),
 	)
 
 	app.Run()
