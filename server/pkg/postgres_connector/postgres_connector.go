@@ -50,13 +50,13 @@ type Params struct {
 func Module(scope string) fx.Option {
 	return fx.Module(
 		scope,
-		fx.Provide(func(p Params) *Database {
+		fx.Provide(func(p Params) (*Database, error) {
 			logger := p.Logger.Named(scope)
 			config := loadConfig(scope)
 
 			db, err := setupDatabase(config, logger)
 			if err != nil {
-				logger.Fatal("Failed to connect to database", zap.Error(err))
+				return nil, err
 			}
 
 			database := &Database{
@@ -66,7 +66,7 @@ func Module(scope string) fx.Option {
 				scope:  scope,
 			}
 
-			return database
+			return database, nil
 		}),
 		fx.Invoke(func(d *Database, p Params) {
 			p.Lifecycle.Append(

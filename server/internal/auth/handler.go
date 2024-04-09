@@ -11,30 +11,10 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
-	"verve-hrms/internal/common"
+	"github.com/alsey89/hrms/internal/common"
 )
 
-type AuthHandler struct {
-	authService *AuthService
-}
-
-func NewAuthHandler(authService *AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
-}
-
-// Signup godoc
-// @Summary User signup
-// @Description Create a new user account
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param creds body Credentials true "Signup Credentials"
-// @Success 200 {object} common.APIResponse "user has been signed up and signed in"
-// @Failure 400 {object} common.APIResponse "invalid email"
-// @Failure 409 {object} common.APIResponse "email not available"
-// @Failure 500 {object} common.APIResponse "something went wrong"
-// @Router /auth/signup [post]
-func (ah *AuthHandler) Signup(c echo.Context) error {
+func Signup(c echo.Context) error {
 	creds := new(SignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -63,7 +43,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 		})
 	}
 
-	newUser, err := ah.authService.Signup(email, password)
+	newUser, err := SignupService(email, password)
 	if err != nil {
 		log.Printf("auth.h.signup: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -113,19 +93,7 @@ func (ah *AuthHandler) Signup(c echo.Context) error {
 	})
 }
 
-// Signin godoc
-// @Summary User signin
-// @Description Authenticate a user and start a session
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param creds body Credentials true "Signin Credentials"
-// @Success 200 {object} common.APIResponse "user has been signed in"
-// @Failure 401 {object} common.APIResponse "invalid Credentials"
-// @Failure 404 {object} common.APIResponse "user Not Found"
-// @Failure 500 {object} common.APIResponse "internal Server Error"
-// @Router /auth/signin [post]
-func (ah *AuthHandler) Signin(c echo.Context) error {
+func Signin(c echo.Context) error {
 	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -139,7 +107,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	email := creds.Email
 	password := creds.Password
 
-	existingUser, err := ah.authService.Signin(email, password)
+	existingUser, err := SigninService(email, password)
 	if err != nil {
 		log.Printf("auth.h.signin: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -195,15 +163,7 @@ func (ah *AuthHandler) Signin(c echo.Context) error {
 	})
 }
 
-// Signout godoc
-// @Summary User signout
-// @Description End a user's session
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Success 200 {object} common.APIResponse "user has been signed out"
-// @Router /auth/signout [post]
-func (ah *AuthHandler) Signout(c echo.Context) error {
+func Signout(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "jwt"
 	cookie.Value = ""
@@ -220,17 +180,7 @@ func (ah *AuthHandler) Signout(c echo.Context) error {
 	})
 }
 
-// CheckAuth godoc
-// @Summary Check authentication status
-// @Description Check if the user is authenticated and if they are an admin
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Success 200 {object} common.APIResponse "success"
-// @Failure 400 {object} common.APIResponse "invalid claims data"
-// @Failure 400 {object} common.APIResponse "admin status not found"
-// @Router /auth/check [get]
-func (ah *AuthHandler) CheckAuth(c echo.Context) error {
+func CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("auth.check_auth: error asserting token")
@@ -254,7 +204,7 @@ func (ah *AuthHandler) CheckAuth(c echo.Context) error {
 	})
 }
 
-func (ah *AuthHandler) GetCSRFToken(c echo.Context) error {
+func GetCSRFToken(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "csrf token has been set",
 		Data:    nil,

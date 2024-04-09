@@ -54,9 +54,10 @@ func Module(scope string) fx.Option {
 
 			s := &HTTPServer{
 				logger: logger,
-				server: server,
-				config: config,
 				scope:  scope,
+
+				config: config,
+				server: server,
 			}
 
 			return s
@@ -209,6 +210,6 @@ func (s *HTTPServer) setUpRequestLogger() {
 	s.server.Use(middleware.RequestLoggerWithConfig(requestLoggerConfig))
 }
 
-func (s *HTTPServer) GetRouter() *echo.Echo {
+func (s *HTTPServer) GetServer() *echo.Echo {
 	return s.server
 }

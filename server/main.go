@@ -1,10 +1,11 @@
 package main
 
 import (
-	"verve-hrms/pkg/configs"
-	"verve-hrms/pkg/logger"
-	"verve-hrms/pkg/postgres_connector"
-	"verve-hrms/pkg/server"
+	"github.com/alsey89/hrms/internal/auth"
+	"github.com/alsey89/hrms/pkg/configs"
+	"github.com/alsey89/hrms/pkg/logger"
+	"github.com/alsey89/hrms/pkg/postgres_connector"
+	"github.com/alsey89/hrms/pkg/server"
 
 	"go.uber.org/fx"
 )
@@ -34,6 +35,8 @@ func main() {
 		logger.Module(),
 		server.Module("server"),
 		postgres_connector.Module("database"),
+
+		auth.Module("auth"),
 	)
 
 	app.Run()

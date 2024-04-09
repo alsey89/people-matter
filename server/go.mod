@@ -1,4 +1,4 @@
-module verve-hrms
+module github.com/alsey89/hrms
 
 go 1.21.3
 

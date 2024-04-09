@@ -1,6 +1,6 @@
 package company
 
-import "verve-hrms/internal/schema"
+import "github.com/alsey89/hrms/internal/schema"
 
 type CompanyInterfaceData struct {
 	CompanyList     []*schema.Company `json:"companyList"`
