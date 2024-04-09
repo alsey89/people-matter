@@ -3,7 +3,8 @@ package job
 import (
 	"fmt"
 	"log"
-	"verve-hrms/internal/schema"
+
+	"github.com/alsey89/hrms/internal/schema"
 
 	"gorm.io/gorm"
 )

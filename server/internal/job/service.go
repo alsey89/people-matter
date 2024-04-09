@@ -2,7 +2,8 @@ package job
 
 import (
 	"fmt"
-	"verve-hrms/internal/schema"
+
+	"github.com/alsey89/hrms/internal/schema"
 )
 
 type Service interface {

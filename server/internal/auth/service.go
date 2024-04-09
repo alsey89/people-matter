@@ -1,58 +1,47 @@
 package auth
 
 import (
-	"fmt"
-	"verve-hrms/internal/schema"
-	"verve-hrms/internal/user"
-
-	"golang.org/x/crypto/bcrypt"
+	"github.com/alsey89/hrms/internal/schema"
 )
 
-type AuthService struct {
-	userService *user.UserService
+func SignupService(email string, password string) (*schema.User, error) {
+
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("auth.s.signup: %w", err)
+	// }
+
+	// newUser := schema.User{
+	// 	FirstName: "New",
+	// 	LastName:  "User",
+	// 	Email:     email,
+	// 	Password:  string(hashedPassword),
+	// 	Role:      "user",
+	// }
+
+	// // createdUser, err := CreateNewUser(&newUser) //* this adds the ID to newUser
+	// // if err != nil {
+	// // 	return nil, fmt.Errorf("auth.s.signup: %w", err)
+	// // }
+
+	// return createdUser, nil
+	return nil, nil
 }
 
-func NewAuthService(userService *user.UserService) *AuthService {
-	return &AuthService{userService: userService}
-}
+func SigninService(email string, password string) (*schema.User, error) {
 
-func (as *AuthService) Signup(email string, password string) (*schema.User, error) {
+	// user, err := GetUserByEmail(email)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("auth.s.signin: %w", err)
+	// }
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, fmt.Errorf("auth.s.signup: %w", err)
-	}
+	// err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	// if err != nil {
+	// 	if err == bcrypt.ErrMismatchedHashAndPassword {
+	// 		return nil, fmt.Errorf("auth.s.signin: %w", ErrInvalidCredentials)
+	// 	}
+	// 	return nil, fmt.Errorf("auth.s.signin: %w", err)
+	// }
 
-	newUser := schema.User{
-		FirstName: "New",
-		LastName:  "User",
-		Email:     email,
-		Password:  string(hashedPassword),
-		Role:      "user",
-	}
-
-	createdUser, err := as.userService.CreateNewUser(&newUser) //* this adds the ID to newUser
-	if err != nil {
-		return nil, fmt.Errorf("auth.s.signup: %w", err)
-	}
-
-	return createdUser, nil
-}
-
-func (as *AuthService) Signin(email string, password string) (*schema.User, error) {
-
-	user, err := as.userService.GetUserByEmail(email)
-	if err != nil {
-		return nil, fmt.Errorf("auth.s.signin: %w", err)
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			return nil, fmt.Errorf("auth.s.signin: %w", ErrInvalidCredentials)
-		}
-		return nil, fmt.Errorf("auth.s.signin: %w", err)
-	}
-
-	return user, nil
+	return nil, nil
 }

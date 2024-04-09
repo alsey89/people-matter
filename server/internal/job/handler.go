@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
-	"verve-hrms/internal/common"
-	"verve-hrms/internal/schema"
+	"github.com/alsey89/hrms/internal/common"
+	"github.com/alsey89/hrms/internal/schema"
 )
 
 type JobHandler struct {

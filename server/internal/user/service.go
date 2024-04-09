@@ -2,7 +2,8 @@ package user
 
 import (
 	"fmt"
-	"verve-hrms/internal/schema"
+
+	"github.com/alsey89/hrms/internal/schema"
 )
 
 type UserService struct {
