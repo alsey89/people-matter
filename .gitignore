@@ -24,6 +24,7 @@ logs
 !.env.example
 
 # Local config files
+config.yaml
 config.override.yaml
 
 # air temp folder

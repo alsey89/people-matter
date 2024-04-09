@@ -12,10 +12,22 @@ import (
 var config *configs.Config
 
 func init() {
-	config = configs.NewConfig("server")
+	config = configs.NewConfig("SERVER")
 }
 
 func main() {
+	config.SetConfigs(map[string]interface{}{
+		"server.host": "0.0.0.0",
+		"server.port": 3001,
+
+		"database.host":     "0.0.0.0",
+		"database.port":     5432,
+		"database.dbname":   "postgres",
+		"database.user":     "postgres",
+		"database.password": "password",
+		"database.sslmode":  "prefer",
+	})
+
 	app := fx.New(
 		fx.Supply(config),
 
