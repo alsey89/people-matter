@@ -80,22 +80,27 @@ func Module(scope string) fx.Option {
 }
 
 func loadConfig(scope string) *Config {
-	getConfigWithDefault := func(key string, defaultVal interface{}) interface{} {
-		scopedKey := fmt.Sprintf("%s.%s", scope, key)
-		if viper.IsSet(scopedKey) {
-			return viper.Get(scopedKey)
-		}
-		return defaultVal
+	//set default values
+	viper.SetDefault(fmt.Sprintf("%s.host", scope), DefaultHost)
+	viper.SetDefault(fmt.Sprintf("%s.port", scope), DefaultPort)
+	viper.SetDefault(fmt.Sprintf("%s.dbname", scope), DefaultDbName)
+	viper.SetDefault(fmt.Sprintf("%s.user", scope), DefaultUser)
+	viper.SetDefault(fmt.Sprintf("%s.password", scope), DefaultPassword)
+	viper.SetDefault(fmt.Sprintf("%s.sslmode", scope), DefaultSSLMode)
+	viper.SetDefault(fmt.Sprintf("%s.log_level", scope), DefaultLogLevel)
+
+	getConfigPath := func(key string) string {
+		return fmt.Sprintf("%s.%s", scope, key)
 	}
 
 	return &Config{
-		Host:     getConfigWithDefault("host", DefaultHost).(string),
-		Port:     getConfigWithDefault("port", DefaultPort).(int),
-		DBName:   getConfigWithDefault("dbname", DefaultDbName).(string),
-		User:     getConfigWithDefault("user", DefaultUser).(string),
-		Password: getConfigWithDefault("password", DefaultPassword).(string),
-		SSLMode:  getConfigWithDefault("sslmode", DefaultSSLMode).(string),
-		LogLevel: getConfigWithDefault("log_level", DefaultLogLevel).(gorm_logger.LogLevel),
+		Host:     viper.GetString(getConfigPath("host")),
+		Port:     viper.GetInt(getConfigPath("port")),
+		DBName:   viper.GetString(getConfigPath("dbname")),
+		User:     viper.GetString(getConfigPath("user")),
+		Password: viper.GetString(getConfigPath("password")),
+		SSLMode:  viper.GetString(getConfigPath("sslmode")),
+		LogLevel: gorm_logger.Info,
 	}
 }
 
@@ -105,6 +110,8 @@ func setupDatabase(config *Config, logger *zap.Logger) (*gorm.DB, error) {
 	gormConfig := &gorm.Config{
 		Logger: gorm_logger.Default.LogMode(config.LogLevel),
 	}
+
+	// logger.Info("Connecting to database", zap.String("connection_string", connectionString))
 
 	db, err := gorm.Open(postgres.Open(connectionString), gormConfig)
 	if err != nil {

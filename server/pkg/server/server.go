@@ -73,21 +73,26 @@ func Module(scope string) fx.Option {
 }
 
 func loadConfig(scope string) *Config {
-	getConfigWithDefault := func(key string, defaultVal interface{}) interface{} {
-		scopedKey := fmt.Sprintf("%s.%s", scope, key)
-		if viper.IsSet(scopedKey) {
-			return viper.Get(scopedKey)
-		}
-		return defaultVal
+	//set defaults
+	viper.SetDefault(fmt.Sprintf("%s.host", scope), DefaultHost)
+	viper.SetDefault(fmt.Sprintf("%s.port", scope), DefaultPort)
+	viper.SetDefault(fmt.Sprintf("%s.log_level", scope), DefaultLogLevel)
+
+	viper.SetDefault(fmt.Sprintf("%s.allow_origins", scope), "*")
+	viper.SetDefault(fmt.Sprintf("%s.allow_methods", scope), "GET,PUT,POST,DELETE")
+	viper.SetDefault(fmt.Sprintf("%s.allow_headers", scope), "Origin,Content-Type,Accept")
+
+	getConfigPath := func(key string) string {
+		return fmt.Sprintf("%s.%s", scope, key)
 	}
 
 	return &Config{
-		Host:         getConfigWithDefault("host", DefaultHost).(string),
-		Port:         getConfigWithDefault("port", DefaultPort).(int),
-		LogLevel:     getConfigWithDefault("log_level", DefaultLogLevel).(string),
-		AllowOrigins: getConfigWithDefault("allow_origins", "*").(string),
-		AllowMethods: getConfigWithDefault("allow_methods", "GET,PUT,POST,DELETE").(string),
-		AllowHeaders: getConfigWithDefault("allow_headers", "Origin,Content-Type,Accept").(string),
+		Host:         viper.GetString(getConfigPath("host")),
+		Port:         viper.GetInt(getConfigPath("port")),
+		LogLevel:     viper.GetString(getConfigPath("log_level")),
+		AllowOrigins: viper.GetString(getConfigPath("allow_origins")),
+		AllowMethods: viper.GetString(getConfigPath("allow_methods")),
+		AllowHeaders: viper.GetString(getConfigPath("allow_headers")),
 	}
 }
 

@@ -57,14 +57,14 @@ func NewConfig(prefix string) *Config {
 	return config
 }
 
-// func (config *Config) SetConfigs(configs map[string]interface{}) {
+func (config *Config) SetConfigs(configs map[string]interface{}) {
 
-// 	for k, v := range configs {
-// 		if !viper.IsSet(k) {
-// 			viper.Set(k, v)
-// 		}
-// 	}
-// }
+	for k, v := range configs {
+		if !viper.IsSet(k) {
+			viper.Set(k, v)
+		}
+	}
+}
 
 // func (config *Config) GetAllSettings() map[string]interface{} {
 // 	return viper.AllSettings()
