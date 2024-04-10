@@ -14,7 +14,8 @@ import (
 	"github.com/alsey89/hrms/internal/common"
 )
 
-func Signup(c echo.Context) error {
+func (a *Domain) SignupHandler(c echo.Context) error {
+
 	creds := new(SignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -43,7 +44,7 @@ func Signup(c echo.Context) error {
 		})
 	}
 
-	newUser, err := SignupService(email, password)
+	newUser, err := a.SignupService(email, password)
 	if err != nil {
 		log.Printf("auth.h.signup: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -93,7 +94,7 @@ func Signup(c echo.Context) error {
 	})
 }
 
-func Signin(c echo.Context) error {
+func (a *Domain) SigninHandler(c echo.Context) error {
 	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
@@ -107,7 +108,7 @@ func Signin(c echo.Context) error {
 	email := creds.Email
 	password := creds.Password
 
-	existingUser, err := SigninService(email, password)
+	existingUser, err := a.SigninService(email, password)
 	if err != nil {
 		log.Printf("auth.h.signin: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -163,7 +164,7 @@ func Signin(c echo.Context) error {
 	})
 }
 
-func Signout(c echo.Context) error {
+func (a *Domain) SignoutHandler(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "jwt"
 	cookie.Value = ""
@@ -180,10 +181,14 @@ func Signout(c echo.Context) error {
 	})
 }
 
-func CheckAuth(c echo.Context) error {
+func (a *Domain) CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
 		log.Printf("auth.check_auth: error asserting token")
+		return c.JSON(http.StatusUnauthorized, common.APIResponse{
+			Message: "token error",
+			Data:    nil,
+		})
 	}
 
 	claims, ok := user.Claims.(jwt.MapClaims)
@@ -204,7 +209,7 @@ func CheckAuth(c echo.Context) error {
 	})
 }
 
-func GetCSRFToken(c echo.Context) error {
+func (a *Domain) GetCSRFToken(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "csrf token has been set",
 		Data:    nil,

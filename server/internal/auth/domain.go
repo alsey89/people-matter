@@ -7,18 +7,14 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	"github.com/alsey89/hrms/pkg/postgres_connector"
+	"github.com/alsey89/hrms/pkg/postgres"
 	"github.com/alsey89/hrms/pkg/server"
-
-	"github.com/alsey89/hrms/internal/schema"
 )
 
 type Domain struct {
 	params Params
 	scope  string
-
 	logger *zap.Logger
-	User   *User
 }
 
 type Params struct {
@@ -27,10 +23,10 @@ type Params struct {
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
-	Database  *postgres_connector.Database
+	Database  *postgres.Database
 }
 
-func Module(scope string) fx.Option {
+func InitiateModule(scope string) fx.Option {
 
 	var a *Domain
 
@@ -41,7 +37,6 @@ func Module(scope string) fx.Option {
 				params: p,
 				scope:  scope,
 				logger: p.Logger.Named(scope),
-				User:   &User{},
 			}
 
 			return a
@@ -65,19 +60,21 @@ func (a *Domain) onStart(ctx context.Context) error {
 	a.logger.Info("Starting APIs")
 
 	// Auto migration
-	db := a.params.Database.GetDB()
-	db.AutoMigrate(&schema.User{})
+	// db := a.params.Database.GetDB()
+	// db.AutoMigrate(&schema.User{})
 
 	// a.AddDefaultData(ctx)
 
 	// Router
 	server := a.params.Server.GetServer()
-
 	authGroup := server.Group("/auth")
 
-	authGroup.POST("/signin", Signin)
-	authGroup.POST("/signup", Signup)
-	authGroup.POST("/signout", Signout)
+	authGroup.POST("/signin", a.SigninHandler)
+	authGroup.POST("/signup", a.SignupHandler)
+	authGroup.POST("/signout", a.SignoutHandler)
+
+	authGroup.GET("/check", a.CheckAuth)
+	authGroup.GET("/csrf", a.GetCSRFToken)
 
 	return nil
 }

@@ -15,7 +15,7 @@ type Params struct {
 	fx.In
 }
 
-func Module() fx.Option {
+func InitiateModule() fx.Option {
 	return fx.Options(
 		fx.Provide(SetupLogger),
 	)

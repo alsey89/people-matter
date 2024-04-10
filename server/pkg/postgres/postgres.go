@@ -1,4 +1,4 @@
-package postgres_connector
+package postgres
 
 import (
 	"context"
@@ -47,7 +47,7 @@ type Params struct {
 	Logger    *zap.Logger
 }
 
-func Module(scope string) fx.Option {
+func InitiateModule(scope string) fx.Option {
 	return fx.Module(
 		scope,
 		fx.Provide(func(p Params) (*Database, error) {

@@ -4,7 +4,7 @@ import (
 	"github.com/alsey89/hrms/internal/auth"
 	"github.com/alsey89/hrms/pkg/configs"
 	"github.com/alsey89/hrms/pkg/logger"
-	"github.com/alsey89/hrms/pkg/postgres_connector"
+	"github.com/alsey89/hrms/pkg/postgres"
 	"github.com/alsey89/hrms/pkg/server"
 
 	"go.uber.org/fx"
@@ -32,11 +32,11 @@ func main() {
 	app := fx.New(
 		fx.Supply(config),
 
-		logger.Module(),
-		server.Module("server"),
-		postgres_connector.Module("database"),
+		logger.InitiateModule(),
+		server.InitiateModule("server"),
+		postgres.InitiateModule("database"),
 
-		auth.Module("auth"),
+		auth.InitiateModule("auth"),
 	)
 
 	app.Run()
