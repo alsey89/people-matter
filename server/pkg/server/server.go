@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ type Params struct {
 	Logger    *zap.Logger
 }
 
-func Module(scope string) fx.Option {
+func InitiateModule(scope string) fx.Option {
 	return fx.Module(
 		scope,
 		fx.Provide(func(p Params) *HTTPServer {
@@ -104,6 +105,7 @@ func (s *HTTPServer) onStart(ctx context.Context) error {
 
 	s.configureCORS()
 	s.setUpRequestLogger()
+
 	s.server.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	})
@@ -166,7 +168,7 @@ func (s *HTTPServer) setUpRequestLogger() {
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			switch s.config.LogLevel {
 			case "DEV":
-				s.logger.Info("log level is set to DEV")
+				log.Printf("|--------------------------------------------\n")
 				s.logger.Info("request",
 					zap.String("URI", v.URI),
 					zap.String("method", v.Method),
@@ -177,8 +179,9 @@ func (s *HTTPServer) setUpRequestLogger() {
 					zap.Duration("latency", v.Latency),
 					zap.String("protocol", v.Protocol),
 				)
+				log.Printf("--------------------------------------------|\n")
 			case "PROD":
-				s.logger.Info("log level is set to PROD")
+				log.Printf("|--------------------------------------------\n")
 				s.logger.Info("request",
 					zap.String("URI", v.URI),
 					zap.Int("status", v.Status),
@@ -186,8 +189,9 @@ func (s *HTTPServer) setUpRequestLogger() {
 					zap.String("request_id", v.RequestID),
 					zap.Duration("latency", v.Latency),
 				)
+				log.Printf("--------------------------------------------|\n")
 			case "DEBUG":
-				s.logger.Info("log level is set to DEBUG")
+				log.Printf("|--------------------------------------------\n")
 				s.logger.Debug("request",
 					zap.String("URI", v.URI),
 					zap.String("method", v.Method),
@@ -200,6 +204,7 @@ func (s *HTTPServer) setUpRequestLogger() {
 					zap.Any("request_body", c.Request().Body),
 					// todo: add more debug logs if needed
 				)
+				log.Printf("--------------------------------------------|\n")
 			default:
 				s.logger.Error("invalid log level", zap.String("log_level", s.config.LogLevel))
 			}
