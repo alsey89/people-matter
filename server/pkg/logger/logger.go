@@ -11,6 +11,10 @@ import (
 
 var logger *zap.Logger
 
+const (
+	defaultLogLevel = zap.InfoLevel
+)
+
 type Params struct {
 	fx.In
 }
@@ -55,7 +59,7 @@ func SetupLogger() *zap.Logger {
 
 	zap.ReplaceGlobals(logger)
 
-	logger.Info(fmt.Sprintf("Debug level is set to \"%s\"\n", debugLevel.String()))
+	logger.Named("[logger]").Info(fmt.Sprintf("Debug level is set to \"%s\"\n", debugLevel.String()))
 
 	return logger
 }
@@ -66,21 +70,26 @@ func GetLogger() *zap.Logger {
 
 func setupLevel() zap.AtomicLevel {
 
-	debugLevel := zap.DebugLevel
-	switch os.Getenv("DEBUG_LEVEL") {
+	logLevel := defaultLogLevel
+
+	switch os.Getenv("LOG_LEVEL") {
+	case zap.DebugLevel.String():
+		logLevel = zap.DebugLevel
 	case zap.InfoLevel.String():
-		debugLevel = zap.InfoLevel
+		logLevel = zap.InfoLevel
 	case zap.WarnLevel.String():
-		debugLevel = zap.WarnLevel
+		logLevel = zap.WarnLevel
 	case zap.ErrorLevel.String():
-		debugLevel = zap.ErrorLevel
+		logLevel = zap.ErrorLevel
 	case zap.DPanicLevel.String():
-		debugLevel = zap.DPanicLevel
+		logLevel = zap.DPanicLevel
 	case zap.PanicLevel.String():
-		debugLevel = zap.PanicLevel
+		logLevel = zap.PanicLevel
 	case zap.FatalLevel.String():
-		debugLevel = zap.FatalLevel
+		logLevel = zap.FatalLevel
+	default:
+		logLevel = defaultLogLevel
 	}
 
-	return zap.NewAtomicLevelAt(debugLevel)
+	return zap.NewAtomicLevelAt(logLevel)
 }

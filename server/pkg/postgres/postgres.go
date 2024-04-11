@@ -51,7 +51,7 @@ func InitiateModule(scope string) fx.Option {
 	return fx.Module(
 		scope,
 		fx.Provide(func(p Params) (*Database, error) {
-			logger := p.Logger.Named(scope)
+			logger := p.Logger.Named("[" + scope + "]")
 			config := loadConfig(scope)
 
 			db, err := setupDatabase(config, logger)
@@ -80,18 +80,18 @@ func InitiateModule(scope string) fx.Option {
 }
 
 func loadConfig(scope string) *Config {
-	//set default values
-	viper.SetDefault(fmt.Sprintf("%s.host", scope), DefaultHost)
-	viper.SetDefault(fmt.Sprintf("%s.port", scope), DefaultPort)
-	viper.SetDefault(fmt.Sprintf("%s.dbname", scope), DefaultDbName)
-	viper.SetDefault(fmt.Sprintf("%s.user", scope), DefaultUser)
-	viper.SetDefault(fmt.Sprintf("%s.password", scope), DefaultPassword)
-	viper.SetDefault(fmt.Sprintf("%s.sslmode", scope), DefaultSSLMode)
-	viper.SetDefault(fmt.Sprintf("%s.log_level", scope), DefaultLogLevel)
-
 	getConfigPath := func(key string) string {
 		return fmt.Sprintf("%s.%s", scope, key)
 	}
+
+	//set default values
+	viper.SetDefault(getConfigPath("%s.host"), DefaultHost)
+	viper.SetDefault(getConfigPath("%s.port"), DefaultPort)
+	viper.SetDefault(getConfigPath("%s.dbname"), DefaultDbName)
+	viper.SetDefault(getConfigPath("%s.user"), DefaultUser)
+	viper.SetDefault(getConfigPath("%s.password"), DefaultPassword)
+	viper.SetDefault(getConfigPath("%s.sslmode"), DefaultSSLMode)
+	viper.SetDefault(getConfigPath("%s.log_level"), DefaultLogLevel)
 
 	return &Config{
 		Host:     viper.GetString(getConfigPath("host")),
@@ -123,13 +123,16 @@ func setupDatabase(config *Config, logger *zap.Logger) (*gorm.DB, error) {
 }
 
 func (d *Database) onStart(context.Context) error {
-	d.logger.Info("Starting database connection",
-		zap.String("scope", d.scope),
-		zap.String("host", d.config.Host),
-		zap.Int("port", d.config.Port),
-		zap.String("dbname", d.config.DBName),
-	)
-	// todo: add startup logic if applicable
+
+	d.logger.Info("Database initiated")
+
+	//* Debug Logs
+	d.logger.Debug("----- Database Configuration -----")
+	d.logger.Debug("Host", zap.String("host", d.config.Host))
+	d.logger.Debug("Port", zap.Int("port", d.config.Port))
+	d.logger.Debug("DBName", zap.String("dbname", d.config.DBName))
+	d.logger.Debug("User", zap.String("user", d.config.User))
+	d.logger.Debug("SSLMode", zap.String("sslmode", d.config.SSLMode))
 
 	return nil
 }

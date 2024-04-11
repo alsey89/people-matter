@@ -49,7 +49,7 @@ func InitiateModule(scope string) fx.Option {
 	return fx.Module(
 		scope,
 		fx.Provide(func(p Params) *HTTPServer {
-			logger := p.Logger.Named(scope)
+			logger := p.Logger.Named("[" + scope + "]")
 			server := echo.New()
 			config := loadConfig(scope)
 
@@ -99,22 +99,37 @@ func loadConfig(scope string) *Config {
 }
 
 func (s *HTTPServer) onStart(ctx context.Context) error {
+	s.logger.Info("HTTPServer initiated")
+
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 
-	s.logger.Info("Starting HTTPServer", zap.String("address", addr), zap.String("log_level", s.config.LogLevel))
-
 	s.configureCORS()
+
 	s.setUpRequestLogger()
 
 	s.server.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	})
 
+	s.server.HideBanner = true
+	s.server.HidePort = true
+
 	go func() {
 		if err := s.server.Start(addr); err != nil && err != http.ErrServerClosed {
 			s.logger.Fatal(err.Error())
 		}
 	}()
+
+	//* Debug Logs
+	//server
+	s.logger.Debug("----- Server Configuration -----")
+	s.logger.Debug("Host", zap.String("Host", s.config.Host))
+	s.logger.Debug("Port", zap.Int("Port", s.config.Port))
+	//cors
+	s.logger.Debug("----- Cors Configuration -----")
+	s.logger.Debug("AllowOrigins", zap.String("AllowOrigins", s.config.AllowOrigins))
+	s.logger.Debug("AllowMethods", zap.String("AllowMethods", s.config.AllowMethods))
+	s.logger.Debug("AllowHeaders", zap.String("AllowHeaders", s.config.AllowHeaders))
 
 	return nil
 }
@@ -128,7 +143,7 @@ func (s *HTTPServer) onStop(context.Context) error {
 		s.logger.Error("server shutdown error", zap.Error(err))
 	}
 
-	s.logger.Info("server stopped")
+	s.logger.Info("HTTPServer stopped")
 	return nil
 }
 
