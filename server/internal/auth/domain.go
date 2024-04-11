@@ -36,7 +36,7 @@ func InitiateModule(scope string) fx.Option {
 			a := &Domain{
 				params: p,
 				scope:  scope,
-				logger: p.Logger.Named(scope),
+				logger: p.Logger.Named("[" + scope + "]"),
 			}
 
 			return a

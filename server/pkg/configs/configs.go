@@ -23,7 +23,7 @@ func NewConfig(prefix string) *Config {
 
 	log.Printf("\n || ***LOADING CONFIG FILES*** \n || prefix: %s\n || replacer: %s\n || autoEnv: %s\n || name: %s\n || path: %s\n", prefix, ". -> _", "true", "config", "./ OR ./configs")
 
-	log.Printf("Attempting to read base config file...\n")
+	log.Printf("Reading base config file...\n")
 	// read the primary config file
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -31,13 +31,13 @@ func NewConfig(prefix string) *Config {
 		if !ok {
 			log.Printf("Error reading config file, %s", err)
 		} else {
-			log.Println("No configuration file was loaded")
+			log.Println("No base config")
 		}
 	} else {
-		log.Printf("Base config file applied: %s\n", viper.ConfigFileUsed())
+		log.Printf("Base config applied: %s\n", viper.ConfigFileUsed())
 	}
 
-	log.Printf("Attempting to read override config file...\n")
+	log.Printf("Reading override config file...\n")
 	// check and read the override config file if it exists
 	viper.SetConfigName("config.override")
 	err = viper.MergeInConfig()
@@ -46,7 +46,7 @@ func NewConfig(prefix string) *Config {
 		if !ok {
 			log.Printf("Error reading override config file, %s", err)
 		} else {
-			log.Println("No override configuration file found")
+			log.Println("No override config")
 		}
 	} else {
 		log.Printf("Override applied: %s\n", viper.ConfigFileUsed())
