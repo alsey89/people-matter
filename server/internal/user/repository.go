@@ -83,9 +83,9 @@ func (ur UserRepository) Delete(UserID uint) error {
 func (ur UserRepository) ReadAllAndPreloadJobTitleDepartment() ([]*schema.User, error) {
 	var users []*schema.User
 	result := ur.client.
-		Preload("AssignedJob.Job").
-		Preload("AssignedJob.Job.Department").
-		Preload("AssignedJob.Job.Location").
+		Preload("UserPosition.Position").
+		Preload("UserPosition.Position.Department").
+		Preload("UserPosition.Position.Location").
 		Find(&users)
 	if result.Error != nil {
 		return nil, fmt.Errorf("user.r.read_all_and_preload_title_department: %w", result.Error)
@@ -100,9 +100,9 @@ func (ur UserRepository) ReadByIDAndPreloadJobTitleDepartment(UserID uint) (*sch
 	result := ur.client.
 		Preload("ContactInfo").
 		Preload("EmergencyContact").
-		Preload("AssignedJob.Job").
-		Preload("AssignedJob.Job.Department").
-		Preload("AssignedJob.Job.Location").
+		Preload("UserPosition.Position").
+		Preload("UserPosition.Position.Department").
+		Preload("UserPosition.Position.Location").
 		Preload("Payments").
 		Preload("Leave").
 		Preload("Attendance").

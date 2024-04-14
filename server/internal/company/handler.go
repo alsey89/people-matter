@@ -600,7 +600,7 @@ func (ch *CompanyHandler) CreateJob(c echo.Context) error {
 		})
 	}
 
-	newJob := new(schema.Job)
+	newJob := new(schema.Position)
 	err = c.Bind(newJob)
 	if err != nil {
 		log.Printf("company.h.create_job: error binding job data: %v", err)
@@ -675,7 +675,7 @@ func (ch *CompanyHandler) UpdateJob(c echo.Context) error {
 		})
 	}
 
-	dataToUpdate := new(schema.Job)
+	dataToUpdate := new(schema.Position)
 
 	err = c.Bind(dataToUpdate)
 	if err != nil {

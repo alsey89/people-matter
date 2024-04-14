@@ -13,23 +13,25 @@ import (
 )
 
 const (
-	DefaultHost     = "0.0.0.0"
-	DefaultPort     = 5432
-	DefaultDbName   = "postgres"
-	DefaultUser     = "postgres"
-	DefaultPassword = "password"
-	DefaultSSLMode  = "allow"
-	DefaultLogLevel = gorm_logger.Error
+	DefaultHost        = "0.0.0.0"
+	DefaultPort        = 5432
+	DefaultDbName      = "postgres"
+	DefaultUser        = "postgres"
+	DefaultPassword    = "password"
+	DefaultSSLMode     = "allow"
+	DefaultLogLevel    = gorm_logger.Error
+	DefaultAutoMigrate = false
 )
 
 type Config struct {
-	Host     string
-	Port     int
-	DBName   string
-	User     string
-	Password string
-	SSLMode  string
-	LogLevel gorm_logger.LogLevel
+	Host        string
+	Port        int
+	DBName      string
+	User        string
+	Password    string
+	SSLMode     string
+	LogLevel    gorm_logger.LogLevel
+	AutoMigrate bool
 }
 
 type Database struct {
@@ -54,10 +56,7 @@ func InitiateModule(scope string) fx.Option {
 			logger := p.Logger.Named("[" + scope + "]")
 			config := loadConfig(scope)
 
-			db, err := setupDatabase(config, logger)
-			if err != nil {
-				return nil, err
-			}
+			db := setupDatabaseOrFatal(config, logger)
 
 			database := &Database{
 				logger: logger,
@@ -92,47 +91,39 @@ func loadConfig(scope string) *Config {
 	viper.SetDefault(getConfigPath("%s.password"), DefaultPassword)
 	viper.SetDefault(getConfigPath("%s.sslmode"), DefaultSSLMode)
 	viper.SetDefault(getConfigPath("%s.log_level"), DefaultLogLevel)
+	viper.SetDefault(getConfigPath("%s.autoMigrate"), DefaultAutoMigrate)
 
 	return &Config{
-		Host:     viper.GetString(getConfigPath("host")),
-		Port:     viper.GetInt(getConfigPath("port")),
-		DBName:   viper.GetString(getConfigPath("dbname")),
-		User:     viper.GetString(getConfigPath("user")),
-		Password: viper.GetString(getConfigPath("password")),
-		SSLMode:  viper.GetString(getConfigPath("sslmode")),
-		LogLevel: gorm_logger.Info,
+		Host:        viper.GetString(getConfigPath("host")),
+		Port:        viper.GetInt(getConfigPath("port")),
+		DBName:      viper.GetString(getConfigPath("dbname")),
+		User:        viper.GetString(getConfigPath("user")),
+		Password:    viper.GetString(getConfigPath("password")),
+		SSLMode:     viper.GetString(getConfigPath("sslmode")),
+		LogLevel:    gorm_logger.Info,
+		AutoMigrate: viper.GetBool(getConfigPath("autoMigrate")),
 	}
 }
 
-func setupDatabase(config *Config, logger *zap.Logger) (*gorm.DB, error) {
+func setupDatabaseOrFatal(config *Config, logger *zap.Logger) *gorm.DB {
 	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
 	gormConfig := &gorm.Config{
 		Logger: gorm_logger.Default.LogMode(config.LogLevel),
 	}
 
-	// logger.Info("Connecting to database", zap.String("connection_string", connectionString))
-
 	db, err := gorm.Open(postgres.Open(connectionString), gormConfig)
 	if err != nil {
-		logger.Error("Failed to connect to database", zap.Error(err))
-		return nil, err
+		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
 
-	return db, nil
+	return db
 }
 
 func (d *Database) onStart(context.Context) error {
-
 	d.logger.Info("Database initiated")
 
-	//* Debug Logs
-	d.logger.Debug("----- Database Configuration -----")
-	d.logger.Debug("Host", zap.String("host", d.config.Host))
-	d.logger.Debug("Port", zap.Int("port", d.config.Port))
-	d.logger.Debug("DBName", zap.String("dbname", d.config.DBName))
-	d.logger.Debug("User", zap.String("user", d.config.User))
-	d.logger.Debug("SSLMode", zap.String("sslmode", d.config.SSLMode))
+	d.printDebugLogs()
 
 	return nil
 }
@@ -155,4 +146,14 @@ func (d *Database) onStop(context.Context) error {
 
 func (d *Database) GetDB() *gorm.DB {
 	return d.db
+}
+
+func (d *Database) printDebugLogs() {
+	//* Debug Logs
+	d.logger.Debug("----- Database Configuration -----")
+	d.logger.Debug("Host", zap.String("host", d.config.Host))
+	d.logger.Debug("Port", zap.Int("port", d.config.Port))
+	d.logger.Debug("DBName", zap.String("dbname", d.config.DBName))
+	d.logger.Debug("User", zap.String("user", d.config.User))
+	d.logger.Debug("SSLMode", zap.String("sslmode", d.config.SSLMode))
 }

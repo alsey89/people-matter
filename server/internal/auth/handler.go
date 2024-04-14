@@ -9,44 +9,51 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/alsey89/hrms/internal/common"
 )
 
-func (a *Domain) SignupHandler(c echo.Context) error {
+func (a *Domain) CreateAccountHandler(c echo.Context) error {
 
 	creds := new(SignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
-		log.Printf("auth.h.signup: error binding credentials: %v", err)
+		a.logger.Error("[signupHandler] error binding credentials", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
+			Message: "credentials error",
 			Data:    nil,
 		})
 	}
 
+	// validate email
 	email := creds.Email
 	if !common.EmailValidator(email) {
+		a.logger.Error("[signupHandler] email validation failed")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid email",
 			Data:    nil,
 		})
 	}
 
+	// validate password
 	password := creds.Password
 	confirmPassword := creds.ConfirmPassword
-
 	if password != confirmPassword {
+		a.logger.Error("[signupHandler] password confirmation check failed")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "passwords do not match",
 			Data:    nil,
 		})
 	}
 
+	// validate company
+	// companyID := c.Get("companyID").(uint)
+
 	newUser, err := a.SignupService(email, password)
 	if err != nil {
-		log.Printf("auth.h.signup: %v", err)
+		a.logger.Error("[signupHandler] error signing up user", zap.Error(err))
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return c.JSON(http.StatusConflict, common.APIResponse{
 				Message: "email not available",
@@ -60,9 +67,10 @@ func (a *Domain) SignupHandler(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:    newUser.ID, // Store the ObjectId
-		Role:  newUser.Role,
-		Email: newUser.Email,
+		ID:        newUser.ID, // Store the ObjectId
+		CompanyID: newUser.CompanyID,
+		Role:      newUser.Role,
+		Email:     newUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
@@ -71,9 +79,9 @@ func (a *Domain) SignupHandler(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
-		log.Printf("auth.h.signup:Error signing jwt with claims: %v", err)
+		a.logger.Error("[signupHandler] error signing jwt with claims", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
+			Message: "token error",
 			Data:    nil,
 		})
 	}
@@ -130,9 +138,10 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:    existingUser.ID, // Store the ObjectId
-		Role:  existingUser.Role,
-		Email: existingUser.Email,
+		ID:        existingUser.ID, // Store the ObjectId
+		CompanyID: existingUser.CompanyID,
+		Role:      existingUser.Role,
+		Email:     existingUser.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},

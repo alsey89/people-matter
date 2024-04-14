@@ -34,7 +34,7 @@ const userId = route.params.id
 //tabs ---------------------
 const tabs = computed(() => [
     { name: 'Info', to: `/user/${userId}` },
-    { name: 'Job', to: `/user/${userId}/job` },
+    { name: 'Position', to: `/user/${userId}/job` },
     { name: 'Salary', to: `/user/${userId}/salary` },
     { name: 'Attendance', to: `/user/${userId}/attendance` },
     { name: 'Leave', to: `/user/${userId}/leave` },

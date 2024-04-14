@@ -3,7 +3,7 @@
         <!-- !Confirmation Modal -->
         <AppConfirmationModal v-if="showConfirmationModal" :confirmationModalMessage="confirmationModalMessage"
             @confirm="handleModalConfirmEvent" @cancel="handleModalCancelEvent" class="w-full max-h-32" />
-        <!-- !Job Header -->
+        <!-- !Position Header -->
         <div class="min-h-max flex justify-between border-b-2 border-black py-2 pr-6">
             <div class="text-lg font-bold"> Jobs </div>
             <div v-auto-animate class="flex gap-4">
@@ -20,11 +20,11 @@
                 </Button>
             </div>
         </div>
-        <!-- !Job Form -->
+        <!-- !Position Form -->
         <div v-auto-animate>
             <AppCompanyJobForm v-if="showJobForm" :jobFormData="jobFormData" @submit="handleFormSubmit" />
         </div>
-        <!-- !Job List -->
+        <!-- !Position List -->
         <div v-if="companyStore.getCompanyJobs?.length > 0" v-for="(job, index) in companyStore.getCompanyJobs"
             :key="job.ID">
             <Card v-auto-animate class="p-4">
@@ -122,8 +122,8 @@
 
 <script setup>
 definePageMeta({
-    title: "Job",
-    description: "Job",
+    title: "Position",
+    description: "Position",
     layout: "company",
 });
 

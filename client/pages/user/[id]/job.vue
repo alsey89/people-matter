@@ -6,8 +6,8 @@
 
 <script setup>
 definePageMeta({
-    title: "User Job",
-    description: "User Job",
+    title: "User Position",
+    description: "User Position",
     layout: "user-details",
 });
 </script>

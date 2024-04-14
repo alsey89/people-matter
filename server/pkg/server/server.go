@@ -101,35 +101,12 @@ func loadConfig(scope string) *Config {
 func (s *HTTPServer) onStart(ctx context.Context) error {
 	s.logger.Info("HTTPServer initiated")
 
-	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
+	s.setUpCorsMiddleware()
+	s.setUpRequestLoggerMiddleware()
 
-	s.configureCORS()
+	go s.startServer(true, true)
 
-	s.setUpRequestLogger()
-
-	s.server.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello World")
-	})
-
-	s.server.HideBanner = true
-	s.server.HidePort = true
-
-	go func() {
-		if err := s.server.Start(addr); err != nil && err != http.ErrServerClosed {
-			s.logger.Fatal(err.Error())
-		}
-	}()
-
-	//* Debug Logs
-	//server
-	s.logger.Debug("----- Server Configuration -----")
-	s.logger.Debug("Host", zap.String("Host", s.config.Host))
-	s.logger.Debug("Port", zap.Int("Port", s.config.Port))
-	//cors
-	s.logger.Debug("----- Cors Configuration -----")
-	s.logger.Debug("AllowOrigins", zap.String("AllowOrigins", s.config.AllowOrigins))
-	s.logger.Debug("AllowMethods", zap.String("AllowMethods", s.config.AllowMethods))
-	s.logger.Debug("AllowHeaders", zap.String("AllowHeaders", s.config.AllowHeaders))
+	s.PrintDebugLogs()
 
 	return nil
 }
@@ -147,7 +124,7 @@ func (s *HTTPServer) onStop(context.Context) error {
 	return nil
 }
 
-func (s *HTTPServer) configureCORS() {
+func (s *HTTPServer) setUpCorsMiddleware() {
 	// configure CORS middleware
 	corsConfig := middleware.CORSConfig{
 		AllowOrigins: strings.Split(s.config.AllowOrigins, ","),
@@ -167,8 +144,7 @@ func (s *HTTPServer) configureCORS() {
 	s.server.Use(middleware.CORSWithConfig(corsConfig))
 }
 
-// set up Echo RequestLogger with zap based on log level
-func (s *HTTPServer) setUpRequestLogger() {
+func (s *HTTPServer) setUpRequestLoggerMiddleware() {
 
 	// configure request logger according to log level
 	requestLoggerConfig := middleware.RequestLoggerConfig{
@@ -230,6 +206,30 @@ func (s *HTTPServer) setUpRequestLogger() {
 	s.server.Use(middleware.RequestLoggerWithConfig(requestLoggerConfig))
 }
 
+func (s *HTTPServer) startServer(HideBanner bool, HidePort bool) {
+	s.server.HideBanner = HideBanner || false
+	s.server.HidePort = HidePort || false
+
+	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
+	err := s.server.Start(addr)
+	if err != nil && err != http.ErrServerClosed {
+		s.logger.Fatal(err.Error())
+	}
+}
+
 func (s *HTTPServer) GetServer() *echo.Echo {
 	return s.server
+}
+
+func (s *HTTPServer) PrintDebugLogs() {
+	//* Debug Logs
+	//server
+	s.logger.Debug("----- Server Configuration -----")
+	s.logger.Debug("Host", zap.String("Host", s.config.Host))
+	s.logger.Debug("Port", zap.Int("Port", s.config.Port))
+	//cors
+	s.logger.Debug("----- Cors Configuration -----")
+	s.logger.Debug("AllowOrigins", zap.String("AllowOrigins", s.config.AllowOrigins))
+	s.logger.Debug("AllowMethods", zap.String("AllowMethods", s.config.AllowMethods))
+	s.logger.Debug("AllowHeaders", zap.String("AllowHeaders", s.config.AllowHeaders))
 }

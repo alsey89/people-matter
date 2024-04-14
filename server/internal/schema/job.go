@@ -1,48 +1,42 @@
 package schema
 
-import (
-	"time"
+// type Position struct {
+// 	BaseModel
 
-	"gorm.io/gorm"
-)
+// 	// Basic Position Details
+// 	Title          string `json:"title"`
+// 	Description    string `json:"description"`
+// 	Duties         string `json:"duties"`
+// 	Qualifications string `json:"qualifications"`
+// 	Experience     string `json:"experience"`
+// 	MinSalary      int    `json:"minSalary"`
+// 	MaxSalary      int    `json:"maxSalary"`
 
-type Job struct {
-	gorm.Model
+// 	// Foreign Keys
+// 	DepartmentID uint `json:"departmentId"`
+// 	LocationID   uint `json:"locationId"`
+// 	CompanyID    uint `json:"companyId"`
 
-	// Basic Job Details
-	Title          string `json:"title"`
-	Description    string `json:"description"`
-	Duties         string `json:"duties"`
-	Qualifications string `json:"qualifications"`
-	Experience     string `json:"experience"`
-	MinSalary      int    `json:"minSalary"`
-	MaxSalary      int    `json:"maxSalary"`
+// 	// Associated Structs
+// 	Department *Department `json:"department" gorm:"foreignKey:DepartmentID"`
+// 	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
 
-	// Foreign Keys
-	DepartmentID uint `json:"departmentId"`
-	LocationID   uint `json:"locationId"`
-	CompanyID    uint `json:"companyId"`
+// 	// Hierarchical Relationship
+// 	ManagerID    *uint       `json:"managerId"`                                //* if not reference, will cause foreign key constraint error when null
+// 	Subordinates []*Position `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
 
-	// Associated Structs
-	Department *Department `json:"department" gorm:"foreignKey:DepartmentID"`
-	Location   *Location   `json:"location" gorm:"foreignKey:LocationID"`
+// 	// Other Related Data
+// 	UserPositions []*UserPosition `json:"assignedJobs"`
+// }
 
-	// Hierarchical Relationship
-	ManagerID    *uint  `json:"managerId"`                                //* if not reference, will cause foreign key constraint error when null
-	Subordinates []*Job `json:"subordinates" gorm:"foreignKey:ManagerID"` // Jobs where this job is the manager
+// type UserPosition struct {
+// 	BaseModel
+// 	PositionID uint `json:"positionId"` // Foreign key
+// 	UserID     uint `json:"userId"`     // Foreign key
 
-	// Other Related Data
-	AssignedJobs []*AssignedJob `json:"assignedJobs"`
-}
+// 	Position Position `json:"job" gorm:"foreignKey:JobID"`
 
-type AssignedJob struct {
-	gorm.Model
-	JobID  uint `json:"jobId"`  // Foreign key
-	UserID uint `json:"userId"` // Foreign key
-
-	Job Job `json:"job" gorm:"foreignKey:JobID"`
-
-	IsActive  bool       `json:"isActive"`
-	StartDate time.Time  `json:"startDate"`
-	EndDate   *time.Time `json:"endDate"`
-}
+// 	IsActive  bool       `json:"isActive"`
+// 	StartDate time.Time  `json:"startDate"`
+// 	EndDate   *time.Time `json:"endDate"`
+// }

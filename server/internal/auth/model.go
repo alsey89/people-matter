@@ -6,9 +6,10 @@ import (
 
 // * JWT claims struct
 type Claims struct {
-	ID    uint   `json:"id" bson:"id"`
-	Role  string `json:"isAdmin" default:"user"`
-	Email string `json:"email"`
+	ID        uint   `json:"id" bson:"id"`
+	CompanyID uint   `json:"companyId"`
+	Role      string `json:"isAdmin" default:"user"`
+	Email     string `json:"email"`
 	jwt.RegisteredClaims
 }
 

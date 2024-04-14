@@ -20,7 +20,7 @@ func NewJobHandler(jobService *JobService) *JobHandler {
 	return &JobHandler{JobService: jobService}
 }
 
-// ! Job ------------------------------------------------------------
+// ! Position ------------------------------------------------------------
 func (jh *JobHandler) CreateJob(c echo.Context) error {
 	stringCompanyID := c.Param("company_id")
 	if stringCompanyID == "" {
@@ -40,7 +40,7 @@ func (jh *JobHandler) CreateJob(c echo.Context) error {
 		})
 	}
 
-	newJob := new(schema.Job)
+	newJob := new(schema.Position)
 	err = c.Bind(newJob)
 	if err != nil {
 		log.Printf("job.h.create_job: error binding job data: %v", err)
@@ -112,7 +112,7 @@ func (jh *JobHandler) GetAllJobs(c echo.Context) error {
 }
 
 func (jh *JobHandler) UpdateJob(c echo.Context) error {
-	jobToUpdate := new(schema.Job)
+	jobToUpdate := new(schema.Position)
 	err := c.Bind(jobToUpdate)
 	if err != nil {
 		log.Printf("job.h.update_job: error binding job data: %v", err)
