@@ -17,10 +17,10 @@ func NewJobService(jobRepository *JobRepository) *JobService {
 	return &JobService{JobRepository: jobRepository}
 }
 
-//! Job     ------------------------------------------------------
+//! Position     ------------------------------------------------------
 
 // common
-func (js *JobService) ReturnJobListForCompany(companyID uint) ([]*schema.Job, error) {
+func (js *JobService) ReturnJobListForCompany(companyID uint) ([]*schema.Position, error) {
 
 	existingJobs, err := js.JobRepository.JobReadByCompany(companyID)
 	if err != nil {
@@ -30,7 +30,7 @@ func (js *JobService) ReturnJobListForCompany(companyID uint) ([]*schema.Job, er
 	return existingJobs, nil
 }
 
-func (js *JobService) CreateNewJobAndReturnJobList(companyID uint, newJob *schema.Job) ([]*schema.Job, error) {
+func (js *JobService) CreateNewJobAndReturnJobList(companyID uint, newJob *schema.Position) ([]*schema.Position, error) {
 
 	_, err := js.JobRepository.JobCreate(newJob)
 	if err != nil {
@@ -45,7 +45,7 @@ func (js *JobService) CreateNewJobAndReturnJobList(companyID uint, newJob *schem
 	return existingJobs, nil
 }
 
-func (js *JobService) UpdateJobAndReturnJobList(companyID uint, jobID uint, jobToUpdate schema.Job) ([]*schema.Job, error) {
+func (js *JobService) UpdateJobAndReturnJobList(companyID uint, jobID uint, jobToUpdate schema.Position) ([]*schema.Position, error) {
 
 	_, err := js.JobRepository.JobUpdate(jobID, &jobToUpdate)
 	if err != nil {
@@ -60,7 +60,7 @@ func (js *JobService) UpdateJobAndReturnJobList(companyID uint, jobID uint, jobT
 	return existingJobs, nil
 }
 
-func (js *JobService) DeleteJobAndReturnJobList(companyID uint, jobID uint) ([]*schema.Job, error) {
+func (js *JobService) DeleteJobAndReturnJobList(companyID uint, jobID uint) ([]*schema.Position, error) {
 
 	err := js.JobRepository.JobDelete(jobID)
 	if err != nil {

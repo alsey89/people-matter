@@ -65,32 +65,3 @@ func (config *Config) SetConfigs(configs map[string]interface{}) {
 		}
 	}
 }
-
-// func (config *Config) GetAllSettings() map[string]interface{} {
-// 	return viper.AllSettings()
-// }
-
-// func (config *Config) PrintAllSettings() {
-
-// 	log.Println("[List of current configs]")
-// 	config.PrintSettings("", config.GetAllSettings())
-// 	log.Println("")
-// }
-
-// func (config *Config) PrintSettings(scope string, settings map[string]interface{}) {
-
-// 	for k, v := range settings {
-
-// 		domain := k
-// 		if len(scope) > 0 {
-// 			domain = scope + "." + k
-// 		}
-
-// 		switch reflect.TypeOf(v).Kind() {
-// 		case reflect.Map:
-// 			config.PrintSettings(domain, v.(map[string]interface{}))
-// 		default:
-// 			log.Printf("%s=%v\n", domain, v)
-// 		}
-// 	}
-// }

@@ -169,9 +169,9 @@ func (cs *CompanyService) DeleteDepartmentAndReturnCompanyListAndExpandID(compan
 	return companyData, nil
 }
 
-//! Job ------------------------------------------------------------
+//! Position ------------------------------------------------------------
 
-func (cs *CompanyService) CreateNewJobAndReturnCompanyListAndExpandID(companyID uint, newJob *schema.Job) (*CompanyInterfaceData, error) {
+func (cs *CompanyService) CreateNewJobAndReturnCompanyListAndExpandID(companyID uint, newJob *schema.Position) (*CompanyInterfaceData, error) {
 	newJob.CompanyID = companyID
 
 	_, err := cs.JobRepository.JobCreate(newJob)
@@ -187,7 +187,7 @@ func (cs *CompanyService) CreateNewJobAndReturnCompanyListAndExpandID(companyID 
 	return companyData, nil
 }
 
-func (cs *CompanyService) UpdateJobAndReturnCompanyListAndExpandID(companyID uint, jobID uint, dataToUpdate *schema.Job) (*CompanyInterfaceData, error) {
+func (cs *CompanyService) UpdateJobAndReturnCompanyListAndExpandID(companyID uint, jobID uint, dataToUpdate *schema.Position) (*CompanyInterfaceData, error) {
 	dataToUpdate.ID = jobID
 
 	_, err := cs.JobRepository.JobUpdate(jobID, dataToUpdate)

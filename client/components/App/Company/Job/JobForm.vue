@@ -6,7 +6,7 @@
                 <div v-auto-animate class="flex flex-col gap-2">
                     <label for="title"> Title* </label>
                     <input v-model.trim="jobFormData.jobTitle" type="text" name="title" id="title"
-                        placeholder="Title of the Job"
+                        placeholder="Title of the Position"
                         class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-primary"
                         required />
                 </div>

@@ -20,9 +20,9 @@ func NewJobRepository(client *gorm.DB) *JobRepository {
 	return &JobRepository{client: client}
 }
 
-//! Job     ------------------------------------------------------
+//! Position     ------------------------------------------------------
 
-func (jr JobRepository) JobCreate(newJob *schema.Job) (*schema.Job, error) {
+func (jr JobRepository) JobCreate(newJob *schema.Position) (*schema.Position, error) {
 	log.Printf("job.r.job_create: newJob: %v", newJob)
 
 	result := jr.client.Create(newJob)
@@ -33,8 +33,8 @@ func (jr JobRepository) JobCreate(newJob *schema.Job) (*schema.Job, error) {
 	return newJob, nil
 }
 
-func (jr JobRepository) JobRead(jobID uint) (*schema.Job, error) {
-	var job schema.Job
+func (jr JobRepository) JobRead(jobID uint) (*schema.Position, error) {
+	var job schema.Position
 
 	result := jr.client.First(&job, jobID)
 	if result.Error != nil {
@@ -44,8 +44,8 @@ func (jr JobRepository) JobRead(jobID uint) (*schema.Job, error) {
 	return &job, nil
 }
 
-func (jr JobRepository) JobReadAndExpand(jobID uint) (*schema.Job, error) {
-	var job schema.Job
+func (jr JobRepository) JobReadAndExpand(jobID uint) (*schema.Position, error) {
+	var job schema.Position
 
 	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").First(&job, jobID)
 	if result.Error != nil {
@@ -55,8 +55,8 @@ func (jr JobRepository) JobReadAndExpand(jobID uint) (*schema.Job, error) {
 	return &job, nil
 }
 
-func (jr JobRepository) JobReadByCompany(companyID uint) ([]*schema.Job, error) {
-	var jobs []*schema.Job
+func (jr JobRepository) JobReadByCompany(companyID uint) ([]*schema.Position, error) {
+	var jobs []*schema.Position
 
 	result := jr.client.Where("company_id = ?", companyID).Find(&jobs)
 	if result.Error != nil {
@@ -69,8 +69,8 @@ func (jr JobRepository) JobReadByCompany(companyID uint) ([]*schema.Job, error) 
 	return jobs, nil
 }
 
-func (jr JobRepository) JobReadByCompanyAndExpand(companyID uint) ([]*schema.Job, error) {
-	var jobs []*schema.Job
+func (jr JobRepository) JobReadByCompanyAndExpand(companyID uint) ([]*schema.Position, error) {
+	var jobs []*schema.Position
 
 	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").Where("company_id = ?", companyID).Find(&jobs)
 	if result.Error != nil {
@@ -83,8 +83,8 @@ func (jr JobRepository) JobReadByCompanyAndExpand(companyID uint) ([]*schema.Job
 	return jobs, nil
 }
 
-func (jr JobRepository) JobReadAll() ([]*schema.Job, error) {
-	var jobs []*schema.Job
+func (jr JobRepository) JobReadAll() ([]*schema.Position, error) {
+	var jobs []*schema.Position
 
 	result := jr.client.Find(&jobs)
 	if result.Error != nil {
@@ -97,8 +97,8 @@ func (jr JobRepository) JobReadAll() ([]*schema.Job, error) {
 	return jobs, nil
 }
 
-func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Job, error) {
-	var jobs []*schema.Job
+func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Position, error) {
+	var jobs []*schema.Position
 
 	result := jr.client.Preload("Subordinates").Preload("AssignedJobs").Find(&jobs)
 	if result.Error != nil {
@@ -111,8 +111,8 @@ func (jr JobRepository) JobReadAndExpandAll() ([]*schema.Job, error) {
 	return jobs, nil
 }
 
-func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) (*schema.Job, error) {
-	var job schema.Job
+func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Position) (*schema.Position, error) {
+	var job schema.Position
 
 	updateDataMap := map[string]interface{}{
 		"Title":          updateData.Title,
@@ -144,7 +144,7 @@ func (jr JobRepository) JobUpdate(jobID uint, updateData *schema.Job) (*schema.J
 }
 
 func (jr JobRepository) JobDelete(jobID uint) error {
-	var job *schema.Job
+	var job *schema.Position
 
 	result := jr.client.Unscoped().Delete(&job, jobID)
 	if result.Error != nil {
@@ -154,9 +154,9 @@ func (jr JobRepository) JobDelete(jobID uint) error {
 	return nil
 }
 
-//! AssignedJob ------------------------------------------------------
+//! UserPosition ------------------------------------------------------
 
-func (jr JobRepository) AssignedJobCreate(newAssignedJob *schema.AssignedJob) (*schema.AssignedJob, error) {
+func (jr JobRepository) AssignedJobCreate(newAssignedJob *schema.UserPosition) (*schema.UserPosition, error) {
 	result := jr.client.Create(newAssignedJob)
 	if result.Error != nil {
 		return nil, fmt.Errorf("job.r.assigned_job_create: %w", result.Error)
@@ -165,8 +165,8 @@ func (jr JobRepository) AssignedJobCreate(newAssignedJob *schema.AssignedJob) (*
 	return newAssignedJob, nil
 }
 
-func (jr JobRepository) AssignedJobRead(assignedJobID uint) (*schema.AssignedJob, error) {
-	var assignedJob schema.AssignedJob
+func (jr JobRepository) AssignedJobRead(assignedJobID uint) (*schema.UserPosition, error) {
+	var assignedJob schema.UserPosition
 
 	result := jr.client.First(&assignedJob, assignedJobID)
 	if result.Error != nil {
@@ -176,8 +176,8 @@ func (jr JobRepository) AssignedJobRead(assignedJobID uint) (*schema.AssignedJob
 	return &assignedJob, nil
 }
 
-func (jr JobRepository) AssignedJobReadAll() ([]*schema.AssignedJob, error) {
-	var assignedJobs []*schema.AssignedJob
+func (jr JobRepository) AssignedJobReadAll() ([]*schema.UserPosition, error) {
+	var assignedJobs []*schema.UserPosition
 
 	result := jr.client.Find(&assignedJobs)
 	if result.Error != nil {
@@ -190,8 +190,8 @@ func (jr JobRepository) AssignedJobReadAll() ([]*schema.AssignedJob, error) {
 	return assignedJobs, nil
 }
 
-func (jr JobRepository) AssignedJobUpdate(assignedJobID uint, updateData *schema.AssignedJob) error {
-	var assignedJob *schema.AssignedJob
+func (jr JobRepository) AssignedJobUpdate(assignedJobID uint, updateData *schema.UserPosition) error {
+	var assignedJob *schema.UserPosition
 
 	result := jr.client.Model(&assignedJob).Where("ID = ?", assignedJobID).Updates(updateData)
 	if result.Error != nil {
@@ -207,7 +207,7 @@ func (jr JobRepository) AssignedJobUpdate(assignedJobID uint, updateData *schema
 }
 
 func (jr JobRepository) AssignedJobDelete(AssignedJobID uint) error {
-	var assignedJob *schema.AssignedJob
+	var assignedJob *schema.UserPosition
 
 	result := jr.client.Unscoped().Delete(&assignedJob, AssignedJobID)
 	if result.Error != nil {

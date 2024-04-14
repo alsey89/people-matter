@@ -26,7 +26,7 @@ type Params struct {
 	Database  *postgres.Database
 }
 
-func InitiateModule(scope string) fx.Option {
+func InitiateDomain(scope string) fx.Option {
 
 	var a *Domain
 
@@ -59,10 +59,6 @@ func (a *Domain) onStart(ctx context.Context) error {
 
 	a.logger.Info("Starting APIs")
 
-	// Auto migration
-	// db := a.params.Database.GetDB()
-	// db.AutoMigrate(&schema.User{})
-
 	// a.AddDefaultData(ctx)
 
 	// Router
@@ -70,7 +66,7 @@ func (a *Domain) onStart(ctx context.Context) error {
 	authGroup := server.Group("/auth")
 
 	authGroup.POST("/signin", a.SigninHandler)
-	authGroup.POST("/signup", a.SignupHandler)
+	authGroup.POST("/signup", a.CreateAccountHandler)
 	authGroup.POST("/signout", a.SignoutHandler)
 
 	authGroup.GET("/check", a.CheckAuth)

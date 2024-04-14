@@ -368,7 +368,7 @@ export const useCompanyStore = defineStore("company-store", {
         this.handleError(error);
       }
     },
-    //! Job API Calls
+    //! Position API Calls
     async fetchJobList({ companyId }) {
       try {
         const runtimeConfig = useRuntimeConfig();
@@ -417,7 +417,7 @@ export const useCompanyStore = defineStore("company-store", {
         );
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
-          messageStore.setMessage("Job created.");
+          messageStore.setMessage("Position created.");
         }
       } catch (error) {
         this.handleError(error);
@@ -452,7 +452,7 @@ export const useCompanyStore = defineStore("company-store", {
         );
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
-          messageStore.setMessage("Job updated.");
+          messageStore.setMessage("Position updated.");
         }
       } catch (error) {
         this.handleError(error);
@@ -475,7 +475,7 @@ export const useCompanyStore = defineStore("company-store", {
         );
         const isSuccess = this.handleSuccess(response);
         if (isSuccess) {
-          messageStore.setMessage("Job deleted.");
+          messageStore.setMessage("Position deleted.");
         }
       } catch (error) {
         this.handleError(error);

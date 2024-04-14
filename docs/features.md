@@ -19,7 +19,7 @@
   - [ ] Compliance document repository
   - [ ] Legal and compliance alerts
 - [ ] **Recruitment Management**
-  - [ ] Job posting system
+  - [ ] Position posting system
   - [ ] Application tracking
   - [ ] Onboarding workflow
 - [ ] **Training and Development**
