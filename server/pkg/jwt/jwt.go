@@ -81,11 +81,7 @@ func loadConfig(scope string) echojwt.Config {
 func (j *JWT) onStart(ctx context.Context) error {
 	j.logger.Info("JWT Middleware initiated")
 
-	//debug logs
-	j.logger.Debug("----- JWT Middleware Config -----")
-	j.logger.Debug("TokenLookup", zap.String("TokenLookup", j.config.TokenLookup))
-	j.logger.Debug("SigningKey", zap.Any("SigningKey", j.config.SigningKey))
-	j.logger.Debug("SigningMethod", zap.String("SigningMethod", j.config.SigningMethod))
+	j.PrintDebugLogs()
 
 	return nil
 }
@@ -97,4 +93,11 @@ func (j *JWT) onStop(ctx context.Context) error {
 
 func (j *JWT) Middleware() echo.MiddlewareFunc {
 	return j.middleware
+}
+
+func (j *JWT) PrintDebugLogs() {
+	j.logger.Debug("----- JWT Middleware Configuration -----")
+	j.logger.Debug("TokenLookup", zap.String("TokenLookup", j.config.TokenLookup))
+	j.logger.Debug("SigningKey", zap.Any("SigningKey", j.config.SigningKey))
+	j.logger.Debug("SigningMethod", zap.String("SigningMethod", j.config.SigningMethod))
 }

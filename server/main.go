@@ -17,10 +17,11 @@ import (
 var config *configs.Config
 
 func init() {
-	config = configs.NewConfig("SERVER")
-}
+	//system log level
+	os.Setenv("LOG_LEVEL", "debug")
 
-func main() {
+	// load config
+	config = configs.NewConfig("SERVER", true, true)
 	config.SetConfigs(map[string]interface{}{
 		"server.host": "0.0.0.0",
 		"server.port": 3001,
@@ -33,15 +34,6 @@ func main() {
 		"database.sslmode":  "prefer",
 		"databse.loglevel":  "error",
 
-		"schema.auto_migrate": true,
-		"schema.modelsList": []string{
-			"User",
-			"Role",
-			"Permission",
-			"UserRole",
-			"RolePermission",
-		},
-
 		"mailer.host":         "smtp.gmail.com",
 		"mailer.port":         587,
 		"mailer.username":     "phyokyawsoe89@gmail.com",
@@ -51,15 +43,16 @@ func main() {
 		"auth_jwt.signing_key":  "thisisasecret",
 		"auth_jwt.token_lookup": "cookie:jwt",
 	})
+}
 
-	os.Setenv("LOG_LEVEL", "debug")
+func main() {
 
 	app := fx.New(
 		fx.Supply(config),
 
 		logger.InitiateModule(),
 		server.InitiateModule("server"),
-		echo_jwt.InitiateModule("jwt"),
+		echo_jwt.InitiateModule("echo_jwt"),
 		postgres.InitiateModule("database"),
 		mailer.InitiateModule("mailer"),
 
