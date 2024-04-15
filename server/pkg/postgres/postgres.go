@@ -157,3 +157,13 @@ func (d *Database) printDebugLogs() {
 	d.logger.Debug("User", zap.String("user", d.config.User))
 	d.logger.Debug("SSLMode", zap.String("sslmode", d.config.SSLMode))
 }
+
+func (d *Database) AutoMigrate(models []interface{}) {
+	if d.config.AutoMigrate {
+		d.logger.Info("Auto migrating database")
+		err := d.db.AutoMigrate(models)
+		if err != nil {
+			d.logger.Error("Error auto migrating database", zap.Error(err))
+		}
+	}
+}
