@@ -1,23 +1,13 @@
 # Set Up for Development
 
-## Local Environmental Variables
+## Config
 
-A config.yaml file with sensible default/temporary values **is included** in the repository. This is for convenience during development. This should **NOT** be used in production.
-
-Config files are managed with:
-
-- viper: https://github.com/spf13/viper
-
-Default behavior:
-
-- if environmental variables are supplied, viper will use **environmental variables**
-- else viper will fall back to the default **config.yaml**
-- if **config.override.yaml** exists, it will override config.yaml
+todo: update config explanation
 
 ## Spinning up locally
 
 ```
-docker-compose up --build
+BUILD_ENV=development docker-compose up --build
 ```
 
 ## Usage
@@ -37,22 +27,13 @@ docker-compose down --remove-orphans
   2. cd into client
   3. run `npm install`
   4. spin up containers
-- For "cannot find defineNuxtConfig" errors
-  - try:
-    1. run `npx nuxi cleanup`
-    2. step 1 to 4 under "for node_module errors"
-  - if problem persists, try: 3. setting up [volar takeover](https://vuejs.org/guide/typescript/overview#volar-takeover-mode) if using VS Code
 
 ## For deployment
 
-- edit docker-compose.deploy.yaml
-- BASE_API_URL should point to the backend directly (OR)
-- BASE_API_URL can point to the domain and Nginx can route it to the backend
-
-- when deploying as a docker-compose setup use:
+todo update section
 
 ```
-docker-compose -f docker-compose.yaml -f docker-compose.deploy.yaml up -d
+BUILD_ENV=production docker-compose up --build
 ```
 
 ---

@@ -1,53 +1,61 @@
 version: "3.8"
 
 services:
-  database:
+  postgres:
     image: postgres:latest
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: ./client
+      args:
+        BUILD_ENV: ${BUILD_ENV:-production}
     volumes:
-      - ./database:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
+      - ./client:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - BUILD_ENV=${BUILD_ENV:-production}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
 
   server:
     build:
       context: ./server
-      dockerfile: dockerfile
-    depends_on:
-      - database
+      args:
+        BUILD_ENV: ${BUILD_ENV:-production}
     volumes:
       - ./server:/app
+      - /go/pkg/mod
+      - /go/bin
     ports:
-      - "3001:3001"
+      - "8080:3001" # Expose for external access
     environment:
-      SERVER_SERVER_HOST: 0.0.0.0
-      SERVER_SERVER_PORT: 3001
-      SERVER_DATABASE_HOST: database
-      SERVER_DATABASE_PORT: 5432
-      SERVER_DATABASE_DBNAME: postgres
-      SERVER_DATABASE_USER: postgres
-      SERVER_DATABASE_PASSWORD: password
-      SERVER_DATABASE_SSLMODE: prefer
+      - BUILD_ENV=${BUILD_ENV:-production}
+      - SERVER_SERVER_HOST=0.0.0.0
+      - SERVER_SERVER_PORT=3001
+      - SERVER_DATABASE_HOST=postgres
+      - SERVER_DATABASE_PORT=5432
+      - SERVER_DATABASE_DBNAME=postgres
+      - SERVER_DATABASE_USER=postgres
+      - SERVER_DATABASE_PASSWORD=password
+      - SERVER_DATABASE_SSLMODE=prefer
+    depends_on:
+      - postgres
+    networks:
+      - app-network
 
-  # client:
-  #   build:
-  #     context: ./client
-  #     dockerfile: dockerfile
-  #     args:
-  #       - BUILD_ENV=development
-  #   depends_on:
-  #     - server
-  #     - database
-  #   volumes:
-  #     - ./client:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     API_BASE_URL: http://localhost:3001
-  #   command: ["bun", "run", "dev"]
-
-volumes:
-  postgres-data:
+networks:
+  app-network:
+    driver: bridge
