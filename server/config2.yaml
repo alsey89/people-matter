@@ -1,0 +1,15 @@
+database:
+  host: "aws-0-ap-northeast-1.pooler.supabase.com"
+  port: "5432"
+  dbname: "postgres"
+  user: "postgres.ehpdytlwkuavpscqllsr"
+  password: "sv0d88szHm5P5Syx"
+  sslmode: "require"
+
+server:
+  port: 5001
+  host: "0.0.0.0"
+  log_level: "debug"
+  allow_origins: "*"
+  allow_methods: "GET,PUT,POST,DELETE"
+  allow_headers: "Origin,Content-Type,Accept"
