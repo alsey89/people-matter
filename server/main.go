@@ -1,38 +1,33 @@
 package main
 
 import (
-	"os"
-
-	"github.com/alsey89/hrms/internal/auth"
-	"github.com/alsey89/hrms/pkg/configs"
-	echo_jwt "github.com/alsey89/hrms/pkg/jwt"
-	"github.com/alsey89/hrms/pkg/logger"
-	"github.com/alsey89/hrms/pkg/mailer"
-	"github.com/alsey89/hrms/pkg/postgres"
-	"github.com/alsey89/hrms/pkg/server"
-
 	"go.uber.org/fx"
+
+	config "github.com/alsey89/gogetter/config/viper"
+	postgres "github.com/alsey89/gogetter/database/postgres"
+	jwt "github.com/alsey89/gogetter/jwt/echo"
+	logger "github.com/alsey89/gogetter/logging/zap"
+	mailer "github.com/alsey89/gogetter/mail/gomail"
+	server "github.com/alsey89/gogetter/server/echo"
 )
 
-var config *configs.Config
+var configuration *config.Config
 
 func init() {
-	//system log level
-	os.Setenv("LOG_LEVEL", "debug")
-
-	// load config
-	config = configs.NewConfig("SERVER", true, true)
-	config.SetConfigs(map[string]interface{}{
+	config.SetSystemLogLevel("debug")
+	configuration = config.SetUpConfig("SERVER", "yaml")
+	configuration.SetFallbackConfigs(map[string]interface{}{
 		"server.host": "0.0.0.0",
 		"server.port": 3001,
 
-		"database.host":     "0.0.0.0",
-		"database.port":     5432,
-		"database.dbname":   "postgres",
-		"database.user":     "postgres",
-		"database.password": "password",
-		"database.sslmode":  "prefer",
-		"databse.loglevel":  "error",
+		"database.host":         "postgres",
+		"database.port":         5432,
+		"database.dbname":       "postgres",
+		"database.user":         "postgres",
+		"database.password":     "password",
+		"database.sslmode":      "prefer",
+		"databse.loglevel":      "error",
+		"database.auto_migrate": true,
 
 		"mailer.host":         "smtp.gmail.com",
 		"mailer.port":         587,
@@ -44,22 +39,23 @@ func init() {
 		"auth_jwt.token_lookup": "cookie:jwt",
 	})
 }
-
 func main() {
-
 	app := fx.New(
-		fx.Supply(config),
-
+		fx.Supply(configuration),
 		logger.InitiateModule(),
-		server.InitiateModule("server"),
-		echo_jwt.InitiateModule("echo_jwt"),
-		postgres.InitiateModule("database"),
-		mailer.InitiateModule("mailer"),
 
-		auth.InitiateDomain("auth"),
+		jwt.InitiateModule("auth_jwt"),
+		mailer.InitiateModule("mailer"),
+		postgres.InitiateModuleAndSchema(
+			"database",
+			// ...schema,
+			// example: &User{},
+			// example: &Post{},
+			// example: &Comment{},
+		),
+		server.InitiateModule("server"),
 
 		fx.NopLogger,
 	)
-
 	app.Run()
 }
