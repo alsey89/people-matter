@@ -7,8 +7,8 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	"github.com/alsey89/hrms/pkg/postgres"
-	"github.com/alsey89/hrms/pkg/server"
+	postgres "github.com/alsey89/gogetter/database/postgres"
+	server "github.com/alsey89/gogetter/server/echo"
 )
 
 type Domain struct {

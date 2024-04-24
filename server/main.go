@@ -9,6 +9,8 @@ import (
 	logger "github.com/alsey89/gogetter/logging/zap"
 	mailer "github.com/alsey89/gogetter/mail/gomail"
 	server "github.com/alsey89/gogetter/server/echo"
+
+	"github.com/alsey89/people-matter/schema"
 )
 
 var configuration *config.Config
@@ -16,6 +18,7 @@ var configuration *config.Config
 func init() {
 	config.SetSystemLogLevel("debug")
 	configuration = config.SetUpConfig("SERVER", "yaml")
+	//* Precedence: ENV > CONFIG > FALLBACK
 	configuration.SetFallbackConfigs(map[string]interface{}{
 		"server.host": "0.0.0.0",
 		"server.port": 3001,
@@ -49,7 +52,7 @@ func main() {
 		postgres.InitiateModuleAndSchema(
 			"database",
 			// ...schema,
-			// example: &User{},
+			schema.User{},
 			// example: &Post{},
 			// example: &Comment{},
 		),

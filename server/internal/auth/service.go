@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 
-	"github.com/alsey89/hrms/internal/schema"
+	"github.com/alsey89/people-matter/schema"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/alsey89/hrms/internal/common"
+	"github.com/alsey89/people-matter/internal/common"
 )
 
 func (a *Domain) CreateAccountHandler(c echo.Context) error {
