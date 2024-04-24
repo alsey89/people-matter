@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json bun.lockb ./
 RUN bun install
 
+# Copy the rest of the files
 COPY . .
 
 ARG BUILD_ENV=production
