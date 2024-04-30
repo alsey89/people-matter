@@ -18,7 +18,7 @@ var configuration *config.Config
 func init() {
 	config.SetSystemLogLevel("debug")
 	configuration = config.SetUpConfig("SERVER", "yaml")
-	//* Precedence: ENV > CONFIG > FALLBACK
+	//! CONFIG PRECEDENCE: ENV > CONFIG FILE > FALLBACK
 	configuration.SetFallbackConfigs(map[string]interface{}{
 		"server.host": "0.0.0.0",
 		"server.port": 3001,
@@ -46,18 +46,28 @@ func main() {
 	app := fx.New(
 		fx.Supply(configuration),
 		logger.InitiateModule(),
-
-		jwt.InitiateModule("auth_jwt"),
-		mailer.InitiateModule("mailer"),
 		postgres.InitiateModuleAndSchema(
 			"database",
 			// ...schema,
+			schema.Company{},
+			schema.Department{},
+			schema.Location{},
 			schema.User{},
-			// example: &Post{},
-			// example: &Comment{},
+			schema.ContactInfo{},
+			schema.EmergencyContact{},
+			schema.Position{},
+			schema.UserPosition{},
+			schema.Leave{},
+			schema.Attendance{},
+			schema.Salary{},
+			schema.Payment{},
+			schema.Adjustments{},
+			schema.Document{},
 		),
-		server.InitiateModule("server"),
+		jwt.InitiateModule("auth_jwt"),
+		mailer.InitiateModule("mailer"),
 
+		server.InitiateModule("server"),
 		fx.NopLogger,
 	)
 	app.Run()

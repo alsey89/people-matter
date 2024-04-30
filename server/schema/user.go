@@ -4,49 +4,49 @@ import (
 	"time"
 )
 
-// User model ---------------------------------------------------------------
+// User Schema ---------------------------------------------------------------
+type RoleEnum string
+
+const (
+	RoleAdmin   RoleEnum = "admin"
+	RoleManager RoleEnum = "manager"
+	RoleUser    RoleEnum = "user"
+)
+
 type User struct {
-	//* account information
-	BaseModel      // This includes fields ID, CreatedAt, UpdatedAt, DeletedAt
-	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
-
-	Email     string     `json:"email"      gorm:"uniqueIndex"`
-	Password  string     `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
-	AvatarURL string     `json:"avatarUrl"  gorm:"type:text"`
-	Role      string     `json:"role"       gorm:"enum:admin,manager,user;default:user"`
-	IsActive  bool       `json:"isActive"   gorm:"default:true"`
-	LastLogin *time.Time `json:"lastLogin"  gorm:"default:null"`
-
-	//* personal information
+	BaseModel
+	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	// ------------------------------------------------------------------------------------------------
+	Email      string      `json:"email"      gorm:"uniqueIndex"`
+	Password   string      `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
+	AvatarURL  string      `json:"avatarUrl"  gorm:"type:text"`
+	Role       RoleEnum    `json:"role"       gorm:"type:enum('admin','manager','user');default:'user'"`
+	LastLogin  *time.Time  `json:"lastLogin"  gorm:"default:null"`
+	IsArchived bool        `json:"isArchived" gorm:"default:false"`
+	Documents  []*Document `json:"documents"  gorm:"foreignKey:UserID"`
+	// ------------------------------------------------------------------------------------------------
 	FirstName        string            `json:"firstName"`
 	MiddleName       *string           `json:"middleName"`
 	LastName         string            `json:"lastName"`
 	Nickname         string            `json:"nickname"`
 	ContactInfo      *ContactInfo      `json:"contactInfo"       gorm:"foreignKey:UserID"`
 	EmergencyContact *EmergencyContact `json:"emergencyContact"  gorm:"foreignKey:UserID"`
-
-	//*job information
+	// ------------------------------------------------------------------------------------------------
 	UserPosition *UserPosition `json:"assignedJob" gorm:"foreignKey:UserID"`
-
-	//* salary information
-	SalaryID *uint     `json:"salaryId"  gorm:"foreignKey:UserID"`
-	Payments []Payment `json:"Payments" gorm:"foreignKey:UserID"`
-
-	//* leave & attendance
-	Leave      []Leave      `json:"leave"`
-	Attendance []Attendance `json:"attendance"`
+	// ------------------------------------------------------------------------------------------------
+	SalaryID *uint      `json:"salaryId"  gorm:"foreignKey:UserID"`
+	Payments []*Payment `json:"payments" gorm:"foreignKey:UserID"`
+	// ------------------------------------------------------------------------------------------------
+	Leave      []*Leave      `json:"leave" gorm:"foreignKey:UserID"`
+	Attendance []*Attendance `json:"attendance" gorm:"foreignKey:UserID"`
+	// ------------------------------------------------------------------------------------------------
 }
-
-// enum constants for User.Role
-const (
-	RoleAdmin   = "admin"
-	RoleManager = "manager"
-	RoleUser    = "user"
-)
 
 type ContactInfo struct {
 	BaseModel
-	UserID     uint   `json:"userId"`
+	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	// ------------------------------------------------------------------------------------------------
+	UserID     uint   `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Address    string `json:"address"`
 	City       string `json:"city"`
 	State      string `json:"state"`
@@ -54,15 +54,19 @@ type ContactInfo struct {
 	Country    string `json:"country"`
 	Mobile     string `json:"mobile"`
 	Email      string `json:"email"`
+	// ------------------------------------------------------------------------------------------------
 }
 
 type EmergencyContact struct {
 	BaseModel
-	UserID     uint    `json:"userId"`
+	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	// ------------------------------------------------------------------------------------------------
+	UserID     uint    `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	FirstName  string  `json:"firstName"`
 	MiddleName *string `json:"middleName"`
 	LastName   string  `json:"lastName"`
 	Relation   string  `json:"relation"`
 	Mobile     string  `json:"mobile"`
 	Email      string  `json:"email"`
+	// ------------------------------------------------------------------------------------------------
 }

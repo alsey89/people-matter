@@ -40,7 +40,7 @@ services:
       - /go/pkg/mod
       - /go/bin
     ports:
-      - "8080:3001" # Expose for external access
+      - "3001:3001" # Expose for external access
     environment:
       - BUILD_ENV=${BUILD_ENV:-production}
       - SERVER_SERVER_HOST=0.0.0.0

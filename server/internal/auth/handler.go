@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
@@ -15,9 +14,9 @@ import (
 	"github.com/alsey89/people-matter/internal/common"
 )
 
-func (a *Domain) CreateAccountHandler(c echo.Context) error {
+func (a *Domain) SignupHandler(c echo.Context) error {
 
-	creds := new(SignupCredentials)
+	creds := new(RootUserSignupCredentials)
 	err := c.Bind(creds)
 	if err != nil {
 		a.logger.Error("[signupHandler] error binding credentials", zap.Error(err))
@@ -49,9 +48,22 @@ func (a *Domain) CreateAccountHandler(c echo.Context) error {
 	}
 
 	// validate company
-	// companyID := c.Get("companyID").(uint)
+	companyName := creds.CompanyName
+	if companyName == "" {
+		a.logger.Error("[signupHandler] company name is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "company name is required",
+			Data:    nil,
+		})
+	}
 
-	newUser, err := a.SignupService(email, password)
+	// todo: create company
+	companyID := func() uint {
+		return 1
+	}()
+
+	// create user
+	newUser, err := a.SignupService(email, password, companyID)
 	if err != nil {
 		a.logger.Error("[signupHandler] error signing up user", zap.Error(err))
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -106,7 +118,7 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
-		log.Printf("auth.h.signin: error binding credentials: %v", err)
+		a.logger.Error("[SigninHandler] error binding credentials", zap.Error(err))
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid form data",
 			Data:    nil,
@@ -118,7 +130,7 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 
 	existingUser, err := a.SigninService(email, password)
 	if err != nil {
-		log.Printf("auth.h.signin: %v", err)
+		a.logger.Error("[SigninHandler]", zap.Error(err))
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",
@@ -138,7 +150,7 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	}
 
 	claims := Claims{
-		ID:        existingUser.ID, // Store the ObjectId
+		ID:        existingUser.ID,
 		CompanyID: existingUser.CompanyID,
 		Role:      existingUser.Role,
 		Email:     existingUser.Email,
@@ -150,7 +162,7 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
-		log.Printf("auth.h.signin: error signing jwt with claims: %v", err)
+		a.logger.Error("[SigninHandler] error signing jwt with claims", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -193,7 +205,7 @@ func (a *Domain) SignoutHandler(c echo.Context) error {
 func (a *Domain) CheckAuth(c echo.Context) error {
 	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
 	if !ok {
-		log.Printf("auth.check_auth: error asserting token")
+		a.logger.Error("[CheckAuth] error getting user token")
 		return c.JSON(http.StatusUnauthorized, common.APIResponse{
 			Message: "token error",
 			Data:    nil,
@@ -202,7 +214,7 @@ func (a *Domain) CheckAuth(c echo.Context) error {
 
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
-		log.Printf("auth.check_auth: error asserting claims: %v", user.Claims)
+		a.logger.Error("[CheckAuth] error asserting claims")
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid claims data",
 			Data:    nil,

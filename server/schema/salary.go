@@ -6,30 +6,77 @@ import (
 	"gorm.io/gorm"
 )
 
+type SalaryPaymentIntervalEnum string
+
+const (
+	Monthly   SalaryPaymentIntervalEnum = "monthly"
+	Weekly    SalaryPaymentIntervalEnum = "weekly"
+	Quarterly SalaryPaymentIntervalEnum = "quarterly"
+)
+
 type Salary struct {
 	BaseModel
-	UserID          uint      `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
-	Amount          float64   `json:"amount"`
-	Currency        string    `json:"currency"`
-	PaymentInterval string    `json:"paymentInterval"`
-	EffectiveDate   time.Time `json:"effectiveDate"`
-	IsActive        bool      `json:"isActive" gorm:"default:false"`
-	IsApproved      bool      `json:"isApproved" gorm:"default:false"`
+	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	// ------------------------------------------------------------------------------------------------
+	UserID          uint                      `json:"userId"          gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	Amount          float64                   `json:"amount"          gorm:"type:decimal(10,2)"`
+	Currency        string                    `json:"currency"        gorm:"type:varchar(5)"`
+	PaymentInterval SalaryPaymentIntervalEnum `json:"paymentInterval" gorm:"type:enum('monthly','weekly','quarterly')"`
+	EffectiveDate   time.Time                 `json:"effectiveDate"   gorm:"type:date"`
+	// ------------------------------------------------------------------------------------------------
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    gorm:"type:enum('pending','approved','rejected');not null"`
 }
+
+type PaymentMethodEnum string
+
+const (
+	Cash   PaymentMethodEnum = "cash"
+	Bank   PaymentMethodEnum = "bank"
+	Cheque PaymentMethodEnum = "cheque"
+)
+
+type PaymentStatusEnum string
+
+const (
+	Approving  PaymentStatusEnum = "approving"
+	Processing PaymentStatusEnum = "processing"
+	Completed  PaymentStatusEnum = "completed"
+)
 
 type Payment struct {
 	BaseModel
-	UserID        uint      `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
-	SalaryID      uint      `json:"salaryId" gorm:"onUpdate:CASCADE;onDelete:SET NULL"`
-	PaymentDate   time.Time `json:"paymentDate"`
-	Amount        float64   `json:"amount"`
-	PaymentMethod string    `json:"paymentMethod"`
-	Status        string    `json:"status"`
-	PeriodStart   time.Time `json:"periodStart"`
-	PeriodEnd     time.Time `json:"periodEnd"`
-	Deductions    float64   `json:"deductions"`
-	Bonuses       float64   `json:"bonuses"`
-	Notes         string    `json:"notes"`
+	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	// ------------------------------------------------------------------------------------------------
+	UserID        uint              `json:"userId"         gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	SalaryID      uint              `json:"salaryId"       gorm:"onUpdate:CASCADE;onDelete:SET NULL"`
+	PaymentDate   time.Time         `json:"paymentDate"    gorm:"type:date"`
+	Amount        float64           `json:"amount"         gorm:"type:decimal(10,2)"`
+	PaymentMethod PaymentMethodEnum `json:"paymentMethod"  gorm:"type:enum('cash','bank','cheque')"`
+	PeriodStart   time.Time         `json:"periodStart"    gorm:"type:date"`
+	PeriodEnd     time.Time         `json:"periodEnd"      gorm:"type:date"`
+	Adjustments   []*Adjustments    `json:"adjustments"    gorm:"foreignKey:PaymentID"`
+	Notes         string            `json:"notes"          gorm:"type:text"`
+	Documents     []*Document       `json:"documents"`
+	// ------------------------------------------------------------------------------------------------
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus" gorm:"type:enum('pending','approved','rejected')"`
+}
+
+type AdjustmentTypeEnum string
+
+const (
+	Bonus     AdjustmentTypeEnum = "bonus"
+	Deduction AdjustmentTypeEnum = "deduction"
+)
+
+type Adjustments struct {
+	BaseModel
+	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	// ------------------------------------------------------------------------------------------------
+	PaymentID      uint               `json:"paymentId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	Amount         float64            `json:"amount"    gorm:"type:decimal(10,2)"`
+	AdjustmentType AdjustmentTypeEnum `json:"type"      gorm:"type:enum('bonus','deduction')"`
+	Notes          string             `json:"notes"     gorm:"type:text"`
+	// ------------------------------------------------------------------------------------------------
 }
 
 func (salary *Salary) AfterCreate(tx *gorm.DB) (err error) {

@@ -3,7 +3,7 @@ module github.com/alsey89/people-matter
 go 1.21.6
 
 require (
-	github.com/alsey89/gogetter v0.1.1
+	github.com/alsey89/gogetter v0.1.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.18.2

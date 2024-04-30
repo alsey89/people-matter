@@ -65,8 +65,8 @@ func (a *Domain) onStart(ctx context.Context) error {
 	server := a.params.Server.GetServer()
 	authGroup := server.Group("/auth")
 
+	// authGroup.POST("/signup", a.SignupHandler)
 	authGroup.POST("/signin", a.SigninHandler)
-	authGroup.POST("/signup", a.CreateAccountHandler)
 	authGroup.POST("/signout", a.SignoutHandler)
 
 	authGroup.GET("/check", a.CheckAuth)
