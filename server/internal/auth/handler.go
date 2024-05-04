@@ -14,111 +14,111 @@ import (
 	"github.com/alsey89/people-matter/internal/common"
 )
 
-func (a *Domain) SignupHandler(c echo.Context) error {
+// func (d *Domain) SignupHandler(c echo.Context) error {
 
-	creds := new(RootUserSignupCredentials)
-	err := c.Bind(creds)
-	if err != nil {
-		a.logger.Error("[signupHandler] error binding credentials", zap.Error(err))
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "credentials error",
-			Data:    nil,
-		})
-	}
+// 	creds := new(RootUserSignupCredentials)
+// 	err := c.Bind(creds)
+// 	if err != nil {
+// 		d.logger.Error("[signupHandler] error binding credentials", zap.Error(err))
+// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+// 			Message: "credentials error",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	// validate email
-	email := creds.Email
-	if !common.EmailValidator(email) {
-		a.logger.Error("[signupHandler] email validation failed")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "invalid email",
-			Data:    nil,
-		})
-	}
+// 	// validate email
+// 	email := creds.Email
+// 	if !common.EmailValidator(email) {
+// 		d.logger.Error("[signupHandler] email validation failed")
+// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
+// 			Message: "invalid email",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	// validate password
-	password := creds.Password
-	confirmPassword := creds.ConfirmPassword
-	if password != confirmPassword {
-		a.logger.Error("[signupHandler] password confirmation check failed")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "passwords do not match",
-			Data:    nil,
-		})
-	}
+// 	// validate password
+// 	password := creds.Password
+// 	confirmPassword := creds.ConfirmPassword
+// 	if password != confirmPassword {
+// 		d.logger.Error("[signupHandler] password confirmation check failed")
+// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
+// 			Message: "passwords do not match",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	// validate company
-	companyName := creds.CompanyName
-	if companyName == "" {
-		a.logger.Error("[signupHandler] company name is empty")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "company name is required",
-			Data:    nil,
-		})
-	}
+// 	// validate company
+// 	companyName := creds.CompanyName
+// 	if companyName == "" {
+// 		d.logger.Error("[signupHandler] company name is empty")
+// 		return c.JSON(http.StatusBadRequest, common.APIResponse{
+// 			Message: "company name is required",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	// todo: create company
-	companyID := func() uint {
-		return 1
-	}()
+// 	// todo: create company
+// 	companyID := func() uint {
+// 		return 1
+// 	}()
 
-	// create user
-	newUser, err := a.SignupService(email, password, companyID)
-	if err != nil {
-		a.logger.Error("[signupHandler] error signing up user", zap.Error(err))
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return c.JSON(http.StatusConflict, common.APIResponse{
-				Message: "email not available",
-				Data:    nil,
-			})
-		}
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
-			Data:    nil,
-		})
-	}
+// 	// create user
+// 	newUser, err := d.SignupService(email, password, companyID)
+// 	if err != nil {
+// 		d.logger.Error("[signupHandler] error signing up user", zap.Error(err))
+// 		if errors.Is(err, gorm.ErrDuplicatedKey) {
+// 			return c.JSON(http.StatusConflict, common.APIResponse{
+// 				Message: "email not available",
+// 				Data:    nil,
+// 			})
+// 		}
+// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+// 			Message: "something went wrong",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	claims := Claims{
-		ID:        newUser.ID, // Store the ObjectId
-		CompanyID: newUser.CompanyID,
-		Role:      newUser.Role,
-		Email:     newUser.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
-		},
-	}
+// 	claims := Claims{
+// 		ID:        newUser.ID, // Store the ObjectId
+// 		CompanyID: newUser.CompanyID,
+// 		Role:      newUser.Role,
+// 		Email:     newUser.Email,
+// 		RegisteredClaims: jwt.RegisteredClaims{
+// 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+// 		},
+// 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
-	if err != nil {
-		a.logger.Error("[signupHandler] error signing jwt with claims", zap.Error(err))
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "token error",
-			Data:    nil,
-		})
-	}
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
+// 	if err != nil {
+// 		d.logger.Error("[signupHandler] error signing jwt with claims", zap.Error(err))
+// 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+// 			Message: "token error",
+// 			Data:    nil,
+// 		})
+// 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "jwt"
-	cookie.Value = t
-	cookie.HttpOnly = true
-	cookie.Secure = viper.GetBool("IS_PRODUCTION")
-	cookie.Path = "/"
-	cookie.Expires = time.Now().Add(time.Hour * 72)
+// 	cookie := new(http.Cookie)
+// 	cookie.Name = "jwt"
+// 	cookie.Value = t
+// 	cookie.HttpOnly = true
+// 	cookie.Secure = viper.GetBool("IS_PRODUCTION")
+// 	cookie.Path = "/"
+// 	cookie.Expires = time.Now().Add(time.Hour * 72)
 
-	c.SetCookie(cookie)
+// 	c.SetCookie(cookie)
 
-	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "user has been signed up and signed in",
-		Data:    newUser,
-	})
-}
+// 	return c.JSON(http.StatusOK, common.APIResponse{
+// 		Message: "user has been signed up and signed in",
+// 		Data:    newUser,
+// 	})
+// }
 
-func (a *Domain) SigninHandler(c echo.Context) error {
+func (d *Domain) SigninHandler(c echo.Context) error {
 	creds := new(SigninCredentials)
 	err := c.Bind(creds)
 	if err != nil {
-		a.logger.Error("[SigninHandler] error binding credentials", zap.Error(err))
+		d.logger.Error("[SigninHandler] error binding credentials", zap.Error(err))
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
 			Message: "invalid form data",
 			Data:    nil,
@@ -128,9 +128,9 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	email := creds.Email
 	password := creds.Password
 
-	existingUser, err := a.SigninService(email, password)
+	existingUser, err := d.SignIn(email, password)
 	if err != nil {
-		a.logger.Error("[SigninHandler]", zap.Error(err))
+		d.logger.Error("[SigninHandler]", zap.Error(err))
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",
@@ -159,10 +159,15 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 		},
 	}
 
+	// include location id for manager role
+	if existingUser.Role == "manager" {
+		claims.LocationID = &existingUser.UserPosition.Location.ID
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 	if err != nil {
-		a.logger.Error("[SigninHandler] error signing jwt with claims", zap.Error(err))
+		d.logger.Error("[SigninHandler] error signing jwt with claims", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -185,7 +190,7 @@ func (a *Domain) SigninHandler(c echo.Context) error {
 	})
 }
 
-func (a *Domain) SignoutHandler(c echo.Context) error {
+func (d *Domain) SignoutHandler(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "jwt"
 	cookie.Value = ""
@@ -202,35 +207,23 @@ func (a *Domain) SignoutHandler(c echo.Context) error {
 	})
 }
 
-func (a *Domain) CheckAuth(c echo.Context) error {
-	user, ok := c.Get("user").(*jwt.Token) //echo handles missing/malformed token response
+func (d *Domain) CheckAuth(c echo.Context) error {
+	_, ok := c.Get("user").(*jwt.Token) //echo jwt middleware handles missing/malformed token response
 	if !ok {
-		a.logger.Error("[CheckAuth] error getting user token")
+		d.logger.Error("[CheckAuth] error getting user token")
 		return c.JSON(http.StatusUnauthorized, common.APIResponse{
 			Message: "token error",
 			Data:    nil,
 		})
 	}
 
-	claims, ok := user.Claims.(jwt.MapClaims)
-	if !ok {
-		a.logger.Error("[CheckAuth] error asserting claims")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "invalid claims data",
-			Data:    nil,
-		})
-	}
-
 	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "success",
-		Data: echo.Map{
-			"authenticated": true,
-			"role":          claims["role"],
-		},
+		Message: "authenticated",
+		Data:    nil,
 	})
 }
 
-func (a *Domain) GetCSRFToken(c echo.Context) error {
+func (d *Domain) GetCSRFToken(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "csrf token has been set",
 		Data:    nil,

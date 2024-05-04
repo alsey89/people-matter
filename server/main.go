@@ -10,6 +10,8 @@ import (
 	mailer "github.com/alsey89/gogetter/mail/gomail"
 	server "github.com/alsey89/gogetter/server/echo"
 
+	"github.com/alsey89/people-matter/internal/auth"
+	"github.com/alsey89/people-matter/internal/company"
 	"github.com/alsey89/people-matter/schema"
 )
 
@@ -66,8 +68,12 @@ func main() {
 		),
 		jwt.InitiateModule("auth_jwt"),
 		mailer.InitiateModule("mailer"),
-
 		server.InitiateModule("server"),
+
+		//-- Internal Domains Start --
+		auth.InitiateDomain("auth"),
+		company.InitiateDomain("company"),
+		//-- Internal Domains End --
 		fx.NopLogger,
 	)
 	app.Run()

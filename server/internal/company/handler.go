@@ -16,7 +16,7 @@ import (
 func (d *Domain) GetCompanyHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[getCompanyHandler]", zap.Error(err))
+		d.logger.Error("[GetCompanyHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -32,18 +32,18 @@ func (d *Domain) GetCompanyHandler(c echo.Context) error {
 }
 
 func (d *Domain) CreateCompanyHandler(c echo.Context) error {
-	newCompany := new(schema.Company)
+	newCompany := new(NewCompany)
 
 	err := c.Bind(newCompany)
 	if err != nil {
-		d.logger.Error("[createCompanyHandler] error binding newCompany data", zap.Error(err))
+		d.logger.Error("[CreateCompanyHandler] error binding newCompany data", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
 		})
 	}
 
-	err = d.CreateNewCompany(newCompany)
+	err = d.CreateNewCompanyAndAdminUser(newCompany)
 	if err != nil {
 		d.logger.Error("[createCompanyHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
@@ -61,7 +61,7 @@ func (d *Domain) CreateCompanyHandler(c echo.Context) error {
 func (d *Domain) UpdateCompanyHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[updateCompanyHandler]", zap.Error(err))
+		d.logger.Error("[UpdateCompanyHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -72,7 +72,7 @@ func (d *Domain) UpdateCompanyHandler(c echo.Context) error {
 
 	err = c.Bind(dataToUpdate)
 	if err != nil {
-		d.logger.Error("[updateCompanyHandler] error binding dataToUpdate", zap.Error(err))
+		d.logger.Error("[UpdateCompanyHandler] error binding dataToUpdate", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -90,7 +90,7 @@ func (d *Domain) UpdateCompanyHandler(c echo.Context) error {
 func (d *Domain) DeleteCompanyHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[deleteCompanyHandler]", zap.Error(err))
+		d.logger.Error("[DeleteCompanyHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -109,14 +109,14 @@ func (d *Domain) DeleteCompanyHandler(c echo.Context) error {
 func (d *Domain) CreateDepartmentHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[createDepartmentHandler]", zap.Error(err))
+		d.logger.Error("[CreateDepartmentHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
 		})
 	}
 	if companyID == nil {
-		d.logger.Error("[createDepartmentHandler] companyID is nil")
+		d.logger.Error("[CreateDepartmentHandler] companyID is nil")
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "company id is nil",
 			Data:    nil,
@@ -129,7 +129,7 @@ func (d *Domain) CreateDepartmentHandler(c echo.Context) error {
 
 	err = c.Bind(newDepartment)
 	if err != nil {
-		d.logger.Error("[createDepartmentHandler] error binding newDepartment data", zap.Error(err))
+		d.logger.Error("[CreateDepartmentHandler] error binding newDepartment data", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -192,7 +192,7 @@ func (d *Domain) UpdateDepartmentHandler(c echo.Context) error {
 func (d *Domain) DeleteDepartmentHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[deleteDepartmentHandler]", zap.Error(err))
+		d.logger.Error("[DeleteDepartmentHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -201,7 +201,7 @@ func (d *Domain) DeleteDepartmentHandler(c echo.Context) error {
 
 	departmentID, err := common.GetIDFromParam("department_id", c)
 	if err != nil {
-		d.logger.Error("[deleteDepartmentHandler]", zap.Error(err))
+		d.logger.Error("[DeleteDepartmentHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting department id from param",
 			Data:    nil,
@@ -210,7 +210,7 @@ func (d *Domain) DeleteDepartmentHandler(c echo.Context) error {
 
 	err = d.DeleteDepartment(companyID, departmentID)
 	if err != nil {
-		d.logger.Error("[deleteDepartmentHandler]", zap.Error(err))
+		d.logger.Error("[DeleteDepartmentHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error deleting department",
 			Data:    nil,
@@ -228,7 +228,7 @@ func (d *Domain) DeleteDepartmentHandler(c echo.Context) error {
 func (d *Domain) CreateLocationHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[createLocationHandler]", zap.Error(err))
+		d.logger.Error("[CreateLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -236,7 +236,7 @@ func (d *Domain) CreateLocationHandler(c echo.Context) error {
 	}
 	// to avoid nil pointer error
 	if companyID == nil {
-		d.logger.Error("[createLocationHandler] companyID is nil")
+		d.logger.Error("[CreateLocationHandler] companyID is nil")
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "company id is nil",
 			Data:    nil,
@@ -249,7 +249,7 @@ func (d *Domain) CreateLocationHandler(c echo.Context) error {
 
 	err = c.Bind(newLocation)
 	if err != nil {
-		d.logger.Error("[createLocationHandler] error binding newLocation data", zap.Error(err))
+		d.logger.Error("[CreateLocationHandler] error binding newLocation data", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -267,7 +267,7 @@ func (d *Domain) CreateLocationHandler(c echo.Context) error {
 func (d *Domain) UpdateLocationHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[updateLocationHandler]", zap.Error(err))
+		d.logger.Error("[UpdateLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -276,7 +276,7 @@ func (d *Domain) UpdateLocationHandler(c echo.Context) error {
 
 	locationID, err := common.GetIDFromParam("location_id", c)
 	if err != nil {
-		d.logger.Error("[updateLocationHandler]", zap.Error(err))
+		d.logger.Error("[UpdateLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting location id from param",
 			Data:    nil,
@@ -287,7 +287,7 @@ func (d *Domain) UpdateLocationHandler(c echo.Context) error {
 
 	err = c.Bind(dataToUpdate)
 	if err != nil {
-		d.logger.Error("[updateLocationHandler] error binding dataToUpdate", zap.Error(err))
+		d.logger.Error("[UpdateLocationHandler] error binding dataToUpdate", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "something went wrong",
 			Data:    nil,
@@ -296,7 +296,7 @@ func (d *Domain) UpdateLocationHandler(c echo.Context) error {
 
 	err = d.UpdateLocation(companyID, locationID, dataToUpdate)
 	if err != nil {
-		d.logger.Error("[updateLocationHandler]", zap.Error(err))
+		d.logger.Error("[UpdateLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error updating location",
 			Data:    nil,
@@ -312,7 +312,7 @@ func (d *Domain) UpdateLocationHandler(c echo.Context) error {
 func (d *Domain) DeleteLocationHandler(c echo.Context) error {
 	companyID, err := common.GetCompanyIDFromToken(c)
 	if err != nil {
-		d.logger.Error("[deleteLocationHandler]", zap.Error(err))
+		d.logger.Error("[DeleteLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting company id from token",
 			Data:    nil,
@@ -321,7 +321,7 @@ func (d *Domain) DeleteLocationHandler(c echo.Context) error {
 
 	locationID, err := common.GetIDFromParam("location_id", c)
 	if err != nil {
-		d.logger.Error("[deleteLocationHandler]", zap.Error(err))
+		d.logger.Error("[DeleteLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error getting location id from param",
 			Data:    nil,
@@ -330,7 +330,7 @@ func (d *Domain) DeleteLocationHandler(c echo.Context) error {
 
 	err = d.DeleteLocation(companyID, locationID)
 	if err != nil {
-		d.logger.Error("[deleteLocationHandler]", zap.Error(err))
+		d.logger.Error("[DeleteLocationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
 			Message: "error deleting location",
 			Data:    nil,

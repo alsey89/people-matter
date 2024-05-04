@@ -5,6 +5,8 @@ import (
 )
 
 // User Schema ---------------------------------------------------------------
+
+// defines the role of the user
 type RoleEnum string
 
 const (

@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"math/rand"
 	"net/mail"
 	"strconv"
 	"time"
@@ -14,6 +15,20 @@ import (
 func EmailValidator(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
+}
+
+// generates a simple random password of a given length
+func GeneratePassword(length int) string {
+
+	characters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+"
+
+	password := make([]byte, length)
+
+	for i := range password {
+		password[i] = characters[rand.Intn(len(characters))]
+	}
+
+	return string(password)
 }
 
 // get current date and time in string format

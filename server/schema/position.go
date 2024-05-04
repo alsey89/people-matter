@@ -16,8 +16,6 @@ type Position struct {
 	// ------------------------------------------------------------------------------------------------
 	DepartmentID uint        `json:"departmentId"`
 	Department   *Department `json:"department" gorm:"foreignKey:DepartmentID"`
-	LocationID   uint        `json:"locationId"`
-	Location     *Location   `json:"location" gorm:"foreignKey:LocationID"`
 	// ------------------------------------------------------------------------------------------------
 	ManagerID    *uint       `json:"managerId"` //* should be nullable
 	Subordinates []*Position `json:"subordinates" gorm:"foreignKey:ManagerID"`
@@ -40,10 +38,15 @@ type UserPosition struct {
 	BaseModel
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
-	UserID    uint        `json:"userId"`
-	Positions []*Position `json:"job" gorm:"foreignKey:PositionID"`
+	UserID uint `json:"userId"`
+
+	PositionID uint     `json:"positionId"`
+	Position   Position `json:"job" gorm:"foreignKey:PositionID"`
+
+	LocationID uint     `json:"locationId"`
+	Location   Location `json:"location" gorm:"foreignKey:LocationID"`
 	// ------------------------------------------------------------------------------------------------
 	EmploymentStatus EmploymentStatusEnum `json:"employmentStatus" gorm:"type:enum('full-time','part-time','contract','temporary','seasonal','intern');not null"`
-	StartDate        *time.Time           `json:"startDate"`
-	EndDate          *time.Time           `json:"endDate"`
+	StartDate        time.Time            `json:"startDate"`
+	EndDate          time.Time            `json:"endDate"`
 }

@@ -7,10 +7,11 @@ import (
 
 // * JWT claims struct
 type Claims struct {
-	ID        uint            `json:"id" bson:"id"`
-	CompanyID uint            `json:"companyId"`
-	Role      schema.RoleEnum `json:"role" default:"user"`
-	Email     string          `json:"email"`
+	ID         uint            `json:"id" bson:"id"`
+	CompanyID  uint            `json:"companyId"`
+	Role       schema.RoleEnum `json:"role" default:"user"`
+	LocationID *uint           `json:"locationId"` // for manager role
+	Email      string          `json:"email"`
 	jwt.RegisteredClaims
 }
 

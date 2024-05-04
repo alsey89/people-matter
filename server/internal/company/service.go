@@ -3,10 +3,49 @@ package company
 import (
 	"fmt"
 
+	"github.com/alsey89/people-matter/internal/common"
 	"github.com/alsey89/people-matter/schema"
 )
 
 //! Company ------------------------------------------------------------
+
+// Create new company
+func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyData *NewCompany) error {
+	db := d.params.Database.GetDB()
+
+	newCompany := schema.Company{
+		Name: newCompanyData.CompanyName,
+	}
+
+	newAdminUser := schema.User{
+		Email:    newCompanyData.AdminEmail,
+		Role:     "admin",
+		Password: common.GeneratePassword(12),
+	}
+
+	// *----- Transaction start -----
+	tx := db.Begin()
+
+	result := tx.Create(&newCompany)
+	if result.Error != nil {
+		tx.Rollback()
+		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating company %w", result.Error)
+	}
+
+	newAdminUser.CompanyID = newCompany.ID
+	result = tx.Create(&newAdminUser)
+	if result.Error != nil {
+		tx.Rollback()
+		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating user %w", result.Error)
+	}
+
+	tx.Commit()
+	// *----- Transaction end -----
+
+	//todo: send email to new admin user to start the account set up process
+
+	return nil
+}
 
 // Get company data without preloading
 func (d *Domain) GetCompany(companyID *uint) (*schema.Company, error) {
@@ -38,18 +77,6 @@ func (d *Domain) GetCompanyWithDetails(companyID *uint) (*schema.Company, error)
 	}
 
 	return &existingCompany, nil
-}
-
-// Create new company and return company *with new ID*
-func (d *Domain) CreateNewCompany(newCompany *schema.Company) error {
-	db := d.params.Database.GetDB()
-
-	result := db.Create(newCompany)
-	if result.Error != nil {
-		return fmt.Errorf("[CreateNewCompany] %w", result.Error)
-	}
-
-	return nil
 }
 
 // Update company data
@@ -206,10 +233,15 @@ func (d *Domain) UpdatePosition(companyID *uint, positionID *uint, newData *sche
 	db := d.params.Database.GetDB()
 
 	dataToUpdate := map[string]interface{}{
-		"Title":        newData.Title,
-		"Description":  newData.Description,
-		"LocationID":   newData.LocationID,
-		"DepartmentID": newData.DepartmentID,
+		"Title":          newData.Title,
+		"Description":    newData.Description,
+		"Duties":         newData.Duties,
+		"Qualifications": newData.Qualifications,
+		"Experience":     newData.Experience,
+		"MinSalary":      newData.MinSalary,
+		"MaxSalary":      newData.MaxSalary,
+		"DepartmentID":   newData.DepartmentID,
+		"ManagerID":      newData.ManagerID,
 	}
 
 	result := db.
