@@ -21,10 +21,10 @@ type Salary struct {
 	UserID          uint                      `json:"userId"          gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Amount          float64                   `json:"amount"          gorm:"type:decimal(10,2)"`
 	Currency        string                    `json:"currency"        gorm:"type:varchar(5)"`
-	PaymentInterval SalaryPaymentIntervalEnum `json:"paymentInterval" gorm:"type:enum('monthly','weekly','quarterly')"`
+	PaymentInterval SalaryPaymentIntervalEnum `json:"paymentInterval" sql:"type:enum('monthly','weekly','quarterly')"`
 	EffectiveDate   time.Time                 `json:"effectiveDate"   gorm:"type:date"`
 	// ------------------------------------------------------------------------------------------------
-	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    gorm:"type:enum('pending','approved','rejected');not null"`
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    sql:"type:enum('pending','approved','rejected');not null"`
 }
 
 type PaymentMethodEnum string
@@ -44,21 +44,21 @@ const (
 )
 
 type Payment struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	// ------------------------------------------------------------------------------------------------
 	UserID        uint              `json:"userId"         gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	SalaryID      uint              `json:"salaryId"       gorm:"onUpdate:CASCADE;onDelete:SET NULL"`
 	PaymentDate   time.Time         `json:"paymentDate"    gorm:"type:date"`
 	Amount        float64           `json:"amount"         gorm:"type:decimal(10,2)"`
-	PaymentMethod PaymentMethodEnum `json:"paymentMethod"  gorm:"type:enum('cash','bank','cheque')"`
+	PaymentMethod PaymentMethodEnum `json:"paymentMethod"  sql:"type:enum('cash','bank','cheque')"`
 	PeriodStart   time.Time         `json:"periodStart"    gorm:"type:date"`
 	PeriodEnd     time.Time         `json:"periodEnd"      gorm:"type:date"`
 	Adjustments   []*Adjustments    `json:"adjustments"    gorm:"foreignKey:PaymentID"`
 	Notes         string            `json:"notes"          gorm:"type:text"`
-	Documents     []*Document       `json:"documents"`
+	//todo: figure out relationship Documents     []*Document       `json:"documents"`
 	// ------------------------------------------------------------------------------------------------
-	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus" gorm:"type:enum('pending','approved','rejected')"`
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus" sql:"type:enum('pending','approved','rejected')"`
 }
 
 type AdjustmentTypeEnum string
@@ -69,12 +69,12 @@ const (
 )
 
 type Adjustments struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	// ------------------------------------------------------------------------------------------------
 	PaymentID      uint               `json:"paymentId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Amount         float64            `json:"amount"    gorm:"type:decimal(10,2)"`
-	AdjustmentType AdjustmentTypeEnum `json:"type"      gorm:"type:enum('bonus','deduction')"`
+	AdjustmentType AdjustmentTypeEnum `json:"type"      sql:"type:enum('bonus','deduction')"`
 	Notes          string             `json:"notes"     gorm:"type:text"`
 	// ------------------------------------------------------------------------------------------------
 }

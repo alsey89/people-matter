@@ -2,6 +2,8 @@ package schema
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type LeaveTypeEnum string
@@ -16,15 +18,15 @@ const (
 )
 
 type Leave struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID    uint          `json:"user_id"           gorm:"onUpdate:CASCADE onDelete:CASCADE"`
-	Type      LeaveTypeEnum `json:"type"              gorm:"type:enum('sick','vacation','maternity','paternity','bereavement','other'); not null"`
+	Type      LeaveTypeEnum `json:"type"              sql:"type:enum('sick','vacation','maternity','paternity','bereavement','other'); not null"`
 	StartDate time.Time     `json:"startDate"         gorm:"type:date;not null"`
 	EndDate   time.Time     `json:"endDate"           gorm:"type:date;not null"`
 	Reason    string        `json:"reason"            gorm:"type:text"`
-	Documents []Document    `json:"documents"`
+	//todo: figure out relationship Documents []Document    `json:"documents"`
 	// ------------------------------------------------------------------------------------------------
-	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    gorm:"type:enum('pending','approved','rejected');not null"`
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    sql:"type:enum('pending','approved','rejected');not null"`
 }

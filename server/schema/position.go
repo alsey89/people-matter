@@ -1,9 +1,13 @@
 package schema
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Position struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Title          string `json:"title"`
@@ -35,7 +39,7 @@ const (
 )
 
 type UserPosition struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID uint `json:"userId"`
@@ -46,7 +50,7 @@ type UserPosition struct {
 	LocationID uint     `json:"locationId"`
 	Location   Location `json:"location" gorm:"foreignKey:LocationID"`
 	// ------------------------------------------------------------------------------------------------
-	EmploymentStatus EmploymentStatusEnum `json:"employmentStatus" gorm:"type:enum('full-time','part-time','contract','temporary','seasonal','intern');not null"`
+	EmploymentStatus EmploymentStatusEnum `json:"employmentStatus" sql:"type:enum('full-time','part-time','contract','temporary','seasonal','intern');not null"`
 	StartDate        time.Time            `json:"startDate"`
 	EndDate          time.Time            `json:"endDate"`
 }

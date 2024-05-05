@@ -1,9 +1,13 @@
 package schema
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Attendance struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID   uint      `json:"user_id"   gorm:"not null"`
@@ -12,5 +16,5 @@ type Attendance struct {
 	ClockOut time.Time `json:"clock_out" gorm:"type:time"`
 	Notes    string    `json:"notes"     gorm:"type:text"`
 	// ------------------------------------------------------------------------------------------------
-	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    gorm:"type:enum('pending','approved','rejected');not null"`
+	ApprovalStatus ApprovalStatusEnum `json:"approvalStatus"    sql:"type:enum('pending','approved','rejected');not null"`
 }

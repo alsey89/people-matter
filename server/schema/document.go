@@ -1,7 +1,9 @@
 package schema
 
+import "gorm.io/gorm"
+
 type Document struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID uint   `json:"userId"      gorm:"onUpdate:CASCADE;onDelete:CASCADE"`

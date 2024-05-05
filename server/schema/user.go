@@ -2,6 +2,8 @@ package schema
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // User Schema ---------------------------------------------------------------
@@ -10,19 +12,19 @@ import (
 type RoleEnum string
 
 const (
-	RoleAdmin   RoleEnum = "admin"
-	RoleManager RoleEnum = "manager"
-	RoleUser    RoleEnum = "user"
+	AdminRole   RoleEnum = "admin"
+	ManagerRole RoleEnum = "manager"
+	UserRole    RoleEnum = "user"
 )
 
 type User struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Email      string      `json:"email"      gorm:"uniqueIndex"`
 	Password   string      `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
 	AvatarURL  string      `json:"avatarUrl"  gorm:"type:text"`
-	Role       RoleEnum    `json:"role"       gorm:"type:enum('admin','manager','user');default:'user'"`
+	Role       RoleEnum    `json:"role"       gorm:"default:'user'" sql:"type:ENUM('admin','manager','user')"`
 	LastLogin  *time.Time  `json:"lastLogin"  gorm:"default:null"`
 	IsArchived bool        `json:"isArchived" gorm:"default:false"`
 	Documents  []*Document `json:"documents"  gorm:"foreignKey:UserID"`
@@ -45,7 +47,7 @@ type User struct {
 }
 
 type ContactInfo struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	// ------------------------------------------------------------------------------------------------
 	UserID     uint   `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
@@ -60,7 +62,7 @@ type ContactInfo struct {
 }
 
 type EmergencyContact struct {
-	BaseModel
+	gorm.Model
 	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	// ------------------------------------------------------------------------------------------------
 	UserID     uint    `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
