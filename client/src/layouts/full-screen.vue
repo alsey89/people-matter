@@ -1,7 +1,7 @@
 <template>
-    <div class="flex justify-center items-center min-h-screen bg-primary">
+    <div class="flex justify-center items-center min-h-screen bg-background">
         <div class="w-full max-w-xs">
-            <slot></slot>
+            <router-view></router-view>
         </div>
     </div>
 </template>

@@ -14,7 +14,19 @@
             <div v-auto-animate>
                 <label for="password">Password</label>
                 <div v-if="form.passwordErr" class="text-xs text-destructive"> {{ form.passwordErr }} </div>
-                <input name="password" type="password" v-model="form.password" placeholder="********" required
+                <input name="password" type="password" v-model="form.password" placeholder="********" minlength="6"
+                    required
+                    class="appearance-none border-2 border-secondary w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:border-ring"
+                    :disabled="form.submitting">
+            </div>
+
+            <!-- confirm password -->
+            <div v-auto-animate>
+                <label for="confirmPassword">Confirm Password</label>
+                <div v-if="form.confirmPasswordErr" class="text-xs text-destructive"> {{ form.confirmPasswordErr }}
+                </div>
+                <input name="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="********"
+                    minlength="6" required
                     class="appearance-none border-2 border-secondary w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:border-ring"
                     :disabled="form.submitting">
             </div>
@@ -30,7 +42,6 @@
 
 <script setup>
 import { reactive } from 'vue';
-import { onMounted } from 'vue';
 
 import { Icon } from '@iconify/vue';
 import { Card } from '@/components/ui/card';
@@ -43,21 +54,30 @@ const form = reactive({
     email: '',
     emailErr: '',
     password: '',
+    confirmPassword: '',
     passwordErr: '',
+    confirmPasswordErr: '',
     submitting: false,
 });
 
 const submitForm = () => {
     form.submitting = true;
     validateEmail(form.email).catch((error) => {
+        console.error(error);
         form.emailErr = error.message;
+        return;
+    });
+    validatePassword(form.password, form.confirmPassword).catch((error) => {
+        console.error(error);
+        form.passwordErr = error.message;
+        form.confirmPasswordErr = error.message;
         return;
     });
 
     console.log(form);
 
     try {
-        userStore.login(form);
+        userStore.signup(form);
     } catch (error) {
         console.error(error);
     } finally {
@@ -73,6 +93,31 @@ const validateEmail = (email) => {
     }
 
     return true;
+};
+
+const validatePassword = (password, confirmPassword, minLength = 6) => {
+    let error = '';
+
+    switch (true) {
+        case !password && !confirmPassword:
+            error = 'Password required';
+            break;
+        case !password || !confirmPassword:
+            error = 'Both password fields must be filled';
+            break;
+        case password.length < minLength || confirmPassword.length < minLength:
+            error = 'Password must be at least ' + minLength + ' characters';
+            break;
+        case password !== confirmPassword:
+            error = 'Passwords do not match';
+            break;
+        default:
+            return true;
+    }
+
+    if (error) {
+        throw new Error(error);
+    }
 };
 
 onBeforeMount(() => {

@@ -1,24 +1,52 @@
-function requireAuth(to, from, next) {
+function middleware(to, from, next) {
   if (sessionStorage.getItem("accessToken")) {
     next();
   } else {
-    next("/auth/signin");
+    next("/");
   }
 }
 
-const routes = [
+const originRoutes = [
   {
+    grant: true,
     path: "/auth",
-    name: "AuthLayout",
+    name: "FullScreenLayout",
     component: () => import("@/layouts/full-screen.vue"),
     children: [
       {
+        grant: true,
         path: "signin",
         name: "SignIn",
         component: () => import("@/pages/auth/signin.vue"),
       },
+      {
+        grant: true,
+        path: "signup",
+        name: "SignUp",
+        component: () => import("@/pages/auth/signup.vue"),
+      },
     ],
   },
+  /* {
+      grant: true,
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../pages/NotFound.vue')
+} */
 ];
 
-export default routes;
+export const filterByGrant = () => {
+  const recuresiveMap = (routes = originRoutes) => {
+    return routes
+      .map((_route) => {
+        if (_route.grant) {
+          return _route;
+        }
+      })
+      .filter((v) => !!v);
+  };
+
+  return recuresiveMap();
+};
+
+export const routes = () => filterByGrant();

@@ -4,8 +4,8 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 26, 33%, 96%;
+    --foreground: 300, 100%, 0%;
  
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -18,12 +18,12 @@
  
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
+
+    --primary: 261, 87%, 65%;  /* purple */
+    --primary-foreground: 300, 100%, 0%;  /* black */
  
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 300, 100%, 0%; /* black */
+    --secondary-foreground: 0, 0%, 100%; /* white */
  
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -31,7 +31,7 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
  
-    --ring: 222.2 84% 4.9%;
+    --ring: 261, 87%, 40%; /* dark purple */
  
     --radius: 0.5rem;
   }
