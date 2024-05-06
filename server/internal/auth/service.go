@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/alsey89/people-matter/schema"
 	"golang.org/x/crypto/bcrypt"
@@ -39,10 +40,12 @@ func (a *Domain) SignIn(email string, password string) (*schema.User, error) {
 
 	var user schema.User
 
-	result := db.Where("email = ?", email).Find(&user)
+	result := db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("[SignIn] %w", result.Error)
 	}
+
+	log.Printf("User: %+v", user)
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {

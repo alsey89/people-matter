@@ -1,8 +1,7 @@
-import actions from "./actions";
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const api_url = import.meta.env.API_URL;
+const api_url = import.meta.env.VITE_API_URL;
 
 export const useUserStore = defineStore("user-store", {
   state: () => ({
@@ -23,11 +22,17 @@ export const useUserStore = defineStore("user-store", {
     async signup(payload) {
       try {
         let data = {
-          name: payload.name,
           email: payload.email,
           password: payload.password,
           confirmPassword: payload.confirmPassword,
         };
+
+        console.log("api_url: ", api_url);
+
+        axios.defaults.headers.post["Content-Type"] = "application/json";
+        axios.defaults.headers.post["Accept"] = "application/json";
+        axios.defaults.withCredentials = true;
+
         const response = await axios.post(api_url + "/auth/signup", data);
         if (response.status >= 200 && response.status < 300) {
           if (response.data) {
@@ -62,6 +67,7 @@ export const useUserStore = defineStore("user-store", {
     },
     async getCsrfToken() {
       try {
+        axios.defaults.withCredentials = true;
         const response = await axios.get(api_url + "/auth/csrf");
         if (response.status >= 200 && response.status < 300) {
           return true;

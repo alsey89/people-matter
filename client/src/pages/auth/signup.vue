@@ -42,12 +42,13 @@
 
 <script setup>
 import { reactive } from 'vue';
+import { onBeforeMount } from 'vue';
 
 import { Icon } from '@iconify/vue';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/User';
 
 const userStore = useUserStore();
 const form = reactive({
@@ -62,19 +63,27 @@ const form = reactive({
 
 const submitForm = () => {
     form.submitting = true;
-    validateEmail(form.email).catch((error) => {
+
+    try {
+        validateEmail(form.email);
+    } catch (error) {
         console.error(error);
         form.emailErr = error.message;
         return;
-    });
-    validatePassword(form.password, form.confirmPassword).catch((error) => {
+    } finally {
+        form.submitting = false;
+    }
+
+    try {
+        validatePassword(form.password, form.confirmPassword);
+    } catch (error) {
         console.error(error);
         form.passwordErr = error.message;
         form.confirmPasswordErr = error.message;
         return;
-    });
-
-    console.log(form);
+    } finally {
+        form.submitting = false;
+    }
 
     try {
         userStore.signup(form);

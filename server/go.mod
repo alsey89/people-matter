@@ -3,7 +3,8 @@ module github.com/alsey89/people-matter
 go 1.21.6
 
 require (
-	github.com/alsey89/gogetter v0.1.2
+	github.com/alsey89/gogetter v0.1.7
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.18.2
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

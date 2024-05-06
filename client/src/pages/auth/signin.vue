@@ -30,13 +30,13 @@
 
 <script setup>
 import { reactive } from 'vue';
-import { onMounted } from 'vue';
+import { onBeforeMount } from 'vue';
 
 import { Icon } from '@iconify/vue';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/User';
 
 const userStore = useUserStore();
 const form = reactive({
@@ -49,15 +49,17 @@ const form = reactive({
 
 const submitForm = () => {
     form.submitting = true;
-    validateEmail(form.email).catch((error) => {
-        form.emailErr = error.message;
-        return;
-    });
-
-    console.log(form);
 
     try {
-        userStore.login(form);
+        validateEmail(form.email);
+    } catch (error) {
+        form.emailErr = error.message;
+        form.submitting = false;
+        return;
+    }
+
+    try {
+        userStore.signin(form);
     } catch (error) {
         console.error(error);
     } finally {

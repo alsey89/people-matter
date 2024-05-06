@@ -22,8 +22,16 @@ func init() {
 	configuration = config.SetUpConfig("SERVER", "yaml")
 	//! CONFIG PRECEDENCE: ENV > CONFIG FILE > FALLBACK
 	configuration.SetFallbackConfigs(map[string]interface{}{
-		"server.host": "0.0.0.0",
-		"server.port": 3001,
+		"server.host":      "0.0.0.0",
+		"server.port":      3001,
+		"server.log_level": "DEV",
+
+		// "server.allow_headers":   "*",
+		// "server.allow_methods":   "*",
+		"server.allow_origins":   "http://localhost:3000, http://localhost:3001",
+		"server.csrf_protection": true,
+		"server.csrf_secure":     false,
+		"server.csrf_domain":     "localhost",
 
 		"database.host":         "postgres",
 		"database.port":         5432,
@@ -32,7 +40,7 @@ func init() {
 		"database.password":     "password",
 		"database.sslmode":      "prefer",
 		"databse.loglevel":      "error",
-		"database.auto_migrate": true,
+		"database.auto_migrate": false,
 
 		"mailer.host":         "smtp.gmail.com",
 		"mailer.port":         587,
@@ -48,6 +56,7 @@ func main() {
 	app := fx.New(
 		fx.Supply(configuration),
 		logger.InitiateModule(),
+		server.InitiateModule("server"),
 		postgres.InitiateModuleAndSchema(
 			"database",
 			// ...schema,
@@ -68,7 +77,6 @@ func main() {
 		),
 		jwt.InitiateModule("auth_jwt"),
 		mailer.InitiateModule("mailer"),
-		server.InitiateModule("server"),
 
 		//-- Internal Domains Start --
 		auth.InitiateDomain("auth"),

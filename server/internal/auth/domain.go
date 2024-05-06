@@ -63,7 +63,7 @@ func (a *Domain) onStart(ctx context.Context) error {
 
 	// Router
 	server := a.params.Server.GetServer()
-	authGroup := server.Group("/auth")
+	authGroup := server.Group("api/v1/auth")
 
 	// authGroup.POST("/signup", a.SignupHandler)
 	authGroup.POST("/signin", a.SigninHandler)
