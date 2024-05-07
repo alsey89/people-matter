@@ -1,6 +1,7 @@
 package company
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -24,6 +25,13 @@ func (d *Domain) GetCompanyHandler(c echo.Context) error {
 	}
 
 	companyData, err := d.GetCompanyWithDetails(companyID)
+	if err != nil {
+		d.logger.Error("[GetCompanyHandler]", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error getting company data",
+			Data:    nil,
+		})
+	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "detailed company data retrieved",
@@ -32,28 +40,65 @@ func (d *Domain) GetCompanyHandler(c echo.Context) error {
 }
 
 func (d *Domain) CreateCompanyHandler(c echo.Context) error {
-	newCompany := new(NewCompany)
 
-	err := c.Bind(newCompany)
+	form := new(NewCompany)
+	err := c.Bind(form)
 	if err != nil {
-		d.logger.Error("[CreateCompanyHandler] error binding newCompany data", zap.Error(err))
+		d.logger.Error("[signupHandler] error binding credentials", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "something went wrong",
+			Message: "form error",
 			Data:    nil,
 		})
 	}
 
-	err = d.CreateNewCompanyAndAdminUser(newCompany)
+	// validate email
+	email := form.AdminEmail
+	if !common.EmailValidator(email) {
+		d.logger.Error("[signupHandler] email validation failed")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid email",
+			Data:    nil,
+		})
+	}
+
+	// validate password
+	password := form.Password
+	confirmPassword := form.ConfirmPassword
+	if password != confirmPassword {
+		d.logger.Error("[signupHandler] password confirmation check failed")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "passwords do not match",
+			Data:    nil,
+		})
+	}
+
+	// validate company name
+	companyName := form.CompanyName
+	if companyName == "" {
+		d.logger.Error("[signupHandler] company name is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "company name required",
+			Data:    nil,
+		})
+	}
+
+	err = d.CreateNewCompanyAndAdminUser(form)
 	if err != nil {
 		d.logger.Error("[createCompanyHandler]", zap.Error(err))
+		if errors.Is(err, ErrUserExists) {
+			return c.JSON(http.StatusConflict, common.APIResponse{
+				Message: "user already exists",
+				Data:    nil,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "error creating company",
+			Message: "error creating company and admin user",
 			Data:    nil,
 		})
 	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
-		Message: "company created",
+		Message: "company and admin user created",
 		Data:    nil,
 	})
 }
@@ -80,6 +125,13 @@ func (d *Domain) UpdateCompanyHandler(c echo.Context) error {
 	}
 
 	err = d.UpdateCompany(companyID, dataToUpdate)
+	if err != nil {
+		d.logger.Error("[UpdateCompanyHandler]", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error updating company",
+			Data:    nil,
+		})
+	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "company data updated",
@@ -137,6 +189,13 @@ func (d *Domain) CreateDepartmentHandler(c echo.Context) error {
 	}
 
 	err = d.CreateDepartment(newDepartment)
+	if err != nil {
+		d.logger.Error("[CreateDepartmentHandler]", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error creating department",
+			Data:    nil,
+		})
+	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "department created",

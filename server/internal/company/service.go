@@ -3,33 +3,47 @@ package company
 import (
 	"fmt"
 
-	"github.com/alsey89/people-matter/internal/common"
 	"github.com/alsey89/people-matter/schema"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //! Company ------------------------------------------------------------
 
-// Create new company
-func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyData *NewCompany) error {
+// Create new company and admin user, send confirmation email
+func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyForm *NewCompany) error {
 	db := d.params.Database.GetDB()
 
 	newCompany := schema.Company{
-		Name: newCompanyData.CompanyName,
+		Name:        newCompanyForm.CompanyName,
+		CompanySize: newCompanyForm.CompanySize,
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newCompanyForm.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error hashing password %w", err)
 	}
 
 	newAdminUser := schema.User{
-		Email:    newCompanyData.AdminEmail,
+		Email:    newCompanyForm.AdminEmail,
 		Role:     "admin",
-		Password: common.GeneratePassword(12),
+		Password: string(hashedPassword),
 	}
 
-	// *----- Transaction start -----
+	// *----- Transaction Start -----
 	tx := db.Begin()
 
 	result := tx.Create(&newCompany)
 	if result.Error != nil {
 		tx.Rollback()
 		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating company %w", result.Error)
+	}
+
+	//check if user already exists
+	var existingUser schema.User
+	result = tx.Where("email = ?", newAdminUser.Email).First(&existingUser)
+	if result.Error == nil {
+		tx.Rollback()
+		return ErrUserExists
 	}
 
 	newAdminUser.CompanyID = newCompany.ID
@@ -40,9 +54,20 @@ func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyData *NewCompany) error 
 	}
 
 	tx.Commit()
-	// *----- Transaction end -----
+	// *----- Transaction End -----
 
-	//todo: send email to new admin user to start the account set up process
+	//send confirmation email
+	m := d.params.Mailer.NewMessage()
+	m.SetHeader("From", "hello@peoplematter.app")
+	m.SetHeader("To", newAdminUser.Email)
+	m.SetHeader("Subject", "Welcome to People Matter")
+	m.SetBody("text/html",
+		"<p>Welcome to People Matter</p><p>Your account has been created. Please click the link below to confirm your email address.</p><a>https://localhost:3000/user/email/confirmation?code=1234abcd</a>",
+	)
+	err = d.params.Mailer.Send(m)
+	if err != nil {
+		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error sending confirmation email %w", err)
+	}
 
 	return nil
 }

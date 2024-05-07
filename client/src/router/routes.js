@@ -9,6 +9,20 @@ function middleware(to, from, next) {
 const originRoutes = [
   {
     grant: true,
+    path: "/",
+    name: "DashboardLayout",
+    component: () => import("../layouts/full-screen.vue"),
+    children: [
+      {
+        grant: true,
+        path: "",
+        name: "Dashboard",
+        component: () => import("../pages/index.vue"),
+      },
+    ],
+  },
+  {
+    grant: true,
     path: "/auth",
     name: "FullScreenLayout",
     component: () => import("@/layouts/full-screen.vue"),

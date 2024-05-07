@@ -21,11 +21,12 @@ type Company struct {
 	Locations   []Location   `json:"locations" gorm:"foreignKey:CompanyID"`
 	Positions   []Position   `json:"jobs" gorm:"foreignKey:CompanyID"`
 	// ------------------------------------------------------------------------------------------------
+	CompanySize string `json:"companySize"`
 }
 
 type Department struct {
 	gorm.Model
-	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -34,7 +35,7 @@ type Department struct {
 
 type Location struct {
 	gorm.Model
-	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Name         string `json:"name"`
 	IsHeadOffice bool   `json:"isHeadOffice"`

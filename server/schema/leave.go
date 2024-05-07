@@ -19,7 +19,7 @@ const (
 
 type Leave struct {
 	gorm.Model
-	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID    uint          `json:"user_id"           gorm:"onUpdate:CASCADE onDelete:CASCADE"`
 	Type      LeaveTypeEnum `json:"type"              sql:"type:enum('sick','vacation','maternity','paternity','bereavement','other'); not null"`

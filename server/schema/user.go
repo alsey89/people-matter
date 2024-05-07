@@ -19,7 +19,8 @@ const (
 
 type User struct {
 	gorm.Model
-	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
+	Active    bool `json:"active"     gorm:"default:false"`
 	// ------------------------------------------------------------------------------------------------
 	Email      string      `json:"email"      gorm:"uniqueIndex"`
 	Password   string      `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
@@ -48,7 +49,7 @@ type User struct {
 
 type ContactInfo struct {
 	gorm.Model
-	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID     uint   `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Address    string `json:"address"`
@@ -63,9 +64,9 @@ type ContactInfo struct {
 
 type EmergencyContact struct {
 	gorm.Model
-	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
-	UserID     uint    `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	UserID     uint    `json:"userId" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	FirstName  string  `json:"firstName"`
 	MiddleName *string `json:"middleName"`
 	LastName   string  `json:"lastName"`

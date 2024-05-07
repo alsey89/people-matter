@@ -16,7 +16,7 @@ const (
 
 type Salary struct {
 	BaseModel
-	CompanyID uint `json:"company_id" gorm:"onUpdate:CASCADE onDelete:CASCADE;not null"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID          uint                      `json:"userId"          gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Amount          float64                   `json:"amount"          gorm:"type:decimal(10,2)"`
@@ -45,7 +45,7 @@ const (
 
 type Payment struct {
 	gorm.Model
-	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID        uint              `json:"userId"         gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	SalaryID      uint              `json:"salaryId"       gorm:"onUpdate:CASCADE;onDelete:SET NULL"`
@@ -70,7 +70,7 @@ const (
 
 type Adjustments struct {
 	gorm.Model
-	CompanyID uint `json:"companyId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
+	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	PaymentID      uint               `json:"paymentId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
 	Amount         float64            `json:"amount"    gorm:"type:decimal(10,2)"`

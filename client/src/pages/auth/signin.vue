@@ -1,6 +1,11 @@
 <template>
     <Card class="">
-        <form @submit.prevent="submitForm" class="flex flex-col gap-4 p-4">
+        <form @submit.prevent="submitForm" v-auto-animate class="flex flex-col gap-4 p-4">
+            <!-- Error -->
+            <section v-if="userStore.getError">
+                <p class="text-base font-bold text-destructive">Error: {{ userStore.getError }}</p>
+                <hr v-if="userStore.getError" class="border-t border-gray-300 my-4">
+            </section>
             <!-- email -->
             <div v-auto-animate>
                 <label for="email">Email</label>
@@ -31,6 +36,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Icon } from '@iconify/vue';
 import { Card } from '@/components/ui/card';
@@ -38,6 +44,7 @@ import { Button } from '@/components/ui/button';
 
 import { useUserStore } from '@/stores/User';
 
+const router = useRouter();
 const userStore = useUserStore();
 const form = reactive({
     email: '',
@@ -47,11 +54,11 @@ const form = reactive({
     submitting: false,
 });
 
-const submitForm = () => {
+const submitForm = async () => {
     form.submitting = true;
 
     try {
-        validateEmail(form.email);
+        await validateEmail(form.email);
     } catch (error) {
         form.emailErr = error.message;
         form.submitting = false;
@@ -59,10 +66,13 @@ const submitForm = () => {
     }
 
     try {
-        userStore.signin(form);
+        const success = await userStore.signin(form);
+        if (success) {
+            form.submitting = false;
+            router.push('/');
+        }
     } catch (error) {
         console.error(error);
-    } finally {
         form.submitting = false;
     }
 };

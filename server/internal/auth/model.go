@@ -15,13 +15,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type RootUserSignupCredentials struct {
-	Email           string `json:"email" bson:"email"`
-	CompanyName     string `json:"companyName" bson:"companyName"`
-	Password        string `json:"password" bson:"password"`
-	ConfirmPassword string `json:"confirmPassword" bson:"confirmPassword"`
-}
-
 type SigninCredentials struct {
 	Email    string `json:"email" bson:"email"`
 	Password string `json:"password" bson:"password"`

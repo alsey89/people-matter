@@ -40,7 +40,7 @@ func init() {
 		"database.password":     "password",
 		"database.sslmode":      "prefer",
 		"databse.loglevel":      "error",
-		"database.auto_migrate": false,
+		"database.auto_migrate": true,
 
 		"mailer.host":         "smtp.gmail.com",
 		"mailer.port":         587,

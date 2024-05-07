@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	postgres "github.com/alsey89/gogetter/database/postgres"
+	mailer "github.com/alsey89/gogetter/mail/gomail"
 	server "github.com/alsey89/gogetter/server/echo"
 )
 
@@ -24,6 +25,7 @@ type Params struct {
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
 	Database  *postgres.Database
+	Mailer    *mailer.Mailer
 }
 
 func InitiateDomain(scope string) fx.Option {
@@ -61,26 +63,27 @@ func (c *Domain) onStart(ctx context.Context) error {
 
 	// Router
 	server := c.params.Server.GetServer()
-	companyGroup := server.Group("/company")
+	companyGroup := server.Group("api/v1/company")
+
+	adminGroup := companyGroup.Group("/admin")
 
 	// Routes
-	companyGroup.GET("/", c.GetCompanyHandler)
+	companyGroup.GET("", c.GetCompanyHandler)
+	companyGroup.POST("", c.CreateCompanyHandler)
+	adminGroup.PUT("", c.UpdateCompanyHandler)
+	adminGroup.DELETE("", c.DeleteCompanyHandler)
 
-	companyGroup.POST("/", c.CreateCompanyHandler)
-	companyGroup.PUT("/", c.UpdateCompanyHandler)
-	companyGroup.DELETE("/", c.DeleteCompanyHandler)
+	adminGroup.POST("/department", c.CreateDepartmentHandler)
+	adminGroup.PUT("/department/:department_id", c.UpdateDepartmentHandler)
+	adminGroup.DELETE("/department/:department_id", c.DeleteDepartmentHandler)
 
-	companyGroup.POST("/department", c.CreateDepartmentHandler)
-	companyGroup.PUT("/department/:department_id", c.UpdateDepartmentHandler)
-	companyGroup.DELETE("/department/:department_id", c.DeleteDepartmentHandler)
+	adminGroup.POST("/location", c.CreateLocationHandler)
+	adminGroup.PUT("/location/:location_id", c.UpdateLocationHandler)
+	adminGroup.DELETE("/location/:location_id", c.DeleteLocationHandler)
 
-	companyGroup.POST("/location", c.CreateLocationHandler)
-	companyGroup.PUT("/location/:location_id", c.UpdateLocationHandler)
-	companyGroup.DELETE("/location/:location_id", c.DeleteLocationHandler)
-
-	companyGroup.POST("/position", c.CreatePositionHandler)
-	companyGroup.PUT("/position/:position_id", c.UpdatePositionHandler)
-	companyGroup.DELETE("/position/:position_id", c.DeletePositionHandler)
+	adminGroup.POST("/position", c.CreatePositionHandler)
+	adminGroup.PUT("/position/:position_id", c.UpdatePositionHandler)
+	adminGroup.DELETE("/position/:position_id", c.DeletePositionHandler)
 
 	return nil
 }
