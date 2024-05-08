@@ -2,12 +2,10 @@ package schema
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Position struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Title          string `json:"title"`
@@ -39,7 +37,7 @@ const (
 )
 
 type UserPosition struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID uint `json:"userId"`

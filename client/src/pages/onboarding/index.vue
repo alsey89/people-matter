@@ -1,5 +1,5 @@
 <template>
-    <div v-auto-animate>
+    <div v-auto-animate class="w-full">
         <!-- Company Created -->
         <Card v-if="!form.submitting && companyCreated" class="w-[450px] flex flex-col gap-2 p-4">
             <p class="text-xl font-bold"> Company Created! </p>
@@ -10,7 +10,7 @@
         </Card>
 
         <!-- Company Creation -->
-        <Card v-else class="w-[450px]">
+        <Card v-else class="w-[400px] md:w-[480px]">
 
             <form v-auto-animate @submit.prevent="submitForm" class="flex flex-col gap-4 p-4">
                 <!-- Error -->

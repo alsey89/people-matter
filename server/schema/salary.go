@@ -44,7 +44,7 @@ const (
 )
 
 type Payment struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID        uint              `json:"userId"         gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
@@ -69,7 +69,7 @@ const (
 )
 
 type Adjustments struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	PaymentID      uint               `json:"paymentId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`

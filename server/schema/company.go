@@ -1,9 +1,7 @@
 package schema
 
-import "gorm.io/gorm"
-
 type Company struct {
-	gorm.Model
+	BaseModel
 	// ------------------------------------------------------------------------------------------------
 	Name    string `json:"name"`
 	LogoURL string `json:"logoUrl"`
@@ -25,7 +23,7 @@ type Company struct {
 }
 
 type Department struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Name        string `json:"name"`
@@ -34,7 +32,7 @@ type Department struct {
 }
 
 type Location struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	Name         string `json:"name"`

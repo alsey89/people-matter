@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	postgres "github.com/alsey89/gogetter/database/postgres"
+	jwt "github.com/alsey89/gogetter/jwt/echo"
 	server "github.com/alsey89/gogetter/server/echo"
 )
 
@@ -24,30 +25,31 @@ type Params struct {
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
 	Database  *postgres.Database
+	JWT       *jwt.JWT
 }
 
 func InitiateDomain(scope string) fx.Option {
 
-	var a *Domain
+	var d *Domain
 
 	return fx.Options(
 		fx.Provide(func(p Params) *Domain {
 
-			a := &Domain{
+			d := &Domain{
 				params: p,
 				scope:  scope,
 				logger: p.Logger.Named("[" + scope + "]"),
 			}
 
-			return a
+			return d
 		}),
-		fx.Populate(&a),
+		fx.Populate(&d),
 		fx.Invoke(func(p Params) {
 
 			p.Lifecycle.Append(
 				fx.Hook{
-					OnStart: a.onStart,
-					OnStop:  a.onStop,
+					OnStart: d.onStart,
+					OnStop:  d.onStop,
 				},
 			)
 		}),
@@ -55,40 +57,42 @@ func InitiateDomain(scope string) fx.Option {
 
 }
 
-func (a *Domain) onStart(ctx context.Context) error {
+func (d *Domain) onStart(ctx context.Context) error {
 
-	a.logger.Info("Starting APIs")
+	d.logger.Info("Starting APIs")
 
-	// a.AddDefaultData(ctx)
+	// d.AddDefaultData(ctx)
 
 	// Router
-	server := a.params.Server.GetServer()
+	server := d.params.Server.GetServer()
 	authGroup := server.Group("api/v1/auth")
 
-	// authGroup.POST("/signup", a.SignupHandler)
-	authGroup.POST("/signin", a.SigninHandler)
-	authGroup.POST("/signout", a.SignoutHandler)
+	// authGroup.POST("/signup", d.SignupHandler)
+	authGroup.POST("/signin", d.SigninHandler)
+	authGroup.POST("/signout", d.SignoutHandler)
 
-	authGroup.GET("/check", a.CheckAuth)
-	authGroup.GET("/csrf", a.GetCSRFToken)
+	authGroup.GET("/check", d.CheckAuth)
+	authGroup.GET("/csrf", d.GetCSRFToken)
 
-	return nil
-}
-
-func (a *Domain) onStop(ctx context.Context) error {
-	a.logger.Info("Stopped APIs")
+	authGroup.GET("/confirmation", d.ConfirmationHandler)
 
 	return nil
 }
 
-// func (a *Domain) AddDefaultData(ctx context.Context) {
-// 	db := a.params.Database.GetDB()
+func (d *Domain) onStop(ctx context.Context) error {
+	d.logger.Info("Stopped APIs")
+
+	return nil
+}
+
+// func (d *Domain) AddDefaultData(ctx context.Context) {
+// 	db := d.params.Database.GetDB()
 
 // 	u := User{}
-// 	id := uuid.MustParse(viper.GetString(a.getConfigPath("super_admin_id")))
+// 	id := uuid.MustParse(viper.GetString(d.getConfigPath("super_admin_id")))
 // 	result := db.Where("id = ?", id).First(&u)
 // 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-// 		a.logger.Fatal(result.Error.Error())
+// 		d.logger.Fatal(result.Error.Error())
 // 		return
 // 	}
 
@@ -96,9 +100,9 @@ func (a *Domain) onStop(ctx context.Context) error {
 // 		return
 // 	}
 
-// 	hashedPwd, err := HashPassword(viper.GetString(a.getConfigPath("super_admin_password")))
+// 	hashedPwd, err := HashPassword(viper.GetString(d.getConfigPath("super_admin_password")))
 // 	if err != nil {
-// 		a.logger.Error(err.Error())
+// 		d.logger.Error(err.Error())
 // 		return
 // 	}
 
@@ -106,10 +110,10 @@ func (a *Domain) onStop(ctx context.Context) error {
 // 		BaseModel: BaseModel{
 // 			ID: id,
 // 		},
-// 		Email:    viper.GetString(a.getConfigPath("super_admin_email")),
+// 		Email:    viper.GetString(d.getConfigPath("super_admin_email")),
 // 		Password: hashedPwd,
 // 	}
 // 	if err := db.Create(&data).Error; err != nil {
-// 		a.logger.Error(err.Error())
+// 		d.logger.Error(err.Error())
 // 	}
 // }

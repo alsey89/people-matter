@@ -2,8 +2,10 @@ package company
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
@@ -82,7 +84,7 @@ func (d *Domain) CreateCompanyHandler(c echo.Context) error {
 		})
 	}
 
-	err = d.CreateNewCompanyAndAdminUser(form)
+	createdAdminUser, err := d.CreateNewCompanyAndAdminUser(form)
 	if err != nil {
 		d.logger.Error("[createCompanyHandler]", zap.Error(err))
 		if errors.Is(err, ErrUserExists) {
@@ -95,6 +97,42 @@ func (d *Domain) CreateCompanyHandler(c echo.Context) error {
 			Message: "error creating company and admin user",
 			Data:    nil,
 		})
+	}
+
+	//generate jwt token
+	claims := jwt.MapClaims{
+		"Id":        createdAdminUser.ID,
+		"companyId": createdAdminUser.CompanyID,
+	}
+
+	token, err := d.params.JWT.GenerateToken(claims)
+	if err != nil {
+		d.logger.Error("[CreateCompanyHandler] error generating token", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error generating token",
+			Data:    nil,
+		})
+	}
+	if token == nil {
+		d.logger.Error("[CreateCompanyHandler] token is nil")
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "token error",
+			Data:    nil,
+		})
+	}
+
+	//send confirmation email
+	// todo define send mail function in gogetter
+	m := d.params.Mailer.NewMessage()
+	m.SetHeader("From", "hello@peoplematter.app")
+	m.SetHeader("To", form.AdminEmail)
+	m.SetHeader("Subject", "Welcome to People Matter")
+	m.SetBody("text/html",
+		"<p>Welcome to People Matter</p><p>Your account has been created. Please click the link below to confirm your email address.</p><a href=\"http://localhost:3000/onboarding/confirmation?token="+*token+"\">Confirm Email</a>",
+	)
+	err = d.params.Mailer.Send(m)
+	if err != nil {
+		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error sending confirmation email %w", err)
 	}
 
 	return c.JSON(http.StatusOK, common.APIResponse{
@@ -150,6 +188,14 @@ func (d *Domain) DeleteCompanyHandler(c echo.Context) error {
 	}
 
 	err = d.DeleteCompany(companyID)
+	if err != nil {
+		d.logger.Error("[DeleteCompanyHandler]", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "error deleting company",
+			Data:    nil,
+		})
+	}
+
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "company deleted",
 		Data:    nil,

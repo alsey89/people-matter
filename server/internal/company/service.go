@@ -10,8 +10,14 @@ import (
 //! Company ------------------------------------------------------------
 
 // Create new company and admin user, send confirmation email
-func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyForm *NewCompany) error {
+func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyForm *NewCompany) (*schema.User, error) {
 	db := d.params.Database.GetDB()
+
+	// terminate if user already exists
+	var existingUser schema.User
+	if db.Where("email = ?", newCompanyForm.AdminEmail).First(&existingUser).Error == nil {
+		return nil, ErrUserExists
+	}
 
 	newCompany := schema.Company{
 		Name:        newCompanyForm.CompanyName,
@@ -20,7 +26,7 @@ func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyForm *NewCompany) error 
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newCompanyForm.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error hashing password %w", err)
+		return nil, fmt.Errorf("[CreateNewCompanyAndAdminUser] Error hashing password: %w", err)
 	}
 
 	newAdminUser := schema.User{
@@ -32,44 +38,25 @@ func (d *Domain) CreateNewCompanyAndAdminUser(newCompanyForm *NewCompany) error 
 	// *----- Transaction Start -----
 	tx := db.Begin()
 
-	result := tx.Create(&newCompany)
-	if result.Error != nil {
+	// Create company
+	if err := tx.Create(&newCompany).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating company %w", result.Error)
+		return nil, fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating company: %w", err)
 	}
 
-	//check if user already exists
-	var existingUser schema.User
-	result = tx.Where("email = ?", newAdminUser.Email).First(&existingUser)
-	if result.Error == nil {
-		tx.Rollback()
-		return ErrUserExists
-	}
-
+	// Assign company ID to the new admin user
 	newAdminUser.CompanyID = newCompany.ID
-	result = tx.Create(&newAdminUser)
-	if result.Error != nil {
+
+	// Create user
+	if err := tx.Create(&newAdminUser).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating user %w", result.Error)
+		return nil, fmt.Errorf("[CreateNewCompanyAndAdminUser] Error creating user: %w", err)
 	}
 
 	tx.Commit()
 	// *----- Transaction End -----
 
-	//send confirmation email
-	m := d.params.Mailer.NewMessage()
-	m.SetHeader("From", "hello@peoplematter.app")
-	m.SetHeader("To", newAdminUser.Email)
-	m.SetHeader("Subject", "Welcome to People Matter")
-	m.SetBody("text/html",
-		"<p>Welcome to People Matter</p><p>Your account has been created. Please click the link below to confirm your email address.</p><a>https://localhost:3000/user/email/confirmation?code=1234abcd</a>",
-	)
-	err = d.params.Mailer.Send(m)
-	if err != nil {
-		return fmt.Errorf("[CreateNewCompanyAndAdminUser] Error sending confirmation email %w", err)
-	}
-
-	return nil
+	return &newAdminUser, nil
 }
 
 // Get company data without preloading

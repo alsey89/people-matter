@@ -2,8 +2,6 @@ package schema
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type LeaveTypeEnum string
@@ -18,7 +16,7 @@ const (
 )
 
 type Leave struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID    uint          `json:"user_id"           gorm:"onUpdate:CASCADE onDelete:CASCADE"`

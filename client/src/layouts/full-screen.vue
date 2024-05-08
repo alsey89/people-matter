@@ -1,10 +1,11 @@
 <template>
-    <div class="flex justify-center items-center min-h-screen bg-background">
-        <div class="w-full max-w-md">
+    <div class="w-full h-screen flex justify-center items-center bg-background">
+        <div>
             <router-view></router-view>
         </div>
     </div>
 </template>
+
 
 <script>
 export default {

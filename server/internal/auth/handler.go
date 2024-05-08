@@ -29,19 +29,26 @@ func (d *Domain) SigninHandler(c echo.Context) error {
 	password := creds.Password
 
 	existingUser, err := d.SignIn(email, password)
-	if err != nil {
+	switch {
+	case err != nil:
 		d.logger.Error("[SigninHandler]", zap.Error(err))
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		switch {
+		case errors.Is(err, gorm.ErrRecordNotFound):
 			return c.JSON(http.StatusNotFound, common.APIResponse{
 				Message: "user not found",
 				Data:    nil,
 			})
-		} else if errors.Is(err, ErrInvalidCredentials) {
+		case errors.Is(err, ErrUserNotConfirmed):
+			return c.JSON(http.StatusForbidden, common.APIResponse{
+				Message: "user not confirmed",
+				Data:    nil,
+			})
+		case errors.Is(err, ErrInvalidCredentials):
 			return c.JSON(http.StatusUnauthorized, common.APIResponse{
 				Message: "invalid credentials",
 				Data:    nil,
 			})
-		} else {
+		default:
 			return c.JSON(http.StatusInternalServerError, common.APIResponse{
 				Message: "something went wrong",
 				Data:    nil,
@@ -103,6 +110,51 @@ func (d *Domain) SignoutHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, common.APIResponse{
 		Message: "user has been signed out",
+		Data:    nil,
+	})
+}
+
+func (d *Domain) ConfirmationHandler(c echo.Context) error {
+	token := c.QueryParam("token")
+	if token == "" {
+		d.logger.Error("[ConfirmationHandler] token is empty")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "token is empty",
+			Data:    nil,
+		})
+	}
+
+	claims := &Claims{}
+	t, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("thisisasecret"), nil
+	})
+	if err != nil {
+		d.logger.Error("[ConfirmationHandler] error parsing token", zap.Error(err))
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid token",
+			Data:    nil,
+		})
+	}
+
+	if !t.Valid {
+		d.logger.Error("[ConfirmationHandler] invalid token")
+		return c.JSON(http.StatusBadRequest, common.APIResponse{
+			Message: "invalid token",
+			Data:    nil,
+		})
+	}
+
+	err = d.ConfirmEmail(claims.ID, claims.CompanyID)
+	if err != nil {
+		d.logger.Error("[ConfirmationHandler]", zap.Error(err))
+		return c.JSON(http.StatusInternalServerError, common.APIResponse{
+			Message: "something went wrong",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, common.APIResponse{
+		Message: "user has been confirmed",
 		Data:    nil,
 	})
 }

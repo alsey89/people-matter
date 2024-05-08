@@ -50,6 +50,9 @@ func init() {
 
 		"auth_jwt.signing_key":  "thisisasecret",
 		"auth_jwt.token_lookup": "cookie:jwt",
+
+		"auth.signing_key":      "authsigningkey",
+		"auth.confirmation_key": "confirmationkey",
 	})
 }
 func main() {

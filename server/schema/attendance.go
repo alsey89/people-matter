@@ -2,12 +2,10 @@ package schema
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Attendance struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID   uint      `json:"user_id"   gorm:"not null"`

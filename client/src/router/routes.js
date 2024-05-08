@@ -1,20 +1,20 @@
-function middleware(to, from, next) {
-  if (sessionStorage.getItem("accessToken")) {
-    next();
-  } else {
-    next("/");
-  }
-}
+// function middleware(to, from, next) {
+//   if (sessionStorage.getItem("accessToken")) {
+//     next();
+//   } else {
+//     next("/");
+//   }
+// }
 
 const originRoutes = [
   {
-    grant: true,
+    isActive: true,
     path: "/",
     name: "DashboardLayout",
     component: () => import("../layouts/full-screen.vue"),
     children: [
       {
-        grant: true,
+        isActive: true,
         path: "",
         name: "Dashboard",
         component: () => import("../pages/index.vue"),
@@ -22,38 +22,58 @@ const originRoutes = [
     ],
   },
   {
-    grant: true,
+    isActive: true,
+    path: "/onboarding",
+    name: "OnboardingLayout",
+    component: () => import("../layouts/full-screen.vue"),
+    children: [
+      {
+        isActive: true,
+        path: "",
+        name: "Onboarding",
+        component: () => import("../pages/onboarding/index.vue"),
+      },
+      {
+        isActive: true,
+        path: "confirmation",
+        name: "Confirmation",
+        component: () => import("../pages/onboarding/confirmation.vue"),
+      },
+    ],
+  },
+  {
+    isActive: true,
     path: "/auth",
     name: "FullScreenLayout",
     component: () => import("@/layouts/full-screen.vue"),
     children: [
       {
-        grant: true,
+        isActive: true,
         path: "signin",
         name: "SignIn",
         component: () => import("@/pages/auth/signin.vue"),
       },
-      {
-        grant: true,
-        path: "signup",
-        name: "SignUp",
-        component: () => import("@/pages/auth/signup.vue"),
-      },
+      // {
+      //   isActive: false,
+      //   path: "signup",
+      //   name: "SignUp",
+      //   component: () => import("@/pages/auth/signup.vue"),
+      // },
     ],
   },
   /* {
-      grant: true,
+      isActive: true,
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../pages/NotFound.vue')
 } */
 ];
 
-export const filterByGrant = () => {
+export const filterByActive = () => {
   const recuresiveMap = (routes = originRoutes) => {
     return routes
       .map((_route) => {
-        if (_route.grant) {
+        if (_route.isActive) {
           return _route;
         }
       })
@@ -63,4 +83,4 @@ export const filterByGrant = () => {
   return recuresiveMap();
 };
 
-export const routes = () => filterByGrant();
+export const routes = () => filterByActive();

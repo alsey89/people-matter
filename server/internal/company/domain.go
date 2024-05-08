@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	postgres "github.com/alsey89/gogetter/database/postgres"
+	jwt "github.com/alsey89/gogetter/jwt/echo"
 	mailer "github.com/alsey89/gogetter/mail/gomail"
 	server "github.com/alsey89/gogetter/server/echo"
 )
@@ -26,6 +27,7 @@ type Params struct {
 	Server    *server.HTTPServer
 	Database  *postgres.Database
 	Mailer    *mailer.Mailer
+	JWT       *jwt.JWT
 }
 
 func InitiateDomain(scope string) fx.Option {

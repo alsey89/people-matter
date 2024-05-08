@@ -2,41 +2,15 @@ package auth
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/alsey89/people-matter/schema"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// // Hash password, create new user, and return user *with new ID*
-// func (a *Domain) SignupService(email string, password string, companyID uint) (*schema.User, error) {
-
-// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("SignupService: %w", err)
-// 	}
-
-// 	newUser := schema.User{
-// 		CompanyID: companyID,
-// 		FirstName: "New",
-// 		LastName:  "User",
-// 		Email:     email,
-// 		Password:  string(hashedPassword),
-// 		Role:      "user",
-// 	}
-
-// 	createdUser, err := a.CreateNewUser(&newUser) //* this adds the ID to newUser
-// 	if err != nil {
-// 		return nil, fmt.Errorf("SignupService: %w", err)
-// 	}
-
-// 	return createdUser, nil
-// }
-
 // Search for user by email, compare password, and return user if successful.
 // If user is a manager, fetch location information.
-func (a *Domain) SignIn(email string, password string) (*schema.User, error) {
-	db := a.params.Database.GetDB()
+func (d *Domain) SignIn(email string, password string) (*schema.User, error) {
+	db := d.params.Database.GetDB()
 
 	var user schema.User
 
@@ -45,7 +19,9 @@ func (a *Domain) SignIn(email string, password string) (*schema.User, error) {
 		return nil, fmt.Errorf("[SignIn] %w", result.Error)
 	}
 
-	log.Printf("User: %+v", user)
+	if !user.IsActive {
+		return nil, fmt.Errorf("[SignIn]: %w", ErrUserNotConfirmed)
+	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
@@ -68,4 +44,18 @@ func (a *Domain) SignIn(email string, password string) (*schema.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (d *Domain) ConfirmEmail(userID uint, companyID uint) error {
+	db := d.params.Database.GetDB()
+
+	//query user and mark as confirmed
+	result := db.Model(&schema.User{}).
+		Where("id = ? AND company_id = ?", userID, companyID).
+		Update("is_active", true)
+	if result.Error != nil {
+		return fmt.Errorf("[Confirmation]: %w", result.Error)
+	}
+
+	return nil
 }

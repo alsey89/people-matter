@@ -3,6 +3,10 @@ import axios from "axios";
 
 const api_url = import.meta.env.VITE_API_URL;
 
+axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.post["Accept"] = "application/json";
+axios.defaults.withCredentials = true;
+
 export const useUserStore = defineStore("user-store", {
   state: () => ({
     error: "",
@@ -21,7 +25,6 @@ export const useUserStore = defineStore("user-store", {
   actions: {
     async createCompany(payload, router) {
       this.error = "";
-
       const data = {
         companyName: payload.companyName,
         companySize: payload.companySize,
@@ -29,10 +32,6 @@ export const useUserStore = defineStore("user-store", {
         password: payload.password,
         confirmPassword: payload.confirmPassword,
       };
-      axios.defaults.headers.post["Content-Type"] = "application/json";
-      axios.defaults.headers.post["Accept"] = "application/json";
-      axios.defaults.withCredentials = true;
-
       try {
         const response = await axios.post(api_url + "/company", data);
         if (response.status >= 200 && response.status < 300) {
@@ -62,9 +61,7 @@ export const useUserStore = defineStore("user-store", {
         email: payload.email,
         password: payload.password,
       };
-      axios.defaults.headers.post["Content-Type"] = "application/json";
-      axios.defaults.headers.post["Accept"] = "application/json";
-      axios.defaults.withCredentials = true;
+
       try {
         const response = await axios.post(api_url + "/auth/signin", data);
         if (response.status >= 200 && response.status < 300) {
@@ -73,15 +70,29 @@ export const useUserStore = defineStore("user-store", {
           return false;
         }
       } catch (error) {
-        if (error.response) {
-          if (error.response.status === 401 || error.response.status === 404) {
-            this.error = "Invalid email or password. Please try again.";
+        try {
+          const response = await axios.post(api_url + "/auth/signin", data);
+          if (response.status >= 200 && response.status < 300) {
+            return true;
           } else {
-            this.error =
-              "Something went wrong. Please try again or contact support.";
+            return false;
           }
+        } catch (error) {
+          switch (error.response?.status) {
+            case 401:
+            case 404:
+              this.error = "Invalid email or password. Please try again.";
+              break;
+            case 403:
+              this.error = "Please verify your email address.";
+              break;
+            default:
+              this.error =
+                "Something went wrong. Please try again or contact support.";
+              break;
+          }
+          throw error;
         }
-        throw error;
       }
     },
     async getCsrfToken() {

@@ -2,8 +2,6 @@ package schema
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // User Schema ---------------------------------------------------------------
@@ -18,9 +16,9 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
-	Active    bool `json:"active"     gorm:"default:false"`
+	IsActive  bool `json:"isActive"     gorm:"default:false"`
 	// ------------------------------------------------------------------------------------------------
 	Email      string      `json:"email"      gorm:"uniqueIndex"`
 	Password   string      `json:"-"          gorm:"type:varchar(100)"` //* Password is not returned in JSON
@@ -48,7 +46,7 @@ type User struct {
 }
 
 type ContactInfo struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID     uint   `json:"userId" gorm:"onUpdate:CASCADE;onDelete:CASCADE"`
@@ -63,7 +61,7 @@ type ContactInfo struct {
 }
 
 type EmergencyContact struct {
-	gorm.Model
+	BaseModel
 	CompanyID uint `json:"company_id" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
 	// ------------------------------------------------------------------------------------------------
 	UserID     uint    `json:"userId" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null"`
