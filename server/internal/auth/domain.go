@@ -2,20 +2,38 @@ package auth
 
 import (
 	"context"
+	"fmt"
+	"time"
+
 	// "net/http"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
 	postgres "github.com/alsey89/gogetter/database/postgres"
-	jwt "github.com/alsey89/gogetter/jwt/echo"
 	server "github.com/alsey89/gogetter/server/echo"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
+)
+
+const (
+	defaultSigningKey    = "othersecret"
+	defaultSigningMethod = "HS256"
+	defaultExpInHours    = 1
 )
 
 type Domain struct {
+	config *Config
 	params Params
 	scope  string
 	logger *zap.Logger
+}
+
+type Config struct {
+	SigningKey    string
+	TokenLookup   string
+	SigningMethod string
+	ExpInHours    int
 }
 
 type Params struct {
@@ -24,8 +42,7 @@ type Params struct {
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
-	Database  *postgres.Database
-	JWT       *jwt.JWT
+	Database  *postgres.Module
 }
 
 func InitiateDomain(scope string) fx.Option {
@@ -35,7 +52,10 @@ func InitiateDomain(scope string) fx.Option {
 	return fx.Options(
 		fx.Provide(func(p Params) *Domain {
 
+			c := loadConfig(scope)
+
 			d := &Domain{
+				config: c,
 				params: p,
 				scope:  scope,
 				logger: p.Logger.Named("[" + scope + "]"),
@@ -57,6 +77,23 @@ func InitiateDomain(scope string) fx.Option {
 
 }
 
+func loadConfig(scope string) *Config {
+	getConfigPath := func(key string) string {
+		return fmt.Sprintf("%s.%s", scope, key)
+	}
+
+	//set defaults
+	viper.SetDefault(getConfigPath("signing_key"), defaultSigningKey)
+	viper.SetDefault(getConfigPath("signing_method"), defaultSigningMethod)
+	viper.SetDefault(getConfigPath("exp_in_hours"), defaultExpInHours)
+
+	return &Config{
+		SigningKey:    viper.GetString(getConfigPath("signing_key")),
+		SigningMethod: viper.GetString(getConfigPath("signing_method")),
+		ExpInHours:    viper.GetInt(getConfigPath("exp_in_hours")),
+	}
+}
+
 func (d *Domain) onStart(ctx context.Context) error {
 
 	d.logger.Info("Starting APIs")
@@ -76,6 +113,7 @@ func (d *Domain) onStart(ctx context.Context) error {
 
 	authGroup.GET("/confirmation", d.ConfirmationHandler)
 
+	d.PrintDebugLogs()
 	return nil
 }
 
@@ -85,35 +123,50 @@ func (d *Domain) onStop(ctx context.Context) error {
 	return nil
 }
 
-// func (d *Domain) AddDefaultData(ctx context.Context) {
-// 	db := d.params.Database.GetDB()
+func (m *Domain) PrintDebugLogs() {
+	m.logger.Debug("----- Auth Domain Configuration -----")
+	m.logger.Debug("SigningKey", zap.Any("SigningKey", m.config.SigningKey))
+	m.logger.Debug("SigningMethod", zap.String("SigningMethod", m.config.SigningMethod))
+	m.logger.Debug("ExpInHours", zap.Int("ExpInHours", m.config.ExpInHours))
+}
 
-// 	u := User{}
-// 	id := uuid.MustParse(viper.GetString(d.getConfigPath("super_admin_id")))
-// 	result := db.Where("id = ?", id).First(&u)
-// 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-// 		d.logger.Fatal(result.Error.Error())
-// 		return
-// 	}
+// ----------------------------------
 
-// 	if result.RowsAffected > 0 {
-// 		return
-// 	}
+// generates a JWT token using config settings. additionalClaims can be passed in to add more claims to the token
+func (d *Domain) GenerateToken(additionalClaims jwt.MapClaims) (*string, error) {
+	claims := jwt.MapClaims{
+		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(d.config.ExpInHours))),
+	}
 
-// 	hashedPwd, err := HashPassword(viper.GetString(d.getConfigPath("super_admin_password")))
-// 	if err != nil {
-// 		d.logger.Error(err.Error())
-// 		return
-// 	}
+	for k, v := range additionalClaims {
+		claims[k] = v
+	}
 
-// 	data := User{
-// 		BaseModel: BaseModel{
-// 			ID: id,
-// 		},
-// 		Email:    viper.GetString(d.getConfigPath("super_admin_email")),
-// 		Password: hashedPwd,
-// 	}
-// 	if err := db.Create(&data).Error; err != nil {
-// 		d.logger.Error(err.Error())
-// 	}
-// }
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, err := token.SignedString([]byte(d.config.SigningKey))
+	if err != nil {
+		return nil, fmt.Errorf("[auth.GenerateToken]error signing jwt with claims: %w", err)
+	}
+
+	return &t, nil
+}
+
+func (d *Domain) ParseToken(token string, claims jwt.Claims) (*Claims, error) {
+	t, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(d.config.SigningKey), nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("[auth.ParseToken]error parsing token: %w", err)
+	}
+
+	if !t.Valid {
+		return nil, fmt.Errorf("[auth.ParseToken]invalid token")
+	}
+
+	parsedClaims, ok := t.Claims.(*Claims)
+	if !ok {
+		return nil, fmt.Errorf("[auth.ParseToken]error parsing claims")
+	}
+
+	return parsedClaims, nil
+}

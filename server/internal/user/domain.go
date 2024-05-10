@@ -24,7 +24,7 @@ type Params struct {
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
-	Database  *postgres.Database
+	Database  *postgres.Module
 }
 
 func InitiateDomain(scope string) fx.Option {

@@ -15,7 +15,7 @@ import (
 	"github.com/alsey89/people-matter/schema"
 )
 
-var configuration *config.Config
+var configuration *config.Module
 
 func init() {
 	config.SetSystemLogLevel("debug")
@@ -48,11 +48,14 @@ func init() {
 		"mailer.app_password": "lyzo mila fxha dupi",
 		"mailer.tls":          true,
 
-		"auth_jwt.signing_key":  "thisisasecret",
-		"auth_jwt.token_lookup": "cookie:jwt",
+		"jwt_mw.signing_key":    "authsecret",
+		"jwt_mw.token_lookup":   "cookie:jwt",
+		"jwt_mw.signing_method": "HS256",
+		"jwt_mw.exp_in_hours":   72,
 
-		"auth.signing_key":      "authsigningkey",
-		"auth.confirmation_key": "confirmationkey",
+		"auth.signing_key":    "confirmationsecret",
+		"auth.signing_method": "HS256",
+		"auth.exp_in_hours":   1,
 	})
 }
 func main() {
@@ -78,7 +81,7 @@ func main() {
 			schema.Adjustments{},
 			schema.Document{},
 		),
-		jwt.InitiateModule("auth_jwt"),
+		jwt.InitiateModule("jwt_mw"),
 		mailer.InitiateModule("mailer"),
 
 		//-- Internal Domains Start --

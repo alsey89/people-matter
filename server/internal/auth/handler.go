@@ -125,9 +125,7 @@ func (d *Domain) ConfirmationHandler(c echo.Context) error {
 	}
 
 	claims := &Claims{}
-	t, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte("thisisasecret"), nil
-	})
+	parsedClaims, err := d.ParseToken(token, claims)
 	if err != nil {
 		d.logger.Error("[ConfirmationHandler] error parsing token", zap.Error(err))
 		return c.JSON(http.StatusBadRequest, common.APIResponse{
@@ -136,15 +134,7 @@ func (d *Domain) ConfirmationHandler(c echo.Context) error {
 		})
 	}
 
-	if !t.Valid {
-		d.logger.Error("[ConfirmationHandler] invalid token")
-		return c.JSON(http.StatusBadRequest, common.APIResponse{
-			Message: "invalid token",
-			Data:    nil,
-		})
-	}
-
-	err = d.ConfirmEmail(claims.ID, claims.CompanyID)
+	err = d.ConfirmEmail(parsedClaims.ID, parsedClaims.CompanyID)
 	if err != nil {
 		d.logger.Error("[ConfirmationHandler]", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, common.APIResponse{

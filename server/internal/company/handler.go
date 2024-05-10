@@ -100,25 +100,14 @@ func (d *Domain) CreateCompanyHandler(c echo.Context) error {
 	}
 
 	//generate jwt token
-	claims := jwt.MapClaims{
+	additionalClaims := jwt.MapClaims{
 		"Id":        createdAdminUser.ID,
 		"companyId": createdAdminUser.CompanyID,
 	}
 
-	token, err := d.params.JWT.GenerateToken(claims)
+	token, err := d.params.Auth.GenerateToken(additionalClaims)
 	if err != nil {
-		d.logger.Error("[CreateCompanyHandler] error generating token", zap.Error(err))
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "error generating token",
-			Data:    nil,
-		})
-	}
-	if token == nil {
-		d.logger.Error("[CreateCompanyHandler] token is nil")
-		return c.JSON(http.StatusInternalServerError, common.APIResponse{
-			Message: "token error",
-			Data:    nil,
-		})
+		d.logger.Error("[CreateNewCompanyAndAdminUser]", zap.Error(err))
 	}
 
 	//send confirmation email

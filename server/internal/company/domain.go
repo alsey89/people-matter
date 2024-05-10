@@ -8,9 +8,9 @@ import (
 	"go.uber.org/zap"
 
 	postgres "github.com/alsey89/gogetter/database/postgres"
-	jwt "github.com/alsey89/gogetter/jwt/echo"
 	mailer "github.com/alsey89/gogetter/mail/gomail"
 	server "github.com/alsey89/gogetter/server/echo"
+	"github.com/alsey89/people-matter/internal/auth"
 )
 
 type Domain struct {
@@ -25,9 +25,11 @@ type Params struct {
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 	Server    *server.HTTPServer
-	Database  *postgres.Database
-	Mailer    *mailer.Mailer
-	JWT       *jwt.JWT
+	Database  *postgres.Module
+	Mailer    *mailer.Module
+
+	// internal domains
+	Auth *auth.Domain
 }
 
 func InitiateDomain(scope string) fx.Option {
