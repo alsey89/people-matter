@@ -9,7 +9,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-import posthogPlugin from "./plugins/posthog";
+// import posthogPlugin from "./plugins/posthog";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -25,25 +25,25 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
   app.use(autoAnimatePlugin);
 
   //---- Posthog -----
-  app.use(posthogPlugin);
-  router.beforeEach((to, from, next) => {
-    //capture pageleave
-    if (from.fullPath !== to.fullPath) {
-      app.config.globalProperties.$posthog.capture("$pageleave", {
-        path: from.fullPath,
-      });
-    }
-    next();
-  });
-  router.afterEach((to, from, failure) => {
-    if (!failure && to.fullPath !== from.fullPath) {
-      nextTick(() => {
-        app.config.globalProperties.$posthog.capture("$pageview", {
-          path: to.fullPath,
-        });
-      });
-    }
-  });
+  // app.use(posthogPlugin);
+  // router.beforeEach((to, from, next) => {
+  //   //capture pageleave
+  //   if (from.fullPath !== to.fullPath) {
+  //     app.config.globalProperties.$posthog.capture("$pageleave", {
+  //       path: from.fullPath,
+  //     });
+  //   }
+  //   next();
+  // });
+  // router.afterEach((to, from, failure) => {
+  //   if (!failure && to.fullPath !== from.fullPath) {
+  //     nextTick(() => {
+  //       app.config.globalProperties.$posthog.capture("$pageview", {
+  //         path: to.fullPath,
+  //       });
+  //     });
+  //   }
+  // });
 
   app.mount("#app");
 })();
