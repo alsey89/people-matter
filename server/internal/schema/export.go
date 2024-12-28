@@ -14,7 +14,7 @@ type Export struct {
 	BaseModelWithTime
 	CompletedAt *string          `json:"completedAt"`
 	Retries     int              `json:"retries"`
-	FSPID       uint             `json:"fspId"`
+	TenantID    uint             `json:"fspId"`
 	MemorialID  uint             `json:"memorialId"`
 	State       ExportStateConst `json:"state" sql:"type:ENUM('requested', 'running', 'deploying', 'completed', 'failed')"`
 }

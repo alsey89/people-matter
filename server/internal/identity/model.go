@@ -54,6 +54,6 @@ type confirmResetPasswordRequest struct {
 
 // Internal
 type rolesByLevel struct {
-	FSP      schema.UserFSPRole
+	Tenant   schema.UserFSPRole
 	Memorial []schema.UserMemorialRole
 }

@@ -27,8 +27,8 @@ func (d *Domain) MustHaveValidConfirmationToken(tokenScope string) echo.Middlewa
 	return d.params.TokenManager.GetJWTMiddleware(tokenScope)
 }
 
-// Returns a middleware that resolves FSPID from the context TenantIdentifier.
-// If the FSP is not found in the database, it returns a 403.
+// Returns a middleware that resolves TenantID from the context TenantIdentifier.
+// If the Tenant is not found in the database, it returns a 403.
 func (d *Domain) MustResolveFSPID() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -50,8 +50,8 @@ func (d *Domain) MustResolveFSPID() echo.MiddlewareFunc {
 				})
 			}
 
-			var fsp schema.FSP
-			err = db.Model(&schema.FSP{}).
+			var fsp schema.Tenant
+			err = db.Model(&schema.Tenant{}).
 				Where("tenant_identifier = ?", tenantIdentifier).
 				First(&fsp).
 				Error
@@ -67,14 +67,14 @@ func (d *Domain) MustResolveFSPID() echo.MiddlewareFunc {
 				})
 			}
 
-			c.Set(constant.ContextFSPID, fsp.ID)
+			c.Set(constant.ContextTenantID, fsp.ID)
 
 			return next(c)
 		}
 	}
 }
 
-// Returns a middleware that checks if the authenticated user's FSPID matches the resolved FSPID.
+// Returns a middleware that checks if the authenticated user's TenantID matches the resolved TenantID.
 // If the FSPIDs do not match, it returns a 403.
 func (d *Domain) MustMatchTenantIdentifierAndToken() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -137,8 +137,8 @@ func (d *Domain) MustMatchTenantIdentifierAndToken() echo.MiddlewareFunc {
 	}
 }
 
-// Returns a middleware that checks if the authenticated user's role is an FSP superadmin.
-// If the user's role is not FSP SuperAdmin level, it returns a 403.
+// Returns a middleware that checks if the authenticated user's role is an Tenant superadmin.
+// If the user's role is not Tenant SuperAdmin level, it returns a 403.
 func (d *Domain) MustBeFSPSuperAdmin() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -190,8 +190,8 @@ func (d *Domain) MustBeFSPSuperAdmin() echo.MiddlewareFunc {
 	}
 }
 
-// Returns a middleware that checks if the authenticated user's role is an FSP admin or superadmin.
-// If the user's role is not FSP Admin or FSP Super Admin, it returns a 403.
+// Returns a middleware that checks if the authenticated user's role is an Tenant admin or superadmin.
+// If the user's role is not Tenant Admin or Tenant Super Admin, it returns a 403.
 func (d *Domain) MustBeFSPAdminOrHigher() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

@@ -122,11 +122,11 @@ func (d *Domain) logConfigurations() {
 
 // ! Public ---------------------------------------------------------------
 
-func (d *Domain) GetFSPByID(FSPID uint) (*schema.FSP, error) {
+func (d *Domain) GetFSPByID(TenantID uint) (*schema.Tenant, error) {
 	db := d.params.DB.GetDB()
 
-	var fsp schema.FSP
-	err := db.Model(&schema.FSP{}).Where("id = ?", FSPID).First(&fsp).Error
+	var fsp schema.Tenant
+	err := db.Model(&schema.Tenant{}).Where("id = ?", TenantID).First(&fsp).Error
 	if err != nil {
 		return nil, fmt.Errorf("getFSPByID: %w", err)
 	}
@@ -136,19 +136,19 @@ func (d *Domain) GetFSPByID(FSPID uint) (*schema.FSP, error) {
 
 // Sends an email to the recipient with the given templateID.
 // urlPath and variables are optional.
-// urlPath will be converted to a full URL using the FSP's tenant identifier and the client domain.
-func (d *Domain) SendMail(FSPID uint, recipientEmail string, templateID int, urlPath *string, variables map[string]interface{}) error {
-	if FSPID == 0 || recipientEmail == "" || templateID == 0 {
-		d.logger.Error("SendMail: Invalid parameters", zap.Any("FSPID", FSPID), zap.Any("recipientEmail", recipientEmail), zap.Any("templateID", templateID))
+// urlPath will be converted to a full URL using the Tenant's tenant identifier and the client domain.
+func (d *Domain) SendMail(TenantID uint, recipientEmail string, templateID int, urlPath *string, variables map[string]interface{}) error {
+	if TenantID == 0 || recipientEmail == "" || templateID == 0 {
+		d.logger.Error("SendMail: Invalid parameters", zap.Any("TenantID", TenantID), zap.Any("recipientEmail", recipientEmail), zap.Any("templateID", templateID))
 		return nil
 	}
 	if variables == nil {
 		variables = make(map[string]interface{})
 	}
 
-	fsp, err := d.GetFSPByID(FSPID)
+	fsp, err := d.GetFSPByID(TenantID)
 	if err != nil {
-		d.logger.Error("SendMail: Failed to get FSP", zap.Error(err))
+		d.logger.Error("SendMail: Failed to get Tenant", zap.Error(err))
 		return nil
 	}
 	if fsp == nil {

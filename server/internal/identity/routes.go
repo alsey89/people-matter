@@ -56,7 +56,7 @@ func (d *Domain) registerRoutes() {
 		d.handlerResetPassword,
 		d.MustHaveValidConfirmationToken(d.config.JWTPasswordResetScope),
 	)
-	// user story: As a user invited by an FSP admin, I want to set my password and confirm my email address
+	// user story: As a user invited by an Tenant admin, I want to set my password and confirm my email address
 	authGroup.POST("/password/set/confirm",
 		d.handlerSetPasswordAndConfirmEmail,
 		d.MustHaveValidConfirmationToken(d.config.JWTPasswordResetScope),

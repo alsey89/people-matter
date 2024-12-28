@@ -4,5 +4,5 @@ package constant
 const (
 	HeaderTenantIdentifier  = "X-Tenant"
 	ContextTenantIdentifier = "tenantIdentifier"
-	ContextFSPID            = "fspId"
+	ContextTenantID         = "tenantId"
 )

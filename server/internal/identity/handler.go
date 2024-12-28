@@ -56,7 +56,7 @@ func (d *Domain) signinHandler(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("signinHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -70,7 +70,7 @@ func (d *Domain) signinHandler(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("signinHandler:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -111,7 +111,7 @@ func (d *Domain) signinHandler(c echo.Context) error {
 		})
 	}
 
-	user, rolesByLevel, err := d.signinService(*FSPID, signinReq.Email, signinReq.Password)
+	user, rolesByLevel, err := d.signinService(*TenantID, signinReq.Email, signinReq.Password)
 	switch {
 	case err != nil:
 		d.logger.Error("signinHandler:", zap.Error(err), zap.String("traceID", traceID))
@@ -160,8 +160,8 @@ func (d *Domain) signinHandler(c echo.Context) error {
 		"email":  user.Email,
 	}
 
-	additionalClaims["fspId"] = rolesByLevel.FSP.FSPID
-	additionalClaims["fspRole"] = rolesByLevel.FSP.FSPRole.Name
+	additionalClaims["fspId"] = rolesByLevel.Tenant.TenantID
+	additionalClaims["fspRole"] = rolesByLevel.Tenant.FSPRole.Name
 
 	//todo: currently, the first memorial role is considered the active memorial upon sign in
 	//todo: feat: pass active memorial by query param or other means
@@ -212,7 +212,7 @@ func (d *Domain) handlerSwitchActiveMemorial(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerSwitchActiveMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -226,7 +226,7 @@ func (d *Domain) handlerSwitchActiveMemorial(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerSwitchActiveMemorial:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -301,7 +301,7 @@ func (d *Domain) handlerSwitchActiveMemorial(c echo.Context) error {
 		})
 	}
 
-	rolesByLevel, err := d.serviceSwitchActiveMemorial(*FSPID, uint(userID), *targetMemorialID)
+	rolesByLevel, err := d.serviceSwitchActiveMemorial(*TenantID, uint(userID), *targetMemorialID)
 	if err != nil {
 		d.logger.Error("handlerSwitchActiveMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		switch {
@@ -332,8 +332,8 @@ func (d *Domain) handlerSwitchActiveMemorial(c echo.Context) error {
 	additionalClaims := map[string]interface{}{
 		"userId":  userID,
 		"email":   userEmail,
-		"fspId":   rolesByLevel.FSP.FSPID,
-		"fspRole": rolesByLevel.FSP.FSPRole.Name,
+		"fspId":   rolesByLevel.Tenant.TenantID,
+		"fspRole": rolesByLevel.Tenant.FSPRole.Name,
 	}
 
 	if len(rolesByLevel.Memorial) > 0 {
@@ -387,7 +387,7 @@ func (d *Domain) handlerApplicationSignup(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerApplicationSignup:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -401,7 +401,7 @@ func (d *Domain) handlerApplicationSignup(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerApplicationSignup:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -442,7 +442,7 @@ func (d *Domain) handlerApplicationSignup(c echo.Context) error {
 	}
 
 	_, err = d.applicationSignupService(
-		*FSPID,                     // FSPID 			uint
+		*TenantID,                  // TenantID 			uint
 		uint(signupReq.MemorialID), // memorialID 		uint
 		signupReq.FirstName,        // firstName 		string
 		signupReq.LastName,         // lastName 		string
@@ -504,7 +504,7 @@ func (d *Domain) handlerApplication(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerApplication:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -518,7 +518,7 @@ func (d *Domain) handlerApplication(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerApplication:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -584,7 +584,7 @@ func (d *Domain) handlerApplication(c echo.Context) error {
 	}
 
 	_, err = d.applicationService(
-		*FSPID,                          // FSPID 			uint
+		*TenantID,                       // TenantID 			uint
 		uint(applicationReq.MemorialID), // memorialID 		uint
 		uint(userID),                    // applicantID 		uint
 		applicationReq.Relationship,     // relationship 	schema.RelationshipConst
@@ -641,7 +641,7 @@ func (d *Domain) handlerAcceptInvitationSignup(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerAcceptInvitationSignup:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -655,7 +655,7 @@ func (d *Domain) handlerAcceptInvitationSignup(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerAcceptInvitationSignup:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -696,7 +696,7 @@ func (d *Domain) handlerAcceptInvitationSignup(c echo.Context) error {
 	}
 
 	err = d.acceptInvitationSignupService(
-		*FSPID,                     // FSPID 			uint
+		*TenantID,                  // TenantID 			uint
 		uint(signupReq.MemorialID), // memorialID 		uint
 		signupReq.Token,            // token 			string
 		signupReq.Email,            // email 			string
@@ -778,7 +778,7 @@ func (d *Domain) handlerAcceptInvitation(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerAcceptInvitation:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -792,7 +792,7 @@ func (d *Domain) handlerAcceptInvitation(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerAcceptInvitation:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -859,7 +859,7 @@ func (d *Domain) handlerAcceptInvitation(c echo.Context) error {
 	}
 
 	err = d.acceptInvitationService(
-		*FSPID,                               // FSPID 				uint
+		*TenantID,                            // TenantID 				uint
 		uint(acceptInvitationReq.MemorialID), // memorialID 		uint
 		uint(userID),                         // userID 			uint
 		acceptInvitationReq.Token,            // token 				string
@@ -874,7 +874,7 @@ func (d *Domain) handlerAcceptInvitation(c echo.Context) error {
 				zap.String("url", c.Request().URL.String()),
 				zap.Any("headers", c.Request().Header),
 				zap.Uint("userID", uint(userID)),
-				zap.Uint("FSPID", *FSPID),
+				zap.Uint("TenantID", *TenantID),
 				zap.Uint("MemorialID", uint(acceptInvitationReq.MemorialID)),
 				zap.Error(err),
 				zap.String("traceID", traceID),
@@ -945,7 +945,7 @@ func (d *Domain) confirmEmailHandler(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("confirmEmailHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -959,7 +959,7 @@ func (d *Domain) confirmEmailHandler(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("confirmEmailHandler:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1014,7 +1014,7 @@ func (d *Domain) confirmEmailHandler(c echo.Context) error {
 			})
 	}
 
-	err = d.confirmEmailService(*FSPID, email)
+	err = d.confirmEmailService(*TenantID, email)
 	switch {
 	case err != nil:
 		d.logger.Error("confirmEmailHandler:", zap.Error(err), zap.String("traceID", traceID))
@@ -1083,7 +1083,7 @@ func (d *Domain) requestResetPasswordHandler(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("requestResetPasswordHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1097,7 +1097,7 @@ func (d *Domain) requestResetPasswordHandler(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("requestResetPasswordHandler:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1139,7 +1139,7 @@ func (d *Domain) requestResetPasswordHandler(c echo.Context) error {
 	}
 
 	err = d.requestResetPasswordService(
-		*FSPID,           // FSPID 			string
+		*TenantID,        // TenantID 			string
 		resetPWReq.Email, // email 			string
 	)
 	if err != nil {
@@ -1176,7 +1176,7 @@ func (d *Domain) handlerResetPassword(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1190,7 +1190,7 @@ func (d *Domain) handlerResetPassword(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1268,7 +1268,7 @@ func (d *Domain) handlerResetPassword(c echo.Context) error {
 		})
 	}
 
-	err = d.updatePasswordServiceWithoutConfirmation(*FSPID, email, confirmResetPWReq.Password)
+	err = d.updatePasswordServiceWithoutConfirmation(*TenantID, email, confirmResetPWReq.Password)
 	if err != nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(err), zap.String("traceID", traceID))
 		switch {
@@ -1303,7 +1303,7 @@ func (d *Domain) handlerSetPasswordAndConfirmEmail(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1317,7 +1317,7 @@ func (d *Domain) handlerSetPasswordAndConfirmEmail(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1395,7 +1395,7 @@ func (d *Domain) handlerSetPasswordAndConfirmEmail(c echo.Context) error {
 		})
 	}
 
-	err = d.updatePasswordServiceWithConfirmation(*FSPID, email, confirmResetPWReq.Password, true)
+	err = d.updatePasswordServiceWithConfirmation(*TenantID, email, confirmResetPWReq.Password, true)
 	if err != nil {
 		d.logger.Error("confirmResetPasswordHandler:", zap.Error(err), zap.String("traceID", traceID))
 		switch {

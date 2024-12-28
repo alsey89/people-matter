@@ -2,8 +2,8 @@ package schema
 
 type User struct {
 	BaseModel
-	FSPID uint   `json:"fspId" gorm:"not null;uniqueIndex:idx_fsp_email"`
-	Email string `json:"email" gorm:"not null;uniqueIndex:idx_fsp_email"`
+	TenantID uint   `json:"fspId" gorm:"not null;uniqueIndex:idx_fsp_email"`
+	Email    string `json:"email" gorm:"not null;uniqueIndex:idx_fsp_email"`
 	// User Information ---------------------
 	FirstName  string  `json:"firstName"`
 	MiddleName *string `json:"middleName"`
@@ -16,6 +16,6 @@ type User struct {
 	LockOutTime       int    `json:"lockOutTime"`
 	AccessFailedCount int    `json:"accessFailedCount"`
 	// Associations ---------------------
-	UserFSPRole       *UserFSPRole        `json:"userFspRole"`
-	UserMemorialRoles *[]UserMemorialRole `json:"userMemorialRoles"`
+	// UserFSPRole       *UserFSPRole        `json:"userFspRole"`
+	// UserMemorialRoles *[]UserMemorialRole `json:"userMemorialRoles"`
 }

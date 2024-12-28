@@ -14,7 +14,7 @@ const (
 
 type ContributionCondolenceElement struct {
 	BaseModelWithTime
-	FSPID             uint                   `json:"fspId"`
+	TenantID          uint                   `json:"fspId"`
 	MemorialID        uint                   `json:"memorialId"`
 	Contributor       *User                  `json:"contributor" gorm:"foreignKey:ContributorID"`
 	ContributorID     uint                   `json:"contributorId"`
@@ -33,7 +33,7 @@ type ContributionCondolenceElement struct {
 
 type ContributionGalleryElement struct {
 	BaseModelWithTime
-	FSPID             uint                   `json:"fspId"`
+	TenantID          uint                   `json:"fspId"`
 	MemorialID        uint                   `json:"memorialId"`
 	Contributor       *User                  `json:"contributor" gorm:"foreignKey:ContributorID"`
 	ContributorID     uint                   `json:"contributorId"`
@@ -56,7 +56,7 @@ type ContributionGalleryElement struct {
 
 type ContributionStoryElement struct {
 	BaseModelWithTime
-	FSPID             uint                   `json:"fspId"`
+	TenantID          uint                   `json:"fspId"`
 	MemorialID        uint                   `json:"memorialId"`
 	Contributor       *User                  `json:"contributor" gorm:"foreignKey:ContributorID"`
 	ContributorID     uint                   `json:"contributorId"`
@@ -93,7 +93,7 @@ const (
 
 type ContributionTimelineElement struct {
 	BaseModelWithTime
-	FSPID             uint                   `json:"fspId"`
+	TenantID          uint                   `json:"fspId"`
 	MemorialID        uint                   `json:"memorialId"`
 	Contributor       *User                  `json:"contributor" gorm:"foreignKey:ContributorID"`
 	ContributorID     uint                   `json:"contributorId"`

@@ -17,109 +17,6 @@ import (
 
 // Data for forms --------------------------------------------
 
-func (d *Domain) handlerGetAdminRoles(c echo.Context) error {
-
-	fspRoles := []string{
-		string(schema.RoleFSPAdmin),
-		string(schema.RoleFSPSuperAdmin),
-	}
-
-	return c.JSON(http.StatusOK, response.APIResponse{Message: "roles", Data: fspRoles})
-}
-func (d *Domain) handlerGetFSPTypes(c echo.Context) error {
-
-	fspTypes := []string{
-		string(schema.FSPTypeFuneralHome),
-		string(schema.FSPTypeCemetery),
-		string(schema.FSPTypeMonument),
-		string(schema.FSPTypeReseller),
-		string(schema.FSPTypeDistributor),
-		string(schema.FSPTypeOther),
-	}
-
-	return c.JSON(http.StatusOK, response.APIResponse{Message: "types", Data: fspTypes})
-}
-func (d *Domain) handlerGetBusinessTypes(c echo.Context) error {
-
-	businessTypes := []string{
-		string(schema.BusinessTypeCorporation),
-		string(schema.BusinessTypeLLC),
-		string(schema.BusinessTypeSoleProp),
-		string(schema.BusinessTypePartnership),
-		string(schema.BusinessTypeOther),
-	}
-
-	return c.JSON(http.StatusOK, response.APIResponse{Message: "business types", Data: businessTypes})
-}
-func (d *Domain) handlerGetCountries(c echo.Context) error {
-	var err error
-	traceID := uuid.NewString()
-
-	countries, err := d.getCountryService()
-	if err != nil {
-		d.logger.Error("handlerGetCountries:", zap.Error(err), zap.String("traceID", traceID))
-		return c.JSON(http.StatusInternalServerError, response.APIResponse{
-			Message: "something went wrong",
-			Data:    nil,
-			Error: errmgr.ErrResponse{
-				Code:    errmgr.ErrCodeInternal,
-				TraceID: traceID,
-			},
-		})
-	}
-
-	return c.JSON(http.StatusOK, response.APIResponse{Message: "countries", Data: countries})
-}
-func (d *Domain) handlerGetStateProvinces(c echo.Context) error {
-	var err error
-	traceID := uuid.NewString()
-
-	countryID, err := extractor.ExtractIDFromPathParamAsUINT(c, "countryID")
-	if err != nil {
-		d.logger.Error("handlerGetStateProvinces:", zap.Error(err), zap.String("traceID", traceID))
-		return c.JSON(
-			http.StatusBadRequest,
-			response.APIResponse{
-				Message: "missing or invalid path/query parameters",
-				Data:    nil,
-				Error: errmgr.ErrResponse{
-					Code:    errmgr.ErrCodeInput,
-					TraceID: traceID,
-				},
-			})
-	}
-	if countryID == nil {
-		d.logger.Error("handlerGetStateProvinces:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
-		return c.JSON(
-			http.StatusInternalServerError,
-			response.APIResponse{
-				Message: "something went wrong",
-				Data:    nil,
-				Error: errmgr.ErrResponse{
-					Code:    errmgr.ErrCodeInternal,
-					TraceID: traceID,
-				},
-			})
-	}
-
-	stateProvinces, err := d.getStateProvinceService(*countryID)
-	if err != nil {
-		d.logger.Error("handlerGetStateProvinces:", zap.Error(err), zap.String("traceID", traceID))
-		return c.JSON(
-			http.StatusInternalServerError,
-			response.APIResponse{
-				Message: "something went wrong",
-				Data:    nil,
-				Error: errmgr.ErrResponse{
-					Code:    errmgr.ErrCodeInternal,
-					TraceID: traceID,
-				},
-			})
-	}
-
-	return c.JSON(http.StatusOK, response.APIResponse{Message: "state provinces", Data: stateProvinces})
-}
-
 // Dashboard
 
 func (d *Domain) handlerGetDashboard(c echo.Context) error {
@@ -132,7 +29,7 @@ func (d *Domain) handlerGetFSPAccount(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetFSPAccount:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -146,7 +43,7 @@ func (d *Domain) handlerGetFSPAccount(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetFSPAccount:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -161,8 +58,8 @@ func (d *Domain) handlerGetFSPAccount(c echo.Context) error {
 	}
 
 	exstingFSP, err := d.GetAccountService(
-		*FSPID, //FSPID 			uint
-		true,   //preloadDetails	bool
+		*TenantID, //TenantID 			uint
+		true,      //preloadDetails	bool
 	)
 	if err != nil {
 		d.logger.Error("handlerGetFSPAccount:", zap.Error(err), zap.String("traceID", traceID))
@@ -184,7 +81,7 @@ func (d *Domain) handlerUpdateFSPAccount(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateFSPAccount:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -198,7 +95,7 @@ func (d *Domain) handlerUpdateFSPAccount(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateFSPAccount:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -212,7 +109,7 @@ func (d *Domain) handlerUpdateFSPAccount(c echo.Context) error {
 			})
 	}
 
-	putMemorialReq := schema.FSP{}
+	putMemorialReq := schema.Tenant{}
 
 	err = c.Bind(&putMemorialReq)
 	if err != nil {
@@ -229,7 +126,7 @@ func (d *Domain) handlerUpdateFSPAccount(c echo.Context) error {
 			})
 	}
 
-	err = d.updateAccountService(*FSPID, putMemorialReq)
+	err = d.updateAccountService(*TenantID, putMemorialReq)
 	if err != nil {
 		d.logger.Error("handlerUpdateFSPAccount:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -253,7 +150,7 @@ func (d *Domain) handlerGetFSPTeam(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetFSPTeam:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -267,7 +164,7 @@ func (d *Domain) handlerGetFSPTeam(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetFSPTeam:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -281,7 +178,7 @@ func (d *Domain) handlerGetFSPTeam(c echo.Context) error {
 			})
 	}
 
-	existingTeam, err := d.getTeamService(*FSPID)
+	existingTeam, err := d.getTeamService(*TenantID)
 	if err != nil {
 		d.logger.Error("teamHandler:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -302,7 +199,7 @@ func (d *Domain) handlerAddFSPTeam(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerAddFSPTeam:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -316,7 +213,7 @@ func (d *Domain) handlerAddFSPTeam(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerAddFSPTeam:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -391,7 +288,7 @@ func (d *Domain) handlerAddFSPTeam(c echo.Context) error {
 
 	err = d.postTeamService(
 		*tenantIdentifier, //tenantIdentifier string
-		*FSPID,            //FSPID 			uint
+		*TenantID,         //TenantID 			uint
 		postTeamReq.Email, //email 			string
 		postTeamReq.Role,  //startingRole 	schema.RoleConst
 	)
@@ -427,7 +324,7 @@ func (d *Domain) handlerUpdateFSPTeam(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateFSPTeam:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -441,7 +338,7 @@ func (d *Domain) handlerUpdateFSPTeam(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateFSPTeam:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -514,7 +411,7 @@ func (d *Domain) handlerUpdateFSPTeam(c echo.Context) error {
 			})
 	}
 
-	err = d.putTeamService(*FSPID, *teamMemberID, putTeamReq.Role)
+	err = d.putTeamService(*TenantID, *teamMemberID, putTeamReq.Role)
 	if err != nil {
 		d.logger.Error("handlerUpdateFSPTeam:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -535,7 +432,7 @@ func (d *Domain) handlerDeleteFSPTeam(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteFSPTeam:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -549,7 +446,7 @@ func (d *Domain) handlerDeleteFSPTeam(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteFSPTeam:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -651,7 +548,7 @@ func (d *Domain) handlerDeleteFSPTeam(c echo.Context) error {
 	}
 
 	err = d.deleteTeamService(
-		*FSPID,                   //FSPID 				uint
+		*TenantID,                //TenantID 				uint
 		*teamMemberID,            //teamMemberID 		uint
 		deleteTeamReq.NotifyUser, //notifyUser 			bool
 	)
@@ -690,7 +587,7 @@ func (d *Domain) handlerGetMemorials(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetMemorials:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -704,7 +601,7 @@ func (d *Domain) handlerGetMemorials(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetMemorials:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -718,7 +615,7 @@ func (d *Domain) handlerGetMemorials(c echo.Context) error {
 			})
 	}
 
-	existingMemorials, err := d.getAllMemorials(*FSPID)
+	existingMemorials, err := d.getAllMemorials(*TenantID)
 	if err != nil {
 		d.logger.Error("handlerGetMemorials:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -739,7 +636,7 @@ func (d *Domain) handlerAddMemorial(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerAddMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -753,7 +650,7 @@ func (d *Domain) handlerAddMemorial(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerAddMemorial:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -837,7 +734,7 @@ func (d *Domain) handlerAddMemorial(c echo.Context) error {
 	}
 
 	err = d.createOrUpdateMemorialWithUserAndCuratorRole(
-		*FSPID,                              //FSPID 			uint
+		*TenantID,                           //TenantID 			uint
 		postMemorialReq.FirstName,           //FirstName 		string
 		postMemorialReq.LastName,            //LastName 		string
 		DOB,                                 //DOB 			*time.Time
@@ -865,7 +762,7 @@ func (d *Domain) handlerUpdateMemorial(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -879,7 +776,7 @@ func (d *Domain) handlerUpdateMemorial(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateMemorial:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1004,7 +901,7 @@ func (d *Domain) handlerUpdateMemorial(c echo.Context) error {
 	updatedMemorial.DOD = DOD
 
 	err = d.updateMemorial(
-		*FSPID,          //FSPID 			uint
+		*TenantID,       //TenantID 			uint
 		*memorialID,     //memorialID 		uint
 		updatedMemorial, //updatedMemorial 	schema.Memorial
 	)
@@ -1028,7 +925,7 @@ func (d *Domain) handlerDeleteMemorial(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1042,7 +939,7 @@ func (d *Domain) handlerDeleteMemorial(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteMemorial:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1084,7 +981,7 @@ func (d *Domain) handlerDeleteMemorial(c echo.Context) error {
 			})
 	}
 
-	err = d.deleteMemorial(*FSPID, *memorialID)
+	err = d.deleteMemorial(*TenantID, *memorialID)
 	if err != nil {
 		d.logger.Error("handlerDeleteMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(

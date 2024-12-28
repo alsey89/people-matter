@@ -21,7 +21,7 @@ import (
 
 // contributors
 
-func (d *Domain) serviceGetContributors(FSPID uint, memorialID uint) ([]schema.UserMemorialRole, error) {
+func (d *Domain) serviceGetContributors(TenantID uint, memorialID uint) ([]schema.UserMemorialRole, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -29,7 +29,7 @@ func (d *Domain) serviceGetContributors(FSPID uint, memorialID uint) ([]schema.U
 	existingUserMemorialRoles := []schema.UserMemorialRole{}
 
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Joins("JOIN memorial_roles ON memorial_roles.id = user_memorial_roles.memorial_role_id").
 		Where("memorial_roles.name IN ?", []schema.MemorialRoleConst{schema.RoleMemContributor}).
@@ -43,7 +43,7 @@ func (d *Domain) serviceGetContributors(FSPID uint, memorialID uint) ([]schema.U
 
 	return existingUserMemorialRoles, nil
 }
-func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID uint, contributorEmail string, relationship schema.RelationshipConst) error {
+func (d *Domain) serviceInviteContributor(TenantID uint, memorialID uint, adminID uint, contributorEmail string, relationship schema.RelationshipConst) error {
 	var err error
 
 	// Check if the memorial exists
@@ -55,10 +55,10 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 		return fmt.Errorf("serviceInviteContributor: Memorial not found")
 	}
 
-	// Check if user account already exists for FSP
+	// Check if user account already exists for Tenant
 	user, err := d.params.Identity.FindUserByEmail(
 		nil,              // db 		*gorm.DB
-		FSPID,            // FSPID 		uint
+		TenantID,         // TenantID 		uint
 		contributorEmail, // email 		string
 	)
 	if err != nil {
@@ -73,8 +73,8 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 	// Check if user already has a role in the memorial
 	if user != nil {
 		userMemorialRoles, err := d.params.Identity.QueryRolesByLevel(
-			FSPID,   // FSPID 	uint
-			user.ID, // userID 	uint
+			TenantID, // TenantID 	uint
+			user.ID,  // userID 	uint
 		)
 		if err != nil {
 			return fmt.Errorf("serviceInviteContributor: %w", err)
@@ -89,7 +89,7 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 	}
 
 	// Check if the user has an invitation to the memorial
-	invitation, err := d.params.Identity.FindContributorInvitationByEmail(FSPID, memorialID, contributorEmail)
+	invitation, err := d.params.Identity.FindContributorInvitationByEmail(TenantID, memorialID, contributorEmail)
 	if err != nil {
 		return fmt.Errorf("serviceInviteContributor: %w", err)
 	}
@@ -99,7 +99,7 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 
 	createdInvitation, err := d.params.Identity.CreateMemorialContributorInvitation(
 		nil,              // db 					*gorm.DB
-		FSPID,            // FSPID 					uint
+		TenantID,         // TenantID 					uint
 		adminID,          // adminID 				uint
 		contributorEmail, // email 					string
 		relationship,     // relationship 			schema.RelationshipConst
@@ -118,7 +118,7 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 	//TODO: if user already has account send email with link to accept invitation
 	//TODO: if user does not have account send email with link to create account and accept invitation
 	go d.params.TransMail.SendMail(
-		FSPID,            // FSPID 				uint
+		TenantID,         // TenantID 				uint
 		contributorEmail, // recipientEmail 	string
 		6500238,          // templateID 		int
 		&urlPath,         // urlPath 			*string
@@ -127,7 +127,7 @@ func (d *Domain) serviceInviteContributor(FSPID uint, memorialID uint, adminID u
 
 	return nil
 }
-func (d *Domain) serviceReinviteContributor(FSPID uint, memorialID uint, invitationID uint) error {
+func (d *Domain) serviceReinviteContributor(TenantID uint, memorialID uint, invitationID uint) error {
 	var err error
 
 	// Check if the memorial exists
@@ -141,7 +141,7 @@ func (d *Domain) serviceReinviteContributor(FSPID uint, memorialID uint, invitat
 
 	// Check if the invitation exists
 	existingInvitation, err := d.params.Identity.FindContributorInvitationByID(
-		FSPID,        // FSPID 			uint
+		TenantID,     // TenantID 			uint
 		invitationID, // invitationID 	uint
 	)
 	if err != nil {
@@ -154,7 +154,7 @@ func (d *Domain) serviceReinviteContributor(FSPID uint, memorialID uint, invitat
 	// refresh the invitation
 	refreshedInvitation, err := d.params.Identity.RefreshContributorInvitationAndToken(
 		nil,          // db 					*gorm.DB
-		FSPID,        // FSPID 					uint
+		TenantID,     // TenantID 					uint
 		memorialID,   // memorialID 			uint
 		invitationID, // invitationID 			uint
 	)
@@ -172,7 +172,7 @@ func (d *Domain) serviceReinviteContributor(FSPID uint, memorialID uint, invitat
 	}
 
 	go d.params.TransMail.SendMail(
-		FSPID,                            // FSPID 				uint
+		TenantID,                         // TenantID 				uint
 		refreshedInvitation.InviteeEmail, // recipientEmail 		string
 		6500238,                          // templateID 			int
 		&urlPath,                         // urlPath 			*string
@@ -181,7 +181,7 @@ func (d *Domain) serviceReinviteContributor(FSPID uint, memorialID uint, invitat
 
 	return nil
 }
-func (d *Domain) serviceDeleteContributor(FSPID uint, memorialID uint, contributorMemorialRoleID uint, userIsNotified bool) error {
+func (d *Domain) serviceDeleteContributor(TenantID uint, memorialID uint, contributorMemorialRoleID uint, userIsNotified bool) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -199,7 +199,7 @@ func (d *Domain) serviceDeleteContributor(FSPID uint, memorialID uint, contribut
 		// Remove the user from the memorial ROLE
 		err = d.params.Identity.RemoveUserMemorialRoleByID(
 			tx,                        // db 					*gorm.DB
-			FSPID,                     // FSPID 				uint
+			TenantID,                  // TenantID 				uint
 			contributorMemorialRoleID, // userMemorialRoleID 	uint
 		)
 		if err != nil {
@@ -221,7 +221,7 @@ func (d *Domain) serviceDeleteContributor(FSPID uint, memorialID uint, contribut
 
 // applications
 
-func (d *Domain) serviceGetContributorApplications(FSPID uint, memorialID uint) ([]schema.Application, error) {
+func (d *Domain) serviceGetContributorApplications(TenantID uint, memorialID uint) ([]schema.Application, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -229,7 +229,7 @@ func (d *Domain) serviceGetContributorApplications(FSPID uint, memorialID uint) 
 	existingApplications := []schema.Application{}
 
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Applicant").
 		Find(&existingApplications).
@@ -240,7 +240,7 @@ func (d *Domain) serviceGetContributorApplications(FSPID uint, memorialID uint) 
 
 	return existingApplications, nil
 }
-func (d *Domain) serviceAcceptContributorApplication(FSPID uint, memorialID uint, applicationID uint) error {
+func (d *Domain) serviceAcceptContributorApplication(TenantID uint, memorialID uint, applicationID uint) error {
 	var err error
 
 	// check if the memorial exists
@@ -254,7 +254,7 @@ func (d *Domain) serviceAcceptContributorApplication(FSPID uint, memorialID uint
 
 	// check if the application exists
 	existingApplication, err := d.params.Identity.FindContributorApplicationByID(
-		FSPID,         // FSPID 			uint
+		TenantID,      // TenantID 			uint
 		applicationID, // applicationID 	uint
 	)
 	if err != nil {
@@ -266,7 +266,7 @@ func (d *Domain) serviceAcceptContributorApplication(FSPID uint, memorialID uint
 
 	// check if the user is already a contributor
 	userMemorialRoles, err := d.params.Identity.QueryRolesByLevel(
-		FSPID,                           // FSPID 	uint
+		TenantID,                        // TenantID 	uint
 		existingApplication.ApplicantID, // userID 	uint
 	)
 	if err != nil {
@@ -283,7 +283,7 @@ func (d *Domain) serviceAcceptContributorApplication(FSPID uint, memorialID uint
 	// assign memorial contributor role
 	_, err = d.params.Identity.AssignOrUpdateMemorialRole(
 		nil,                               // db 					*gorm.DB
-		FSPID,                             // FSPID 				uint
+		TenantID,                          // TenantID 				uint
 		existingApplication.ApplicantID,   // userID 				uint
 		memorialID,                        // memorialID 			uint
 		schema.RoleMemContributor,         // roleName 			schema.MemorialRoleConst
@@ -306,7 +306,7 @@ func (d *Domain) serviceAcceptContributorApplication(FSPID uint, memorialID uint
 
 	return nil
 }
-func (d *Domain) serviceRejectContributorApplication(FSPID uint, memorialID uint, applicationID uint) error {
+func (d *Domain) serviceRejectContributorApplication(TenantID uint, memorialID uint, applicationID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -322,7 +322,7 @@ func (d *Domain) serviceRejectContributorApplication(FSPID uint, memorialID uint
 
 	// check if the application exists
 	application, err := d.params.Identity.FindContributorApplicationByID(
-		FSPID,         // FSPID 			uint
+		TenantID,      // TenantID 			uint
 		applicationID, // applicationID 	uint
 	)
 	if err != nil {
@@ -348,7 +348,7 @@ func (d *Domain) serviceRejectContributorApplication(FSPID uint, memorialID uint
 
 // invitations
 
-func (d *Domain) serviceGetContributorInvitations(FSPID uint, memorialID uint) ([]schema.Invitation, error) {
+func (d *Domain) serviceGetContributorInvitations(TenantID uint, memorialID uint) ([]schema.Invitation, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -356,7 +356,7 @@ func (d *Domain) serviceGetContributorInvitations(FSPID uint, memorialID uint) (
 	existingInvitations := []schema.Invitation{}
 
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Inviter").
 		Find(&existingInvitations).
@@ -367,7 +367,7 @@ func (d *Domain) serviceGetContributorInvitations(FSPID uint, memorialID uint) (
 
 	return existingInvitations, nil
 }
-func (d *Domain) serviceDeleteContributorInvitation(FSPID uint, memorialID uint, invitationID uint) error {
+func (d *Domain) serviceDeleteContributorInvitation(TenantID uint, memorialID uint, invitationID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -376,7 +376,7 @@ func (d *Domain) serviceDeleteContributorInvitation(FSPID uint, memorialID uint,
 		// Check if the invitation exists
 		existingInvitation := schema.Invitation{}
 		err = db.
-			Where("fsp_id = ?", FSPID).
+			Where("fsp_id = ?", TenantID).
 			Where("memorial_id = ?", memorialID).
 			Where("id = ?", invitationID).
 			First(&existingInvitation).
@@ -407,7 +407,7 @@ func (d *Domain) serviceDeleteContributorInvitation(FSPID uint, memorialID uint,
 }
 
 // contributions
-func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (getContribtionsResponse, error) {
+func (d *Domain) serviceGetMemorialContributions(TenantID uint, memorialID uint) (getContribtionsResponse, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -416,7 +416,7 @@ func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (g
 	// Get condolence elements
 	condolenceElements := []schema.ContributionCondolenceElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Contributor").
 		Preload("ContributorMemorialRole").
@@ -429,7 +429,7 @@ func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (g
 	// Get and sign gallery elements
 	galleryElements := []schema.ContributionGalleryElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Contributor").
 		Preload("ContributorMemorialRole").
@@ -451,7 +451,7 @@ func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (g
 	// Get and sign story elements
 	storyElements := []schema.ContributionStoryElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Contributor").
 		Preload("ContributorMemorialRole").
@@ -473,7 +473,7 @@ func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (g
 	// Get and optionally sign timeline elements
 	timelineElements := []schema.ContributionTimelineElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Preload("Contributor").
 		Preload("ContributorMemorialRole").
@@ -502,13 +502,13 @@ func (d *Domain) serviceGetMemorialContributions(FSPID uint, memorialID uint) (g
 
 	return allMemorialContributions, nil
 }
-func (d *Domain) serviceUpdateContributionCondolenceElementState(FSPID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
+func (d *Domain) serviceUpdateContributionCondolenceElementState(TenantID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution condolence element exists
 	var existingElement schema.ContributionCondolenceElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -532,13 +532,13 @@ func (d *Domain) serviceUpdateContributionCondolenceElementState(FSPID uint, mem
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionGalleryElementState(FSPID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
+func (d *Domain) serviceUpdateContributionGalleryElementState(TenantID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution gallery element exists
 	var existingElement schema.ContributionGalleryElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -562,13 +562,13 @@ func (d *Domain) serviceUpdateContributionGalleryElementState(FSPID uint, memori
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionTimelineElementState(FSPID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
+func (d *Domain) serviceUpdateContributionTimelineElementState(TenantID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution timeline element exists
 	var existingElement schema.ContributionTimelineElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -592,13 +592,13 @@ func (d *Domain) serviceUpdateContributionTimelineElementState(FSPID uint, memor
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionStoryElementState(FSPID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
+func (d *Domain) serviceUpdateContributionStoryElementState(TenantID uint, memorialID uint, elementID uint, state schema.ContributionStateConst) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution story element exists
 	var existingElement schema.ContributionStoryElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -624,7 +624,7 @@ func (d *Domain) serviceUpdateContributionStoryElementState(FSPID uint, memorial
 }
 
 // publish/export
-func (d *Domain) serviceExportMemorial(FSPID uint, memorialID uint) (*uint, error) {
+func (d *Domain) serviceExportMemorial(TenantID uint, memorialID uint) (*uint, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -643,7 +643,7 @@ func (d *Domain) serviceExportMemorial(FSPID uint, memorialID uint) (*uint, erro
 	err = db.Transaction(func(tx *gorm.DB) error {
 
 		// Check if there is are incomplete exports
-		incompleteExports, err := d.FindAndHandleIncompleteExports(tx, FSPID, memorialID)
+		incompleteExports, err := d.FindAndHandleIncompleteExports(tx, TenantID, memorialID)
 		if err != nil {
 			return fmt.Errorf("serviceExportMemorial: %w", err)
 		}
@@ -653,7 +653,7 @@ func (d *Domain) serviceExportMemorial(FSPID uint, memorialID uint) (*uint, erro
 
 		// add entry to the export table
 		export := schema.Export{
-			FSPID:      FSPID,
+			TenantID:   TenantID,
 			MemorialID: memorialID,
 			State:      schema.ExportStateRequested,
 		}
@@ -691,7 +691,7 @@ func (d *Domain) serviceExportMemorial(FSPID uint, memorialID uint) (*uint, erro
 
 	return createdExportID, nil
 }
-func (d *Domain) serviceGetAllExports(FSPID uint, memorialID uint) ([]schema.Export, error) {
+func (d *Domain) serviceGetAllExports(TenantID uint, memorialID uint) ([]schema.Export, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -699,7 +699,7 @@ func (d *Domain) serviceGetAllExports(FSPID uint, memorialID uint) ([]schema.Exp
 	exports := []schema.Export{}
 
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Order("id DESC"). // Move Order before Find
 		Find(&exports).
@@ -710,7 +710,7 @@ func (d *Domain) serviceGetAllExports(FSPID uint, memorialID uint) ([]schema.Exp
 
 	return exports, nil
 }
-func (d *Domain) serviceGetExportState(FSPID uint, memorialID uint, exportID uint) (*schema.ExportStateConst, error) {
+func (d *Domain) serviceGetExportState(TenantID uint, memorialID uint, exportID uint) (*schema.ExportStateConst, error) {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -718,7 +718,7 @@ func (d *Domain) serviceGetExportState(FSPID uint, memorialID uint, exportID uin
 	export := schema.Export{}
 
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", exportID).
 		First(&export).
@@ -732,7 +732,7 @@ func (d *Domain) serviceGetExportState(FSPID uint, memorialID uint, exportID uin
 
 	return &export.State, nil
 }
-func (d *Domain) serviceUpdateExportState(FSPID uint, memorialID uint, exportID uint, state schema.ExportStateConst) error {
+func (d *Domain) serviceUpdateExportState(TenantID uint, memorialID uint, exportID uint, state schema.ExportStateConst) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -740,7 +740,7 @@ func (d *Domain) serviceUpdateExportState(FSPID uint, memorialID uint, exportID 
 	// Check if the export exists
 	export := schema.Export{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", exportID).
 		First(&export).
@@ -767,7 +767,7 @@ func (d *Domain) serviceUpdateExportState(FSPID uint, memorialID uint, exportID 
 
 // CONTRIBUTOR -----------------------------------------------------
 
-func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributorID uint) (getContribtionsResponse, error) {
+func (d *Domain) serviceGetContributions(TenantID uint, memorialID uint, contributorID uint) (getContribtionsResponse, error) {
 	var err error
 	db := d.params.DB.GetDB()
 	response := getContribtionsResponse{}
@@ -807,7 +807,7 @@ func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributo
 	// Get condolence elements
 	condolenceElements := []schema.ContributionCondolenceElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("contributor_id = ?", contributorID).
 		Find(&condolenceElements).
@@ -819,7 +819,7 @@ func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributo
 	// Get and sign gallery elements
 	galleryElements := []schema.ContributionGalleryElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("contributor_id = ?", contributorID).
 		Find(&galleryElements).
@@ -840,7 +840,7 @@ func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributo
 	// Get and sign story elements
 	storyElements := []schema.ContributionStoryElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("contributor_id = ?", contributorID).
 		Find(&storyElements).
@@ -861,7 +861,7 @@ func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributo
 	// Get and optionally sign sign timeline elements
 	timelineElements := []schema.ContributionTimelineElement{}
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("contributor_id = ?", contributorID).
 		Find(&timelineElements).
@@ -889,11 +889,11 @@ func (d *Domain) serviceGetContributions(FSPID uint, memorialID uint, contributo
 
 	return response, nil
 }
-func (d *Domain) serviceGetPresignedUploadURL(FSPID uint, memorialID uint, contributorID uint) (*string, *map[string]string, error) {
+func (d *Domain) serviceGetPresignedUploadURL(TenantID uint, memorialID uint, contributorID uint) (*string, *map[string]string, error) {
 	context := context.Background()
 
 	data := S3KeyData{
-		FSPID:         int(FSPID),
+		TenantID:      int(TenantID),
 		MemorialID:    int(memorialID),
 		ContributorID: int(contributorID),
 		Date:          time.Now().Format("2006-01-02"),
@@ -908,7 +908,7 @@ func (d *Domain) serviceGetPresignedUploadURL(FSPID uint, memorialID uint, contr
 	keyBufferString := keyBuffer.String()
 
 	metadata := map[string]string{
-		"fsp-id":         fmt.Sprint(FSPID),
+		"fsp-id":         fmt.Sprint(TenantID),
 		"memorial-id":    fmt.Sprint(memorialID),
 		"contributor-id": fmt.Sprint(contributorID),
 		"date":           time.Now().Format("2006-01-02"),
@@ -930,7 +930,7 @@ func (d *Domain) serviceGetPresignedUploadURL(FSPID uint, memorialID uint, contr
 	return presignedUploadURL, &metadata, nil
 }
 
-func (d *Domain) serviceCreateContributionGalleryElement(FSPID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementMediaType string, elementMediaURL string, elementLocation *string, ElementGooglePlaceID *string) error {
+func (d *Domain) serviceCreateContributionGalleryElement(TenantID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementMediaType string, elementMediaURL string, elementLocation *string, ElementGooglePlaceID *string) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -947,7 +947,7 @@ func (d *Domain) serviceCreateContributionGalleryElement(FSPID uint, memorialID 
 	// Check if the contributor exists
 	contributor, err := d.params.Identity.FindUserByID(
 		nil,           // db 		*gorm.DB
-		FSPID,         // FSPID 	uint
+		TenantID,      // TenantID 	uint
 		contributorID, // userID 	uint
 	)
 	if err != nil {
@@ -959,7 +959,7 @@ func (d *Domain) serviceCreateContributionGalleryElement(FSPID uint, memorialID 
 
 	// Create the contribution gallery element
 	newContributionGalleryElement := schema.ContributionGalleryElement{
-		FSPID:             FSPID,
+		TenantID:          TenantID,
 		MemorialID:        memorialID,
 		ContributorID:     contributorID,
 		ContributionState: schema.ContributionStatePending,
@@ -985,7 +985,7 @@ func (d *Domain) serviceCreateContributionGalleryElement(FSPID uint, memorialID 
 
 	return nil
 }
-func (d *Domain) serviceCreateContributionTimelineElement(FSPID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementEventType schema.EventTypeConst, elementMediaURL *string, elementLocation *string, ElementGooglePlaceID *string) error {
+func (d *Domain) serviceCreateContributionTimelineElement(TenantID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementEventType schema.EventTypeConst, elementMediaURL *string, elementLocation *string, ElementGooglePlaceID *string) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1002,7 +1002,7 @@ func (d *Domain) serviceCreateContributionTimelineElement(FSPID uint, memorialID
 	// Check if the contributor exists
 	contributor, err := d.params.Identity.FindUserByID(
 		nil,           // db 		*gorm.DB
-		FSPID,         // FSPID 	uint
+		TenantID,      // TenantID 	uint
 		contributorID, // userID 	uint
 	)
 	if err != nil {
@@ -1014,7 +1014,7 @@ func (d *Domain) serviceCreateContributionTimelineElement(FSPID uint, memorialID
 
 	// Create the contribution timeline element
 	newContributionTimelineElement := schema.ContributionTimelineElement{
-		FSPID:             FSPID,
+		TenantID:          TenantID,
 		MemorialID:        memorialID,
 		ContributorID:     contributorID,
 		ContributionState: schema.ContributionStatePending,
@@ -1038,7 +1038,7 @@ func (d *Domain) serviceCreateContributionTimelineElement(FSPID uint, memorialID
 
 	return nil
 }
-func (d *Domain) serviceCreateContributionStoryElement(FSPID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementMediaURL *string, elementAuthor string) error {
+func (d *Domain) serviceCreateContributionStoryElement(TenantID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementMediaURL *string, elementAuthor string) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1055,7 +1055,7 @@ func (d *Domain) serviceCreateContributionStoryElement(FSPID uint, memorialID ui
 	// Check if the contributor exists
 	contributor, err := d.params.Identity.FindUserByID(
 		nil,           // db 		*gorm.DB
-		FSPID,         // FSPID 	uint
+		TenantID,      // TenantID 	uint
 		contributorID, // userID 	uint
 	)
 	if err != nil {
@@ -1072,7 +1072,7 @@ func (d *Domain) serviceCreateContributionStoryElement(FSPID uint, memorialID ui
 
 	// Create the contribution story element
 	newContributionStoryElement := schema.ContributionStoryElement{
-		FSPID:             FSPID,
+		TenantID:          TenantID,
 		MemorialID:        memorialID,
 		ContributorID:     contributorID,
 		ContributionState: schema.ContributionStatePending,
@@ -1095,7 +1095,7 @@ func (d *Domain) serviceCreateContributionStoryElement(FSPID uint, memorialID ui
 
 	return nil
 }
-func (d *Domain) serviceCreateContributionCondolenceElement(FSPID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string, designElementID string) error {
+func (d *Domain) serviceCreateContributionCondolenceElement(TenantID uint, memorialID uint, contributorID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string, designElementID string) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1112,7 +1112,7 @@ func (d *Domain) serviceCreateContributionCondolenceElement(FSPID uint, memorial
 	// Check if the contributor exists
 	contributor, err := d.params.Identity.FindUserByID(
 		nil,           // db 		*gorm.DB
-		FSPID,         // FSPID 	uint
+		TenantID,      // TenantID 	uint
 		contributorID, // userID 	uint
 	)
 	if err != nil {
@@ -1124,7 +1124,7 @@ func (d *Domain) serviceCreateContributionCondolenceElement(FSPID uint, memorial
 
 	// Create the contribution story element
 	newContributionCondolenceElement := schema.ContributionCondolenceElement{
-		FSPID:             FSPID,
+		TenantID:          TenantID,
 		MemorialID:        memorialID,
 		ContributorID:     contributorID,
 		ContributionState: schema.ContributionStatePending,
@@ -1146,13 +1146,13 @@ func (d *Domain) serviceCreateContributionCondolenceElement(FSPID uint, memorial
 	return nil
 }
 
-func (d *Domain) serviceUpdateContributionGalleryElement(FSPID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementLocation *string, ElementGooglePlaceID *string) error {
+func (d *Domain) serviceUpdateContributionGalleryElement(TenantID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementLocation *string, ElementGooglePlaceID *string) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution gallery element exists
 	var existingElement schema.ContributionGalleryElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -1199,13 +1199,13 @@ func (d *Domain) serviceUpdateContributionGalleryElement(FSPID uint, memorialID 
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionTimelineElement(FSPID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementEventType schema.EventTypeConst, elementLocation *string, ElementGooglePlaceID *string) error {
+func (d *Domain) serviceUpdateContributionTimelineElement(TenantID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementDate time.Time, elementEventType schema.EventTypeConst, elementLocation *string, ElementGooglePlaceID *string) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution timeline element exists
 	var existingElement schema.ContributionTimelineElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -1254,13 +1254,13 @@ func (d *Domain) serviceUpdateContributionTimelineElement(FSPID uint, memorialID
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionStoryElement(FSPID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string) error {
+func (d *Domain) serviceUpdateContributionStoryElement(TenantID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution story element exists
 	var existingElement schema.ContributionStoryElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -1303,13 +1303,13 @@ func (d *Domain) serviceUpdateContributionStoryElement(FSPID uint, memorialID ui
 
 	return nil
 }
-func (d *Domain) serviceUpdateContributionCondolenceElement(FSPID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string, designElementID string) error {
+func (d *Domain) serviceUpdateContributionCondolenceElement(TenantID uint, memorialID uint, elementID uint, updaterID uint, isImmutable bool, elementTitle string, elementDescription string, elementAuthor string, designElementID string) error {
 	db := d.params.DB.GetDB()
 
 	// Check if the contribution condolence element exists
 	var existingElement schema.ContributionCondolenceElement
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		First(&existingElement).
@@ -1355,7 +1355,7 @@ func (d *Domain) serviceUpdateContributionCondolenceElement(FSPID uint, memorial
 	return nil
 }
 
-func (d *Domain) serviceDeleteContributionGalleryElement(FSPID uint, memorialID uint, elementID uint) error {
+func (d *Domain) serviceDeleteContributionGalleryElement(TenantID uint, memorialID uint, elementID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1371,7 +1371,7 @@ func (d *Domain) serviceDeleteContributionGalleryElement(FSPID uint, memorialID 
 
 	// find and delete the gallery element
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		Delete(&schema.ContributionGalleryElement{}).
@@ -1385,7 +1385,7 @@ func (d *Domain) serviceDeleteContributionGalleryElement(FSPID uint, memorialID 
 
 	return nil
 }
-func (d *Domain) serviceDeleteContributionTimelineElement(FSPID uint, memorialID uint, elementID uint) error {
+func (d *Domain) serviceDeleteContributionTimelineElement(TenantID uint, memorialID uint, elementID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1401,7 +1401,7 @@ func (d *Domain) serviceDeleteContributionTimelineElement(FSPID uint, memorialID
 
 	// find and delete the timeline element
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		Delete(&schema.ContributionTimelineElement{}).
@@ -1415,7 +1415,7 @@ func (d *Domain) serviceDeleteContributionTimelineElement(FSPID uint, memorialID
 
 	return nil
 }
-func (d *Domain) serviceDeleteContributionStoryElement(FSPID uint, memorialID uint, elementID uint) error {
+func (d *Domain) serviceDeleteContributionStoryElement(TenantID uint, memorialID uint, elementID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1431,7 +1431,7 @@ func (d *Domain) serviceDeleteContributionStoryElement(FSPID uint, memorialID ui
 
 	// find and delete the story element
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		Delete(&schema.ContributionStoryElement{}).
@@ -1445,7 +1445,7 @@ func (d *Domain) serviceDeleteContributionStoryElement(FSPID uint, memorialID ui
 
 	return nil
 }
-func (d *Domain) serviceDeleteContributionCondolenceElement(FSPID uint, memorialID uint, elementID uint) error {
+func (d *Domain) serviceDeleteContributionCondolenceElement(TenantID uint, memorialID uint, elementID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -1461,7 +1461,7 @@ func (d *Domain) serviceDeleteContributionCondolenceElement(FSPID uint, memorial
 
 	// find and delete the condolence element
 	err = db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("id = ?", elementID).
 		Delete(&schema.ContributionCondolenceElement{}).
@@ -1555,13 +1555,13 @@ func (d *Domain) FindMemorialByID(memorialID uint) (*schema.Memorial, error) {
 
 // Finds a memorial by its identifier, returns the memorial if it exists
 // **Returns nil without an error** if the memorial does not exist
-func (d *Domain) FindMemorialByIdentifier(FSPID uint, identifier string) (*schema.Memorial, error) {
+func (d *Domain) FindMemorialByIdentifier(TenantID uint, identifier string) (*schema.Memorial, error) {
 	db := d.params.DB.GetDB()
 
 	existingMemorial := schema.Memorial{}
 
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("identifier = ?", identifier).
 		First(&existingMemorial).
 		Error
@@ -1578,7 +1578,7 @@ func (d *Domain) FindMemorialByIdentifier(FSPID uint, identifier string) (*schem
 // Finds incomplete exports (requested or running) for a memorial.
 // If incomplete exports are found, they are failed if stale, and the fresh ones are returned.
 // **Returns nil without an error** if no incomplete exports are found
-func (d *Domain) FindAndHandleIncompleteExports(db *gorm.DB, FSPID uint, memorialID uint) ([]schema.Export, error) {
+func (d *Domain) FindAndHandleIncompleteExports(db *gorm.DB, TenantID uint, memorialID uint) ([]schema.Export, error) {
 	// if db is not set, use the default db
 	// this allows the function to be used in a transaction
 	if db == nil {
@@ -1587,7 +1587,7 @@ func (d *Domain) FindAndHandleIncompleteExports(db *gorm.DB, FSPID uint, memoria
 
 	allIncompleteExports := []schema.Export{}
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Where("memorial_id = ?", memorialID).
 		Where("state = ? OR state = ?", schema.ExportStateRequested, schema.ExportStateRunning).
 		Find(&allIncompleteExports).
@@ -1618,7 +1618,7 @@ func (d *Domain) FindAndHandleIncompleteExports(db *gorm.DB, FSPID uint, memoria
 
 			err = db.
 				Model(&schema.Export{}).
-				Where("fsp_id = ?", FSPID).
+				Where("fsp_id = ?", TenantID).
 				Where("memorial_id = ?", memorialID).
 				Where("id = ?", deferencedStaleExport.ID).
 				Update("state", schema.ExportStateFailed).

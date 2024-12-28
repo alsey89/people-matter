@@ -38,8 +38,8 @@ type MemorialRole struct {
 
 type UserFSPRole struct {
 	BaseModel
-	FSPID     uint     `json:"fspID" gorm:"not null;uniqueIndex:idx_user_fsp"`
-	FSP       *FSP     `json:"fsp" gorm:"foreignKey:FSPID"`
+	TenantID  uint     `json:"fspID" gorm:"not null;uniqueIndex:idx_user_fsp"`
+	Tenant    *Tenant  `json:"fsp" gorm:"foreignKey:TenantID"`
 	UserID    uint     `json:"userID" gorm:"not null;uniqueIndex:idx_user_fsp"`
 	User      *User    `json:"user" gorm:"foreignKey:UserID"`
 	FSPRoleID uint     `json:"fspRoleID" gorm:"not null;index"`
@@ -77,8 +77,8 @@ const (
 
 type UserMemorialRole struct {
 	BaseModel
-	FSPID          uint              `json:"fspID" gorm:"not null;index"`
-	FSP            *FSP              `json:"fsp" gorm:"foreignKey:FSPID"`
+	TenantID       uint              `json:"fspID" gorm:"not null;index"`
+	Tenant         *Tenant           `json:"fsp" gorm:"foreignKey:TenantID"`
 	UserID         uint              `json:"userID" gorm:"not null;uniqueIndex:idx_user_memorial"`
 	User           *User             `json:"user" gorm:"foreignKey:UserID"`
 	MemorialRoleID uint              `json:"memorialRoleID" gorm:"not null;index"`
@@ -107,9 +107,9 @@ const (
 
 type Invitation struct {
 	BaseModel
-	FSPID uint `json:"fspID" gorm:"index"`
+	TenantID uint `json:"fspID" gorm:"index"`
 
-	// For FSP invitations
+	// For Tenant invitations
 	FSPRole FSPRoleConst `json:"fspRole" gorm:"default:'user'"`
 
 	// For Memorial contributor invitations
@@ -148,7 +148,7 @@ const (
 
 type Application struct {
 	BaseModel
-	FSPID      uint `json:"fspID" gorm:"not null;uniqueIndex:idx_fsp_applicant"`
+	TenantID   uint `json:"fspID" gorm:"not null;uniqueIndex:idx_fsp_applicant"`
 	MemorialID uint `json:"memorialID"`
 
 	ApplicantID     uint                   `json:"applicantID" gorm:"not null;uniqueIndex:idx_fsp_applicant"`

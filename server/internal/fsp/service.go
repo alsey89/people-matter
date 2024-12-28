@@ -14,45 +14,15 @@ import (
 )
 
 // Form Data ------------------------------------------------------
-func (d *Domain) getCountryService() ([]schema.Country, error) {
-	db := d.params.DB.GetDB()
-
-	existingCountries := []schema.Country{}
-
-	err := db.
-		Find(&existingCountries).
-		Error
-	if err != nil {
-		return nil, fmt.Errorf("getCountryService: %w", err)
-	}
-
-	return existingCountries, nil
-}
-
-func (d *Domain) getStateProvinceService(countryID uint) ([]schema.StateProvince, error) {
-	db := d.params.DB.GetDB()
-
-	existingStateProvinces := []schema.StateProvince{}
-
-	err := db.
-		Where("country_id = ?", countryID).
-		Find(&existingStateProvinces).
-		Error
-	if err != nil {
-		return nil, fmt.Errorf("getStateProvinceService: %w", err)
-	}
-
-	return existingStateProvinces, nil
-}
 
 // Account ---------------------------------------------------------
 
-func (d *Domain) GetAccountService(FSPID uint, preloadDetails bool) (*schema.FSP, error) {
+func (d *Domain) GetAccountService(TenantID uint, preloadDetails bool) (*schema.Tenant, error) {
 	db := d.params.DB.GetDB()
 
-	existingFSP := schema.FSP{}
+	existingFSP := schema.Tenant{}
 
-	query := db.Where("id = ?", FSPID)
+	query := db.Where("id = ?", TenantID)
 	if preloadDetails {
 		query = query.Preload("Country").Preload("StateProvince")
 	}
@@ -60,7 +30,7 @@ func (d *Domain) GetAccountService(FSPID uint, preloadDetails bool) (*schema.FSP
 	err := query.First(&existingFSP).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("GetAccountService: no record found for FSPID %d", FSPID)
+			return nil, fmt.Errorf("GetAccountService: no record found for TenantID %d", TenantID)
 		}
 		return nil, fmt.Errorf("GetAccountService: %w", err)
 	}
@@ -68,11 +38,11 @@ func (d *Domain) GetAccountService(FSPID uint, preloadDetails bool) (*schema.FSP
 	return &existingFSP, nil
 }
 
-func (d *Domain) updateAccountService(FSPID uint, updatedFSP schema.FSP) error {
+func (d *Domain) updateAccountService(TenantID uint, updatedFSP schema.Tenant) error {
 	db := d.params.DB.GetDB()
 
 	err := db.
-		Where("id = ?", FSPID).
+		Where("id = ?", TenantID).
 		// Select(
 		// 	"Name",
 		// 	"LogoURL",
@@ -101,13 +71,13 @@ func (d *Domain) updateAccountService(FSPID uint, updatedFSP schema.FSP) error {
 
 // Team -----------------------------------------------------------
 
-func (d *Domain) getTeamService(FSPID uint) ([]schema.UserFSPRole, error) {
+func (d *Domain) getTeamService(TenantID uint) ([]schema.UserFSPRole, error) {
 	db := d.params.DB.GetDB()
 
 	existingTeam := []schema.UserFSPRole{}
 
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Joins("JOIN fsp_roles ON fsp_roles.id = user_fsp_roles.fsp_role_id").
 		Where("fsp_roles.name IN ?", []schema.FSPRoleConst{schema.RoleFSPAdmin, schema.RoleFSPSuperAdmin}).
 		Preload("User").
@@ -121,11 +91,11 @@ func (d *Domain) getTeamService(FSPID uint) ([]schema.UserFSPRole, error) {
 	return existingTeam, nil
 }
 
-func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email string, startingRole schema.FSPRoleConst) error {
+func (d *Domain) postTeamService(TenantIdentifier string, TenantID uint, email string, startingRole schema.FSPRoleConst) error {
 	var err error
 
 	// Check if user with email already exists
-	existingUser, err := d.params.Identity.FindUserByEmail(nil, FSPID, email)
+	existingUser, err := d.params.Identity.FindUserByEmail(nil, TenantID, email)
 	if err != nil {
 		return fmt.Errorf("postTeamService: %w", err)
 	}
@@ -133,16 +103,16 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 	// 1. user exists
 	if existingUser != nil {
 		// Fetch user's current roles & check if they already have the starting role
-		rolesByLevel, err := d.params.Identity.QueryRolesByLevel(FSPID, existingUser.ID)
+		rolesByLevel, err := d.params.Identity.QueryRolesByLevel(TenantID, existingUser.ID)
 		if err != nil {
 			return fmt.Errorf("postTeamService: %w", err)
 		}
-		if rolesByLevel != nil && rolesByLevel.FSP.FSPRole.Name == startingRole {
+		if rolesByLevel != nil && rolesByLevel.Tenant.FSPRole.Name == startingRole {
 			return fmt.Errorf("postTeamService: %w", ErrTeamMemberHasRole)
 		}
 
 		// If user does not have the starting role, assign it
-		_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, FSPID, existingUser.ID, startingRole)
+		_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, TenantID, existingUser.ID, startingRole)
 		if err != nil {
 			return fmt.Errorf("postTeamService: %w", err)
 		}
@@ -154,7 +124,7 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 		}
 
 		go d.params.TransMail.SendMail(
-			FSPID,     // FSPID 			uint
+			TenantID,  // TenantID 			uint
 			email,     // recipientEmail 	string
 			6405058,   // templateID 		int
 			&urlPath,  // urlPath 			*string
@@ -166,12 +136,12 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 
 	// 2. user does not exist, create the user and send email with link to reset password
 	createdUser, err := d.params.Identity.CreateUserAndFSPRole(
-		nil,    // db 			*gorm.DB
-		FSPID,  // FSPID 		uint
-		"New",  // firstName 	string
-		"User", // lastName 	string
-		email,  // email 		string
-		nil,    // passwordHash *string
+		nil,      // db 			*gorm.DB
+		TenantID, // TenantID 		uint
+		"New",    // firstName 	string
+		"User",   // lastName 	string
+		email,    // email 		string
+		nil,      // passwordHash *string
 		startingRole,
 	)
 	if err != nil {
@@ -186,8 +156,8 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 	}
 
 	resetUrlPath, err := d.params.Identity.GeneratePasswordResetTokenAndPath(
-		FSPID, // FSPID 			uint
-		email, // email 			string
+		TenantID, // TenantID 			uint
+		email,    // email 			string
 	)
 	if err != nil {
 		return fmt.Errorf("postTeamService: %w", err)
@@ -197,7 +167,7 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 	}
 
 	go d.params.TransMail.SendMail(
-		FSPID,        // FSPID 				uint
+		TenantID,     // TenantID 				uint
 		email,        // recipientEmail 	string
 		6458393,      // templateID 		int
 		resetUrlPath, // urlPath 			*string
@@ -207,10 +177,10 @@ func (d *Domain) postTeamService(TenantIdentifier string, FSPID uint, email stri
 	return nil
 }
 
-func (d *Domain) putTeamService(FSPID uint, teamMemberID uint, updatedRole schema.FSPRoleConst) error {
+func (d *Domain) putTeamService(TenantID uint, teamMemberID uint, updatedRole schema.FSPRoleConst) error {
 	var err error
 
-	_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, FSPID, teamMemberID, updatedRole)
+	_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, TenantID, teamMemberID, updatedRole)
 	if err != nil {
 		return fmt.Errorf("putTeamService: %w", err)
 	}
@@ -218,12 +188,12 @@ func (d *Domain) putTeamService(FSPID uint, teamMemberID uint, updatedRole schem
 	return nil
 }
 
-func (d *Domain) deleteTeamService(FSPID uint, teamMemberID uint, notifyUser bool) error {
+func (d *Domain) deleteTeamService(TenantID uint, teamMemberID uint, notifyUser bool) error {
 	var err error
 
-	// Check if the user is a member of the FSP admin team, throw error if not
+	// Check if the user is a member of the Tenant admin team, throw error if not
 	// Check if the user is the only Super Admin, throw error if so
-	userFSPRoles, err := d.getTeamService(FSPID)
+	userFSPRoles, err := d.getTeamService(TenantID)
 	if err != nil {
 		return fmt.Errorf("deleteTeamService: %w", err)
 	}
@@ -243,21 +213,21 @@ func (d *Domain) deleteTeamService(FSPID uint, teamMemberID uint, notifyUser boo
 	}
 
 	if teamMember == nil {
-		return fmt.Errorf("deleteTeamService: %s", "user is not a member of the FSP admin team")
+		return fmt.Errorf("deleteTeamService: %s", "user is not a member of the Tenant admin team")
 	}
 	if superAdminCount <= 1 && teamMemberRole.Name == schema.RoleFSPSuperAdmin {
 		return fmt.Errorf("deleteTeamService: %w", errmgr.ErrUserIsLastSuperAdmin)
 	}
 
 	// Change user role to FSPUser
-	_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, FSPID, teamMemberID, schema.RoleFSPUser)
+	_, err = d.params.Identity.AssignOrUpdateFSPRole(nil, TenantID, teamMemberID, schema.RoleFSPUser)
 	if err != nil {
 		return fmt.Errorf("deleteTeamService: %w", err)
 	}
 
 	if notifyUser {
 		go d.params.TransMail.SendMail(
-			FSPID,            // FSPID 				uint
+			TenantID,         // TenantID 				uint
 			teamMember.Email, // recipientEmail 	string
 			6458368,          // templateID 		int
 			nil,              // urlPath 			*string
@@ -270,13 +240,13 @@ func (d *Domain) deleteTeamService(FSPID uint, teamMemberID uint, notifyUser boo
 
 // Memorial -------------------------------------------------------
 
-func (d *Domain) getAllMemorials(FSPID uint) ([]schema.Memorial, error) {
+func (d *Domain) getAllMemorials(TenantID uint) ([]schema.Memorial, error) {
 	db := d.params.DB.GetDB()
 
 	existingMemorials := []schema.Memorial{}
 
 	err := db.
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Preload("UserMemorialRoles.MemorialRole").
 		Preload("UserMemorialRoles.User").
 		Find(&existingMemorials).
@@ -292,8 +262,8 @@ func (d *Domain) getAllMemorials(FSPID uint) ([]schema.Memorial, error) {
 // Checks if the memorial already exists, if it does, it uses the existing memorial.
 // Checks if the user already exists, if it does, it uses the existing user.
 // Checks if the user already has a role for the memorial, if it does, it updates the role.
-// Intended for use when FSP admin creates a new memorial.
-func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstName string, lastName string, DOB *time.Time, DOD *time.Time, emailOfTheCurator string, relationship schema.RelationshipConst) error {
+// Intended for use when Tenant admin creates a new memorial.
+func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(TenantID uint, firstName string, lastName string, DOB *time.Time, DOD *time.Time, emailOfTheCurator string, relationship schema.RelationshipConst) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -310,7 +280,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 	identifier := fmt.Sprintf("%s_%s", formattedName, DOB.Format("2006-01-02"))
 
 	newMemorial := schema.Memorial{
-		FSPID:           FSPID,
+		TenantID:        TenantID,
 		Identifier:      identifier, // identifier is a combination of first name, last name, and dob
 		IdentifierIsSet: false,
 		FirstName:       firstName,
@@ -327,7 +297,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 	}
 
 	// Check if the curator already has an account
-	existingUser, err := d.params.Identity.FindUserByEmail(nil, FSPID, emailOfTheCurator)
+	existingUser, err := d.params.Identity.FindUserByEmail(nil, TenantID, emailOfTheCurator)
 	if err != nil {
 		return fmt.Errorf("createOrUpdateMemorialCuratorAndUserRole: %w", err)
 	}
@@ -354,7 +324,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 		if existingUser == nil {
 			user, err = d.params.Identity.CreateUserAndFSPRole(
 				tx,                 // db 			*gorm.DB
-				FSPID,              // FSPID 		uint
+				TenantID,           // TenantID 		uint
 				"New",              // firstName 	string
 				"User",             // lastName 	string
 				emailOfTheCurator,  // email 		string
@@ -371,7 +341,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 		// assign or update memorial to the user
 		_, err = d.params.Identity.AssignOrUpdateMemorialRole(
 			tx,                    // db				*gorm.DB
-			FSPID,                 // FSPID 			uint
+			TenantID,              // TenantID 			uint
 			user.ID,               // userID 	    	uint
 			memorialID,            // memorialID 		uint
 			schema.RoleMemCurator, // roleIDToAssign	uint
@@ -383,7 +353,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 
 		// send email to set password and confirm their account
 		setPWUrlPath, err := d.params.Identity.GenerateSetPasswordTokenAndPath(
-			FSPID,             // FSPID 			uint
+			TenantID,          // TenantID 			uint
 			emailOfTheCurator, // email 			string
 		)
 		if err != nil {
@@ -397,7 +367,7 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 			"memorial_title": newMemorial.Title,
 		}
 		go d.params.TransMail.SendMail(
-			FSPID,             // FSPID 			uint
+			TenantID,          // TenantID 			uint
 			emailOfTheCurator, // recipientEmail 	string
 			6399852,           // templateID 		int
 			setPWUrlPath,      // urlPath 			*string
@@ -417,8 +387,8 @@ func (d *Domain) createOrUpdateMemorialWithUserAndCuratorRole(FSPID uint, firstN
 // Checks if the memorial already exists, returns an error if it does not exist.
 // Checks if the user already exists, if it does, it uses the existing user.
 // Checks if the user already has a role for the memorial, if it does, it updates the role.
-// Intended for use when FSP admin assigns a role to a user for a memorial.
-func (d *Domain) createOrUpdateUserWithMemorialRole(FSPID uint, memorialID uint, roleToAssign schema.MemorialRoleConst, userEmail string) error {
+// Intended for use when Tenant admin assigns a role to a user for a memorial.
+func (d *Domain) createOrUpdateUserWithMemorialRole(TenantID uint, memorialID uint, roleToAssign schema.MemorialRoleConst, userEmail string) error {
 	var err error
 
 	db := d.params.DB.GetDB()
@@ -433,7 +403,7 @@ func (d *Domain) createOrUpdateUserWithMemorialRole(FSPID uint, memorialID uint,
 	}
 
 	// Check if the curator already has an account
-	existingUser, err := d.params.Identity.FindUserByEmail(nil, FSPID, userEmail)
+	existingUser, err := d.params.Identity.FindUserByEmail(nil, TenantID, userEmail)
 	if err != nil {
 		return fmt.Errorf("createOrUpdateMemorialCuratorAndUserRole: %w", err)
 	}
@@ -447,7 +417,7 @@ func (d *Domain) createOrUpdateUserWithMemorialRole(FSPID uint, memorialID uint,
 		if existingUser == nil {
 			user, err = d.params.Identity.CreateUserAndFSPRole(
 				tx,                 // db 			*gorm.DB
-				FSPID,              // FSPID 		uint
+				TenantID,           // TenantID 		uint
 				"New",              // firstName 	string
 				"User",             // lastName 	string
 				userEmail,          // email 		string
@@ -464,7 +434,7 @@ func (d *Domain) createOrUpdateUserWithMemorialRole(FSPID uint, memorialID uint,
 		// assign or update memorial to the user
 		_, err = d.params.Identity.AssignOrUpdateMemorialRole(
 			tx,           // db				*gorm.DB
-			FSPID,        // FSPID 			uint
+			TenantID,     // TenantID 			uint
 			user.ID,      // userID 	    uint
 			memorialID,   // memorialID 	uint
 			roleToAssign, // roleToAssign	schema.MemorialRoleConst
@@ -484,7 +454,7 @@ func (d *Domain) createOrUpdateUserWithMemorialRole(FSPID uint, memorialID uint,
 }
 
 // Creates a new memorial. Checks if a memorial exists by identifier and creates it if not.
-func (d *Domain) CreateMemorial(db *gorm.DB, FSPID uint, firstName string, lastName string, identifier string, DOB *time.Time, DOD *time.Time) (*schema.Memorial, error) {
+func (d *Domain) CreateMemorial(db *gorm.DB, TenantID uint, firstName string, lastName string, identifier string, DOB *time.Time, DOD *time.Time) (*schema.Memorial, error) {
 	// if db is not set, use the default db
 	// this allows the function to be used in a transaction
 	if db == nil {
@@ -517,7 +487,7 @@ func (d *Domain) CreateMemorial(db *gorm.DB, FSPID uint, firstName string, lastN
 
 	// if memorial does not exist, create it
 	newMemorial := schema.Memorial{
-		FSPID:           FSPID,
+		TenantID:        TenantID,
 		Identifier:      identifier,
 		IdentifierIsSet: false,
 		FirstName:       firstName,
@@ -535,14 +505,14 @@ func (d *Domain) CreateMemorial(db *gorm.DB, FSPID uint, firstName string, lastN
 	return &newMemorial, nil
 }
 
-func (d *Domain) updateMemorial(FSPID uint, memorialID uint, updatedMemorial schema.Memorial) error {
+func (d *Domain) updateMemorial(TenantID uint, memorialID uint, updatedMemorial schema.Memorial) error {
 	var err error
 
 	db := d.params.DB.GetDB()
 
 	err = db.
 		Where("id = ?", memorialID).
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Updates(&updatedMemorial).
 		Error
 	if err != nil {
@@ -552,14 +522,14 @@ func (d *Domain) updateMemorial(FSPID uint, memorialID uint, updatedMemorial sch
 	return nil
 }
 
-func (d *Domain) deleteMemorial(FSPID uint, memorialID uint) error {
+func (d *Domain) deleteMemorial(TenantID uint, memorialID uint) error {
 	var err error
 
 	db := d.params.DB.GetDB()
 
 	err = db.
 		Where("id = ?", memorialID).
-		Where("fsp_id = ?", FSPID).
+		Where("fsp_id = ?", TenantID).
 		Delete(&schema.Memorial{}).
 		Error
 	if err != nil {
@@ -571,15 +541,15 @@ func (d *Domain) deleteMemorial(FSPID uint, memorialID uint) error {
 
 // Helper ---------------------------------------------------------
 
-// Finds a FSP by its identifier, returns the FSP if it exists
-// **Returns nil without an error** if the FSP does not exist
-func (d *Domain) FindFSPByID(FSPID uint) (*schema.FSP, error) {
+// Finds a Tenant by its identifier, returns the Tenant if it exists
+// **Returns nil without an error** if the Tenant does not exist
+func (d *Domain) FindFSPByID(TenantID uint) (*schema.Tenant, error) {
 	db := d.params.DB.GetDB()
 
-	existingFSP := schema.FSP{}
+	existingFSP := schema.Tenant{}
 
 	err := db.
-		Where("id = ?", FSPID).
+		Where("id = ?", TenantID).
 		First(&existingFSP).
 		Error
 	if err != nil {

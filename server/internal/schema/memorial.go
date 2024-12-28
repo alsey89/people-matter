@@ -6,7 +6,7 @@ import (
 
 type Memorial struct {
 	BaseModel
-	FSPID uint `json:"fspId"`
+	TenantID uint `json:"fspId"`
 	// Memorial Information ---------------------
 	Identifier      string `json:"identifier"` //should be firstname_lastname_dob (time.Time)
 	IdentifierIsSet bool   `json:"identifierIsSet" gorm:"default:false"`
@@ -26,7 +26,7 @@ type Memorial struct {
 	// Inheritor Information ---------------------
 	InheritorName  *string `json:"inheritorName"`
 	InheritorEmail *string `json:"inheritorEmail"`
-	
+
 	// Associations ---------------------
 	UserMemorialRoles []UserMemorialRole `json:"userMemorialRoles"`
 }

@@ -18,28 +18,7 @@ func (d *Domain) registerRoutes() {
 
 	// forms -------------------------------------------------------
 
-	FSPGroup.GET("/superadmin/role",
-		d.handlerGetAdminRoles,
-		d.params.Identity.MustBeFSPSuperAdmin(),
-	)
-	FSPGroup.GET("/superadmin/fsptype",
-		d.handlerGetFSPTypes,
-		d.params.Identity.MustBeFSPSuperAdmin(),
-	)
-	FSPGroup.GET("/superadmin/businesstype",
-		d.handlerGetBusinessTypes,
-		d.params.Identity.MustBeFSPSuperAdmin(),
-	)
-	FSPGroup.GET("/superadmin/country",
-		d.handlerGetCountries,
-		d.params.Identity.MustBeFSPSuperAdmin(),
-	)
-	FSPGroup.GET("/superadmin/country/:countryID/stateprovince",
-		d.handlerGetStateProvinces,
-		d.params.Identity.MustBeFSPSuperAdmin(),
-	)
-
-	// FSP SUPERADMIN ----------------------------------------------
+	// Tenant SUPERADMIN ----------------------------------------------
 
 	// account
 
@@ -90,7 +69,7 @@ func (d *Domain) registerRoutes() {
 		d.params.Identity.MustBeFSPSuperAdmin(),
 	)
 
-	//! FSP Admin ---------------------------------------------------
+	//! Tenant Admin ---------------------------------------------------
 
 	// memorial
 	FSPGroup.GET("/admin/memorial",

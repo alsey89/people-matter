@@ -16,7 +16,7 @@ var (
 	ErrRoleNotFound     = errors.New("no roles found")
 	ErrInvalidRoleLevel = errors.New("invalid role level")
 
-	ErrUserHasFSPRole     = errors.New("user already has FSP role")
+	ErrUserHasFSPRole     = errors.New("user already has Tenant role")
 	ErrUserHasApplication = errors.New("user already has application")
 
 	ErrMemorialNotFound    = errors.New("memorial not found")

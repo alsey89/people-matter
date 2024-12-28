@@ -105,7 +105,7 @@ func (m *Domain) onStop(ctx context.Context) error {
 }
 
 func (d *Domain) logConfigurations() {
-	d.logger.Debug("----- FSP Configuration -----")
+	d.logger.Debug("----- Tenant Configuration -----")
 	d.logger.Debug("Client Base URL: " + d.config.ClientDomain)
 	d.logger.Debug("-------------------------------")
 }

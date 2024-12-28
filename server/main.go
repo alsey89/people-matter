@@ -4,6 +4,7 @@ import (
 	"github.com/alsey89/people-matter/internal/fsp"
 	"github.com/alsey89/people-matter/internal/identity"
 	"github.com/alsey89/people-matter/internal/memorial"
+	"github.com/alsey89/people-matter/internal/schema"
 	"github.com/alsey89/people-matter/internal/seeder"
 	"github.com/alsey89/people-matter/pkg/config"
 	"github.com/alsey89/people-matter/pkg/logger"
@@ -42,8 +43,8 @@ func main() {
 		fx.Invoke(func(m *pgconn.Module) {
 			m.ApplySchema(
 				true,
-				// schema.FSP{},
-				// schema.User{},
+				schema.User{},
+				// schema.Tenant{},
 				// schema.Country{},
 				// schema.StateProvince{},
 				// schema.Memorial{},

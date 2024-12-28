@@ -22,15 +22,15 @@ func ExtractTenantIdentifierFromContext(c echo.Context) (*string, error) {
 }
 
 func ExtractFSPIDFromContext(c echo.Context) (*uint, error) {
-	FSPID, ok := c.Get(constant.ContextFSPID).(uint)
+	TenantID, ok := c.Get(constant.ContextTenantID).(uint)
 	if !ok {
-		return nil, fmt.Errorf("ExtractFSPIDFromContext: %s", "error extracting FSPID from context")
+		return nil, fmt.Errorf("ExtractFSPIDFromContext: %s", "error extracting TenantID from context")
 	}
-	if FSPID == 0 {
-		return nil, fmt.Errorf("ExtractFSPIDFromContext: %s", "no FSPID in context")
+	if TenantID == 0 {
+		return nil, fmt.Errorf("ExtractFSPIDFromContext: %s", "no TenantID in context")
 	}
 
-	return &FSPID, nil
+	return &TenantID, nil
 }
 
 func ExtractTokenAndClaimsFromContext(c echo.Context) (*jwt.Token, jwt.MapClaims, error) {

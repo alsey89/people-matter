@@ -15,15 +15,15 @@ func (d *Domain) initializeFSPRoles() error {
 	predefinedFSPRoles := []schema.FSPRole{
 		{
 			Name:        schema.RoleFSPSuperAdmin,
-			Description: "Super Admin at FSP Level",
+			Description: "Super Admin at Tenant Level",
 		},
 		{
 			Name:        schema.RoleFSPAdmin,
-			Description: "Admin at FSP Level",
+			Description: "Admin at Tenant Level",
 		},
 		{
 			Name:        schema.RoleFSPUser,
-			Description: "User at FSP Level",
+			Description: "User at Tenant Level",
 		},
 	}
 
@@ -32,10 +32,10 @@ func (d *Domain) initializeFSPRoles() error {
 		if err := db.Where("name = ?", role.Name).First(&existingRole).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				if err := db.Create(&role).Error; err != nil {
-					return fmt.Errorf("failed to create FSP role %s: %w", role.Name, err)
+					return fmt.Errorf("failed to create Tenant role %s: %w", role.Name, err)
 				}
 			} else {
-				return fmt.Errorf("failed to check FSP role %s: %w", role.Name, err)
+				return fmt.Errorf("failed to check Tenant role %s: %w", role.Name, err)
 			}
 		}
 	}
@@ -74,96 +74,6 @@ func (d *Domain) initializeMemorialRoles() error {
 				}
 			} else {
 				return fmt.Errorf("failed to check Memorial role %s: %w", role.Name, err)
-			}
-		}
-	}
-
-	return nil
-}
-
-func (d *Domain) intializeCountries() error {
-	db := d.params.DB.GetDB()
-
-	countries := []schema.Country{
-		{
-			// BaseModel: schema.BaseModel{ID: 1},
-			Name: "United States",
-			Code: "US"},
-		{
-			// BaseModel: schema.BaseModel{ID: 2},
-			Name: "China",
-			Code: "CH"},
-		{
-			// BaseModel: schema.BaseModel{ID: 3},
-			Name: "Mexico",
-			Code: "MX"},
-	}
-
-	for _, country := range countries {
-		var existingCountry schema.Country
-		if err := db.Where("name = ?", country.Name).First(&existingCountry).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err := db.Create(&country).Error; err != nil {
-					return fmt.Errorf("failed to create country %s: %w", country.Name, err)
-				}
-			} else {
-				return fmt.Errorf("failed to check country %s: %w", country.Name, err)
-			}
-		}
-	}
-	return nil
-}
-
-func (d *Domain) initializeStateProvinces() error {
-	db := d.params.DB.GetDB()
-
-	stateProvinces := []schema.StateProvince{
-		{
-			// BaseModel: schema.BaseModel{ID: 1},
-			Name:      "California",
-			Code:      "CA",
-			CountryID: 1},
-		{
-			// BaseModel: schema.BaseModel{ID: 2},
-			Name:      "Texas",
-			Code:      "TX",
-			CountryID: 1},
-		{
-			// BaseModel: schema.BaseModel{ID: 3},
-			Name:      "Illinois",
-			Code:      "IL",
-			CountryID: 1},
-		{
-			// BaseModel: schema.BaseModel{ID: 4},
-			Name:      "Beijing",
-			Code:      "BJ",
-			CountryID: 2},
-		{
-			// BaseModel: schema.BaseModel{ID: 5},
-			Name:      "Shanghai",
-			Code:      "SH",
-			CountryID: 2},
-		{
-			// BaseModel: schema.BaseModel{ID: 6},
-			Name:      "Mexico City",
-			Code:      "MC",
-			CountryID: 3},
-		{
-			// BaseModel: schema.BaseModel{ID: 7},
-			Name:      "Guadalajara",
-			Code:      "GJ",
-			CountryID: 3},
-	}
-
-	for _, stateProvince := range stateProvinces {
-		var existingStateProvince schema.StateProvince
-		if err := db.Where("name = ?", stateProvince.Name).First(&existingStateProvince).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err := db.Create(&stateProvince).Error; err != nil {
-					return fmt.Errorf("failed to create state province %s: %w", stateProvince.Name, err)
-				}
-			} else {
-				return fmt.Errorf("failed to check state province %s: %w", stateProvince.Name, err)
 			}
 		}
 	}

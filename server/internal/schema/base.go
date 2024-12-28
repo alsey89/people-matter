@@ -15,4 +15,5 @@ type BaseModelWithTime struct {
 	BaseModel
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }

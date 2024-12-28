@@ -57,7 +57,7 @@ func (d *Domain) handlerGetContributors(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetContributors:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -71,7 +71,7 @@ func (d *Domain) handlerGetContributors(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetContributors:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -116,7 +116,7 @@ func (d *Domain) handlerGetContributors(c echo.Context) error {
 			})
 	}
 
-	contributors, err := d.serviceGetContributors(*FSPID, *memorialID)
+	contributors, err := d.serviceGetContributors(*TenantID, *memorialID)
 	if err != nil {
 		d.logger.Error("handlerGetContributors: failed to get contributors from service", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -140,7 +140,7 @@ func (d *Domain) handlerGetContributorApplications(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetContributorApplications:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -154,7 +154,7 @@ func (d *Domain) handlerGetContributorApplications(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetContributorApplications:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -196,7 +196,7 @@ func (d *Domain) handlerGetContributorApplications(c echo.Context) error {
 			})
 	}
 
-	applications, err := d.serviceGetContributorApplications(*FSPID, *memorialID)
+	applications, err := d.serviceGetContributorApplications(*TenantID, *memorialID)
 	if err != nil {
 		d.logger.Error("handlerGetContributorApplications: failed to get contributor applications from service", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -217,7 +217,7 @@ func (d *Domain) handlerAcceptContributorApplication(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerAcceptContributorApplication:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -263,7 +263,7 @@ func (d *Domain) handlerAcceptContributorApplication(c echo.Context) error {
 	}
 
 	err = d.serviceAcceptContributorApplication(
-		*FSPID,         // FSPID			uint
+		*TenantID,      // TenantID			uint
 		*memorialID,    // memorialID		uint
 		*applicationID, // applicationID	uint
 	)
@@ -323,9 +323,9 @@ func (d *Domain) handlerRejectContributorApplication(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
-		d.logger.Error("handlerRejectContributorApplication: failed to extract FSPID", zap.Error(err), zap.String("traceID", traceID))
+		d.logger.Error("handlerRejectContributorApplication: failed to extract TenantID", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusBadRequest,
 			response.APIResponse{
@@ -337,7 +337,7 @@ func (d *Domain) handlerRejectContributorApplication(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerRejectContributorApplication:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -398,7 +398,7 @@ func (d *Domain) handlerRejectContributorApplication(c echo.Context) error {
 	}
 
 	err = d.serviceRejectContributorApplication(
-		*FSPID,         // FSPID			uint
+		*TenantID,      // TenantID			uint
 		*memorialID,    // memorialID		uint
 		*applicationID, // applicationID	uint
 	)
@@ -422,9 +422,9 @@ func (d *Domain) handlerGetContributorInvitations(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
-		d.logger.Error("handlerGetContributorInvitations: failed to extract FSPID", zap.Error(err), zap.String("traceID", traceID))
+		d.logger.Error("handlerGetContributorInvitations: failed to extract TenantID", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusBadRequest,
 			response.APIResponse{
@@ -436,8 +436,8 @@ func (d *Domain) handlerGetContributorInvitations(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerGetContributorInvitations: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerGetContributorInvitations: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -478,7 +478,7 @@ func (d *Domain) handlerGetContributorInvitations(c echo.Context) error {
 			})
 	}
 
-	invitations, err := d.serviceGetContributorInvitations(*FSPID, *memorialID)
+	invitations, err := d.serviceGetContributorInvitations(*TenantID, *memorialID)
 	if err != nil {
 		d.logger.Error("handlerGetContributorInvitations: failed to get contributor invitations from service", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -499,7 +499,7 @@ func (d *Domain) handlerInviteContributor(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerInviteContributor:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -513,7 +513,7 @@ func (d *Domain) handlerInviteContributor(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerInviteContributor:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -617,7 +617,7 @@ func (d *Domain) handlerInviteContributor(c echo.Context) error {
 	}
 
 	err = d.serviceInviteContributor(
-		*FSPID,                          // FSPID			uint
+		*TenantID,                       // TenantID			uint
 		*memorialID,                     // memorialID		uint
 		UINTCuratorID,                   // adminID		uint
 		postContributorReq.Email,        // email			string
@@ -678,7 +678,7 @@ func (d *Domain) handlerDeleteContributorInvitation(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributorInvitation:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -692,7 +692,7 @@ func (d *Domain) handlerDeleteContributorInvitation(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteContributorInvitation:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -765,7 +765,7 @@ func (d *Domain) handlerDeleteContributorInvitation(c echo.Context) error {
 	}
 
 	err = d.serviceDeleteContributorInvitation(
-		*FSPID,        // FSPID			uint
+		*TenantID,     // TenantID			uint
 		*memorialID,   // memorialID		uint
 		*invitationID, // invitationID	uint
 	)
@@ -789,7 +789,7 @@ func (d *Domain) handlerReinviteContributor(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerReinviteContributor:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -803,7 +803,7 @@ func (d *Domain) handlerReinviteContributor(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerReinviteContributor:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -874,7 +874,7 @@ func (d *Domain) handlerReinviteContributor(c echo.Context) error {
 	}
 
 	err = d.serviceReinviteContributor(
-		*FSPID,        // FSPID			uint
+		*TenantID,     // TenantID			uint
 		*memorialID,   // memorialID		uint
 		*invitationID, // invitationID	uint
 	)
@@ -901,7 +901,7 @@ func (d *Domain) handlerDeleteContributor(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributor:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -915,8 +915,8 @@ func (d *Domain) handlerDeleteContributor(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerDeleteContributor: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerDeleteContributor: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1018,7 +1018,7 @@ func (d *Domain) handlerDeleteContributor(c echo.Context) error {
 	}
 
 	err = d.serviceDeleteContributor(
-		*FSPID,                     // FSPID			uint
+		*TenantID,                  // TenantID			uint
 		*memorialID,                // memorialID		uint
 		*contributorMemorialRoleID, // contributorID	uint
 		*userIsNotified,            // userIsNotified	bool
@@ -1058,7 +1058,7 @@ func (d *Domain) handlerGetMemorialContributions(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetMemorialContributions:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1072,8 +1072,8 @@ func (d *Domain) handlerGetMemorialContributions(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerGetMemorialContributions: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerGetMemorialContributions: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1114,7 +1114,7 @@ func (d *Domain) handlerGetMemorialContributions(c echo.Context) error {
 			})
 	}
 
-	contributions, err := d.serviceGetMemorialContributions(*FSPID, *memorialID)
+	contributions, err := d.serviceGetMemorialContributions(*TenantID, *memorialID)
 	if err != nil {
 		d.logger.Error("handlerGetMemorialContributions:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1136,7 +1136,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElementState(c echo.Context)
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionCondolenceElementState:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1150,7 +1150,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElementState(c echo.Context)
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateContributionCondolenceElementState:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1259,7 +1259,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElementState(c echo.Context)
 	}
 
 	err = d.serviceUpdateContributionCondolenceElementState(
-		*FSPID,            // FSPID					uint
+		*TenantID,         // TenantID					uint
 		*memorialID,       // memorialID				uint
 		*elementID,        // elementID				uint
 		contributionState, // state					schema.ContributionState
@@ -1297,7 +1297,7 @@ func (d *Domain) handlerUpdateContributionGalleryElementState(c echo.Context) er
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerApproveOrUnapproveContributionGalleryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1311,7 +1311,7 @@ func (d *Domain) handlerUpdateContributionGalleryElementState(c echo.Context) er
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerApproveOrUnapproveContributionGalleryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -1420,7 +1420,7 @@ func (d *Domain) handlerUpdateContributionGalleryElementState(c echo.Context) er
 	}
 
 	err = d.serviceUpdateContributionGalleryElementState(
-		*FSPID,            // FSPID					uint
+		*TenantID,         // TenantID					uint
 		*memorialID,       // memorialID				uint
 		*elementID,        // elementID				uint
 		contributionState, // state					schema.ContributionState
@@ -1458,7 +1458,7 @@ func (d *Domain) handlerUpdateContributionStoryElementState(c echo.Context) erro
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionStoryElementState:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1472,8 +1472,8 @@ func (d *Domain) handlerUpdateContributionStoryElementState(c echo.Context) erro
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerUpdateContributionStoryElementState: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerUpdateContributionStoryElementState: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1581,7 +1581,7 @@ func (d *Domain) handlerUpdateContributionStoryElementState(c echo.Context) erro
 	}
 
 	err = d.serviceUpdateContributionStoryElementState(
-		*FSPID,            // FSPID					uint
+		*TenantID,         // TenantID					uint
 		*memorialID,       // memorialID				uint
 		*elementID,        // elementID				uint
 		contributionState, // state					schema.ContributionState
@@ -1619,7 +1619,7 @@ func (d *Domain) handlerUpdateContributionTimelineElementState(c echo.Context) e
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionTimelineElementState:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1633,8 +1633,8 @@ func (d *Domain) handlerUpdateContributionTimelineElementState(c echo.Context) e
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerUpdateContributionTimelineElementState: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerUpdateContributionTimelineElementState: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1742,7 +1742,7 @@ func (d *Domain) handlerUpdateContributionTimelineElementState(c echo.Context) e
 	}
 
 	err = d.serviceUpdateContributionTimelineElementState(
-		*FSPID,            // FSPID					uint
+		*TenantID,         // TenantID					uint
 		*memorialID,       // memorialID				uint
 		*elementID,        // elementID				uint
 		contributionState, // state					schema.ContributionState
@@ -1781,7 +1781,7 @@ func (d *Domain) handlerExportMemorial(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerPublishMemorial:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1795,8 +1795,8 @@ func (d *Domain) handlerExportMemorial(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerPublishMemorial: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerPublishMemorial: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1838,7 +1838,7 @@ func (d *Domain) handlerExportMemorial(c echo.Context) error {
 	}
 
 	createdExportID, err := d.serviceExportMemorial(
-		*FSPID,      // FSPID			uint
+		*TenantID,   // TenantID			uint
 		*memorialID, // memorialID		uint
 	)
 	if err != nil {
@@ -1901,7 +1901,7 @@ func (d *Domain) handlerGetExportState(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetExportState:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -1915,8 +1915,8 @@ func (d *Domain) handlerGetExportState(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerGetExportState: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerGetExportState: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -1986,7 +1986,7 @@ func (d *Domain) handlerGetExportState(c echo.Context) error {
 	}
 
 	exportState, err := d.serviceGetExportState(
-		*FSPID,      // FSPID			uint
+		*TenantID,   // TenantID			uint
 		*memorialID, // memorialID		uint
 		*exportID,   // exportID		uint
 	)
@@ -2023,7 +2023,7 @@ func (d *Domain) handlerGetAllExports(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetAllExports:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2037,8 +2037,8 @@ func (d *Domain) handlerGetAllExports(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerGetAllExports: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerGetAllExports: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -2080,7 +2080,7 @@ func (d *Domain) handlerGetAllExports(c echo.Context) error {
 	}
 
 	exports, err := d.serviceGetAllExports(
-		*FSPID,      // FSPID			uint
+		*TenantID,   // TenantID			uint
 		*memorialID, // memorialID		uint
 	)
 	if err != nil {
@@ -2104,7 +2104,7 @@ func (d *Domain) handlerUpdateExportState(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateExportState:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2118,8 +2118,8 @@ func (d *Domain) handlerUpdateExportState(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerUpdateExportState: FSPID is nil", zap.String("traceID", traceID))
+	if TenantID == nil {
+		d.logger.Error("handlerUpdateExportState: TenantID is nil", zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -2221,7 +2221,7 @@ func (d *Domain) handlerUpdateExportState(c echo.Context) error {
 
 	//call service
 	err = d.serviceUpdateExportState(
-		*FSPID,                          // FSPID				uint
+		*TenantID,                       // TenantID				uint
 		*memorialID,                     // memorialID			uint
 		*exportID,                       // exportID			uint
 		patchExportStateReq.ExportState, // state				schema.ExportStateConst
@@ -2261,7 +2261,7 @@ func (d *Domain) handlerGetContributions(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetContributions:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2275,8 +2275,8 @@ func (d *Domain) handlerGetContributions(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
-		d.logger.Error("handlerGetContributions: FSPID is nil")
+	if TenantID == nil {
+		d.logger.Error("handlerGetContributions: TenantID is nil")
 		return c.JSON(
 			http.StatusInternalServerError,
 			response.APIResponse{
@@ -2347,7 +2347,7 @@ func (d *Domain) handlerGetContributions(c echo.Context) error {
 	}
 
 	contributions, err := d.serviceGetContributions(
-		*FSPID,              // FSPID			uint
+		*TenantID,           // TenantID			uint
 		*memorialID,         // memorialID		uint
 		uint(contributorID), // contributorID	uint
 	)
@@ -2371,7 +2371,7 @@ func (d *Domain) handlerGetPresignedUploadURL(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerGetPresignedUploadURL:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2385,7 +2385,7 @@ func (d *Domain) handlerGetPresignedUploadURL(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerGetPresignedUploadURL:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -2457,7 +2457,7 @@ func (d *Domain) handlerGetPresignedUploadURL(c echo.Context) error {
 	}
 
 	presignedUploadURL, metadata, error := d.serviceGetPresignedUploadURL(
-		*FSPID,              // FSPID			uint
+		*TenantID,           // TenantID			uint
 		*memorialID,         // memorialID		uint
 		uint(contributorID), // contributorID	uint
 	)
@@ -2503,7 +2503,7 @@ func (d *Domain) handlerCreateContributionGalleryElement(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerCreateContributionGalleryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2517,7 +2517,7 @@ func (d *Domain) handlerCreateContributionGalleryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerCreateContributionGalleryElement: ", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -2638,7 +2638,7 @@ func (d *Domain) handlerCreateContributionGalleryElement(c echo.Context) error {
 	}
 
 	err = d.serviceCreateContributionGalleryElement(
-		*FSPID,                            // FSPID					uint
+		*TenantID,                         // TenantID					uint
 		*memorialID,                       // memorialID				uint
 		uint(userID),                      // contributorID			uint
 		postGalleryElementReq.IsImmutable, // isImmutable			bool
@@ -2671,7 +2671,7 @@ func (d *Domain) handlerCreateContributionTimelineElement(c echo.Context) error 
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerCreateContributionTimelineElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2685,7 +2685,7 @@ func (d *Domain) handlerCreateContributionTimelineElement(c echo.Context) error 
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerCreateContributionTimelineElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -2806,7 +2806,7 @@ func (d *Domain) handlerCreateContributionTimelineElement(c echo.Context) error 
 	}
 
 	err = d.serviceCreateContributionTimelineElement(
-		*FSPID,                             // FSPID					uint
+		*TenantID,                          // TenantID					uint
 		*memorialID,                        // memorialID				uint
 		uint(userID),                       // contributorID			uint
 		postTimelineElementReq.IsImmutable, // isImmutable			bool
@@ -2840,7 +2840,7 @@ func (d *Domain) handlerCreateContributionStoryElement(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerCreateContributionStoryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -2854,7 +2854,7 @@ func (d *Domain) handlerCreateContributionStoryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerCreateContributionStoryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -2958,7 +2958,7 @@ func (d *Domain) handlerCreateContributionStoryElement(c echo.Context) error {
 	}
 
 	err = d.serviceCreateContributionStoryElement(
-		*FSPID,                          // FSPID					uint
+		*TenantID,                       // TenantID					uint
 		*memorialID,                     // memorialID				uint
 		uint(userID),                    // contributorID			uint
 		postStoryElementReq.IsImmutable, // isImmutable			bool
@@ -2989,7 +2989,7 @@ func (d *Domain) handlerCreateContributionCondolenceElement(c echo.Context) erro
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerCreateContributionCondolenceElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3003,7 +3003,7 @@ func (d *Domain) handlerCreateContributionCondolenceElement(c echo.Context) erro
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerCreateContributionCondolenceElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -3106,11 +3106,11 @@ func (d *Domain) handlerCreateContributionCondolenceElement(c echo.Context) erro
 	}
 
 	err = d.serviceCreateContributionCondolenceElement(
-		*FSPID,                                // FSPID								uint
-		*memorialID,                           // memorialID						uint
-		uint(userID),                          // contributorID				uint
-		postCondolenceElementReq.IsImmutable,  // isImmutable					bool
-		postCondolenceElementReq.ElementTitle, // elementTitle					string
+		*TenantID,                                   // TenantID								uint
+		*memorialID,                                 // memorialID						uint
+		uint(userID),                                // contributorID				uint
+		postCondolenceElementReq.IsImmutable,        // isImmutable					bool
+		postCondolenceElementReq.ElementTitle,       // elementTitle					string
 		postCondolenceElementReq.ElementDescription, // elementDescription		string
 		postCondolenceElementReq.ElementAuthor,      // elementAuthor			string
 		postCondolenceElementReq.DesignElementID,    // designElementID			*uint
@@ -3137,7 +3137,7 @@ func (d *Domain) handlerUpdateContributionGalleryElement(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionGalleryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3151,7 +3151,7 @@ func (d *Domain) handlerUpdateContributionGalleryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateContributionGalleryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -3299,7 +3299,7 @@ func (d *Domain) handlerUpdateContributionGalleryElement(c echo.Context) error {
 	}
 
 	err = d.serviceUpdateContributionGalleryElement(
-		*FSPID,                           // FSPID					uint
+		*TenantID,                        // TenantID					uint
 		*memorialID,                      // memorialID				uint
 		*elementID,                       // elementID				uint
 		uint(userID),                     // updatedID				uint
@@ -3355,7 +3355,7 @@ func (d *Domain) handlerUpdateContributionTimelineElement(c echo.Context) error 
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionTimelineElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3369,7 +3369,7 @@ func (d *Domain) handlerUpdateContributionTimelineElement(c echo.Context) error 
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateContributionTimelineElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -3517,7 +3517,7 @@ func (d *Domain) handlerUpdateContributionTimelineElement(c echo.Context) error 
 	}
 
 	err = d.serviceUpdateContributionTimelineElement(
-		*FSPID,                            // FSPID						uint
+		*TenantID,                         // TenantID						uint
 		*memorialID,                       // memorialID				uint
 		*elementID,                        // elementID					uint
 		uint(userID),                      // updaterID					uint
@@ -3574,7 +3574,7 @@ func (d *Domain) handlerUpdateContributionStoryElement(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionStoryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3588,7 +3588,7 @@ func (d *Domain) handlerUpdateContributionStoryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateContributionStoryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -3720,7 +3720,7 @@ func (d *Domain) handlerUpdateContributionStoryElement(c echo.Context) error {
 	}
 
 	err = d.serviceUpdateContributionStoryElement(
-		*FSPID,                         // FSPID					uint
+		*TenantID,                      // TenantID					uint
 		*memorialID,                    // memorialID				uint
 		*elementID,                     // elementID				uint
 		uint(userID),                   // updaterID				uint
@@ -3775,7 +3775,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElement(c echo.Context) erro
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerUpdateContributionCondolenceElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3789,7 +3789,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElement(c echo.Context) erro
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerUpdateContributionCondolenceElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -3920,7 +3920,7 @@ func (d *Domain) handlerUpdateContributionCondolenceElement(c echo.Context) erro
 	}
 
 	err = d.serviceUpdateContributionCondolenceElement(
-		*FSPID,                               // FSPID								uint
+		*TenantID,                            // TenantID								uint
 		*memorialID,                          // memorialID						uint
 		*elementID,                           // elementID						uint
 		uint(userID),                         // updaterID						uint
@@ -3976,7 +3976,7 @@ func (d *Domain) handlerDeleteContributionGalleryElement(c echo.Context) error {
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributionGalleryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -3990,7 +3990,7 @@ func (d *Domain) handlerDeleteContributionGalleryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteContributionGalleryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -4061,7 +4061,7 @@ func (d *Domain) handlerDeleteContributionGalleryElement(c echo.Context) error {
 	}
 
 	err = d.serviceDeleteContributionGalleryElement(
-		*FSPID,            // FSPID					uint
+		*TenantID,         // TenantID					uint
 		*memorialID,       // memorialID				uint
 		*galleryElementID, // contributionGalleryElementID	uint
 	)
@@ -4110,7 +4110,7 @@ func (d *Domain) handlerDeleteContributionTimelineElement(c echo.Context) error 
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributionTimelineElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -4124,7 +4124,7 @@ func (d *Domain) handlerDeleteContributionTimelineElement(c echo.Context) error 
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteContributionTimelineElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -4195,7 +4195,7 @@ func (d *Domain) handlerDeleteContributionTimelineElement(c echo.Context) error 
 	}
 
 	err = d.serviceDeleteContributionTimelineElement(
-		*FSPID,             // FSPID					uint
+		*TenantID,          // TenantID					uint
 		*memorialID,        // memorialID				uint
 		*timelineElementID, // contributionTimelineElementID	uint
 	)
@@ -4244,7 +4244,7 @@ func (d *Domain) handlerDeleteContributionStoryElement(c echo.Context) error {
 	var err error
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributionStoryElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -4258,7 +4258,7 @@ func (d *Domain) handlerDeleteContributionStoryElement(c echo.Context) error {
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteContributionStoryElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -4329,7 +4329,7 @@ func (d *Domain) handlerDeleteContributionStoryElement(c echo.Context) error {
 	}
 
 	err = d.serviceDeleteContributionStoryElement(
-		*FSPID,          // FSPID					uint
+		*TenantID,       // TenantID					uint
 		*memorialID,     // memorialID				uint
 		*storyElementID, // contributionStoryElementID	uint
 	)
@@ -4379,7 +4379,7 @@ func (d *Domain) handlerDeleteContributionCondolenceElement(c echo.Context) erro
 
 	traceID := uuid.NewString()
 
-	FSPID, err := extractor.ExtractFSPIDFromContext(c)
+	TenantID, err := extractor.ExtractFSPIDFromContext(c)
 	if err != nil {
 		d.logger.Error("handlerDeleteContributionCondolenceElement:", zap.Error(err), zap.String("traceID", traceID))
 		return c.JSON(
@@ -4393,7 +4393,7 @@ func (d *Domain) handlerDeleteContributionCondolenceElement(c echo.Context) erro
 				},
 			})
 	}
-	if FSPID == nil {
+	if TenantID == nil {
 		d.logger.Error("handlerDeleteContributionCondolenceElement:", zap.Error(errmgr.ErrNilCheckFailed), zap.String("traceID", traceID))
 		return c.JSON(
 			http.StatusInternalServerError,
@@ -4464,7 +4464,7 @@ func (d *Domain) handlerDeleteContributionCondolenceElement(c echo.Context) erro
 	}
 
 	err = d.serviceDeleteContributionCondolenceElement(
-		*FSPID,               // FSPID					uint
+		*TenantID,            // TenantID					uint
 		*memorialID,          // memorialID				uint
 		*condolenceElementID, // contributionCondolenceElementID	uint
 	)

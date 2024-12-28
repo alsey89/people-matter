@@ -35,7 +35,7 @@ type Params struct {
 	Server    *server.Module
 	DB        *pgconn.Module
 	S3        *s3conn.Module
-	FSP       *fsp.Domain
+	Tenant    *fsp.Domain
 	Identity  *identity.Domain
 	TransMail *transmail.Domain
 }
@@ -57,14 +57,14 @@ const (
 	defaultInvitationExpiry = time.Hour * 24 * 7 // 1 week
 
 	defaultS3PresignedURLExpiry = 15 * time.Minute
-	defaultS3ContribKeyFormat   = "{{.FSPID}}/{{.MemorialID}}/{{.ContributorID}}/{{.Date}}_{{.UUID}}_og"
-	defaultS3DeployKeyFormat    = "{{.FSPID}}/{{.MemorialID}}/{{.Date}}_{{.UUID}}"
+	defaultS3ContribKeyFormat   = "{{.TenantID}}/{{.MemorialID}}/{{.ContributorID}}/{{.Date}}_{{.UUID}}_og"
+	defaultS3DeployKeyFormat    = "{{.TenantID}}/{{.MemorialID}}/{{.Date}}_{{.UUID}}"
 
 	defaultGitLabTriggerToken = "token-from-gitlab-ci"
 )
 
 type S3KeyData struct {
-	FSPID         int
+	TenantID      int
 	MemorialID    int
 	ContributorID int
 	Date          string

@@ -27,7 +27,7 @@ type Params struct {
 	DB        *pgconn.Module
 	Identity  *identity.Domain
 	Memorial  *memorial.Domain
-	FSP       *fsp.Domain
+	Tenant    *fsp.Domain
 }
 
 type Config struct {
@@ -89,11 +89,9 @@ func (d *Domain) onStart(ctx context.Context) error {
 	d.logger.Info("Intializing essential data.")
 	d.initializeFSPRoles()
 	d.initializeMemorialRoles()
-	d.intializeCountries()
-	d.initializeStateProvinces()
 
 	d.logger.Info("Seeding test data.")
-	d.seedFSPs()
+	d.seedTenants()
 	d.seedUsersAndFSPRoles()
 	d.seedMemorials()
 	d.seedUserMemorialRoles()
