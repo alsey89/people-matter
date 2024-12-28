@@ -1,0 +1,18 @@
+{
+  email michael@reverehere.com
+  acme_dns cloudflare pxS5cZW_-l2powoOvGe4TPNi-FF8U_hWl4nq8R6r
+}
+
+*.curate.memorial {
+  tls {
+    dns cloudflare pxS5cZW_-l2powoOvGe4TPNi-FF8U_hWl4nq8R6r
+  }
+
+  reverse_proxy /api/* server:3001 {
+    header_up X-Tenant sci
+  }
+
+  reverse_proxy /api/_nuxt_icon/* client:3000
+
+  reverse_proxy client:3000
+}

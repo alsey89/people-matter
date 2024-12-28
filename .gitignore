@@ -1,0 +1,7 @@
+database/data
+node_modules
+.nuxt
+tmp
+server/tmp/
+.DS_Store
+.env
