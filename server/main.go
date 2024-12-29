@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/alsey89/people-matter/internal/fsp"
-	"github.com/alsey89/people-matter/internal/identity"
-	"github.com/alsey89/people-matter/internal/memorial"
+	"github.com/alsey89/people-matter/internal/company"
 	"github.com/alsey89/people-matter/internal/schema"
 	"github.com/alsey89/people-matter/internal/seeder"
 	"github.com/alsey89/people-matter/pkg/config"
@@ -36,33 +34,18 @@ func main() {
 		//* Domains ---------------------------------------------------------------
 		seeder.InjectDomain("seeder"),
 		// transmail.InjectDomain("transmail"),
-		identity.InjectDomain("identity"),
-		fsp.InjectDomain("fsp"),
-		memorial.InjectDomain("memorial"),
+		// identity.InjectDomain("identity"),
+		company.InjectDomain("company"),
 		//* Migration -------------------------------------------------------------
 		fx.Invoke(func(m *pgconn.Module) {
 			m.ApplySchema(
 				true,
 				schema.User{},
-				// schema.Tenant{},
-				// schema.Country{},
-				// schema.StateProvince{},
-				// schema.Memorial{},
-				// schema.FSPRole{},
-				// schema.UserFSPRole{},
-				// schema.MemorialRole{},
-				// schema.UserMemorialRole{},
-				// schema.Invitation{},
-				// schema.Application{},
-				// schema.ContributionCondolenceElement{},
-				// schema.ContributionGalleryElement{},
-				// schema.ContributionStoryElement{},
-				// schema.ContributionTimelineElement{},
-				// schema.Export{},
+				schema.Company{},
 			)
 		}),
 		//* fx logs ---------------------------------------------------------------
-		fx.NopLogger,
+		// fx.NopLogger,
 	)
 	app.Run()
 }

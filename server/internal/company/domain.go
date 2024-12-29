@@ -1,12 +1,9 @@
-package fsp
+package company
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/alsey89/people-matter/internal/common/util"
-	"github.com/alsey89/people-matter/internal/identity"
-	"github.com/alsey89/people-matter/internal/transmail"
 	"github.com/alsey89/people-matter/pkg/pgconn"
 	"github.com/alsey89/people-matter/pkg/server"
 	"github.com/alsey89/people-matter/pkg/token"
@@ -30,12 +27,11 @@ type Params struct {
 	Server       *server.Module
 	DB           *pgconn.Module
 	TokenManager *token.Module
-	Identity     *identity.Domain
-	TransMail    *transmail.Domain
+	// TransMail    *transmail.Module
+	// Identity     *identity.Domain
 }
 
 type Config struct {
-	ClientDomain          string
 	JWTPasswordResetScope string
 }
 
@@ -74,13 +70,11 @@ func (d *Domain) setupLogger(scope string, p Params) *zap.Logger {
 }
 
 func (d *Domain) setupConfig(scope string) *Config {
-	viper.SetDefault(util.GetConfigPath("global", "client_domain"), defaultClientDomain)
 	// viper.SetDefault(util.GetConfigPath(scope, "jwt_auth_scope"), defaultJWTAuthScope)
 	// viper.SetDefault(util.GetConfigPath(scope, "jwt_email_scope"), defaultJWTEmailConfirmationScope)
 	// viper.SetDefault(util.GetConfigPath(scope, "jwt_pw_reset_scope"), defaultJWTPasswordResetScope)
 
 	return &Config{
-		ClientDomain: viper.GetString(util.GetConfigPath("global", "client_domain")),
 		// JWTAuthScope:              viper.GetString(util.GetConfigPath(scope, "jwt_auth_scope")),
 		// JWTEmailConfirmationScope: viper.GetString(util.GetConfigPath(scope, "jwt_email_scope")),
 		// JWTPasswordResetScope:     viper.GetString(util.GetConfigPath(scope, "jwt_pw_reset_scope")),
@@ -106,6 +100,6 @@ func (m *Domain) onStop(ctx context.Context) error {
 
 func (d *Domain) logConfigurations() {
 	d.logger.Debug("----- Tenant Configuration -----")
-	d.logger.Debug("Client Base URL: " + d.config.ClientDomain)
+	// d.logger.Debug("Client Base URL: " + d.config.ClientDomain)
 	d.logger.Debug("-------------------------------")
 }

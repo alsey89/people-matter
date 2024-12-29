@@ -1,11 +1,11 @@
 {
-  email michael@reverehere.com
-  acme_dns cloudflare pxS5cZW_-l2powoOvGe4TPNi-FF8U_hWl4nq8R6r
+  email michael@peoplematter.app
+  acme_dns cloudflare secret-key
 }
 
 *.curate.memorial {
   tls {
-    dns cloudflare pxS5cZW_-l2powoOvGe4TPNi-FF8U_hWl4nq8R6r
+    dns cloudflare secret-key
   }
 
   reverse_proxy /api/* server:3001 {

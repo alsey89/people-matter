@@ -1,6 +1,6 @@
 package schema
 
-type Tenant struct {
+type Company struct {
 	BaseModel
 	TenantIdentifier string `json:"-" gorm:"not null;index"`
 	// Company Information ---------------------

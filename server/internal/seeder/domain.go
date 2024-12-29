@@ -3,9 +3,7 @@ package seeder
 import (
 	"context"
 
-	"github.com/alsey89/people-matter/internal/fsp"
-	"github.com/alsey89/people-matter/internal/identity"
-	"github.com/alsey89/people-matter/internal/memorial"
+	"github.com/alsey89/people-matter/internal/company"
 	"github.com/alsey89/people-matter/pkg/pgconn"
 
 	"github.com/spf13/viper"
@@ -25,9 +23,8 @@ type Params struct {
 	Lifecycle fx.Lifecycle
 	Logger    *zap.Logger
 	DB        *pgconn.Module
-	Identity  *identity.Domain
-	Memorial  *memorial.Domain
-	Tenant    *fsp.Domain
+	// Identity  *identity.Domain
+	Tenant *company.Domain
 }
 
 type Config struct {
@@ -87,16 +84,9 @@ func (d *Domain) onStart(ctx context.Context) error {
 	}
 
 	d.logger.Info("Intializing essential data.")
-	d.initializeFSPRoles()
-	d.initializeMemorialRoles()
 
 	d.logger.Info("Seeding test data.")
 	d.seedTenants()
-	d.seedUsersAndFSPRoles()
-	d.seedMemorials()
-	d.seedUserMemorialRoles()
-	d.seedContributorApplications()
-	d.seedContributorInvitations()
 
 	return nil
 }

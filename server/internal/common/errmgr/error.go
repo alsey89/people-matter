@@ -2,6 +2,7 @@ package errmgr
 
 import (
 	"errors"
+	"net/http"
 )
 
 // Coded errors for frontend to handle
@@ -54,35 +55,26 @@ const (
 	ErrCodeEmailConfirmed           ErrCode = "ERR_EMAIL_CONFIRMED"              // 409: email is already confirmed
 	ErrCodeEmailInUse               ErrCode = "ERR_EMAIL_IN_USE"                 // 409: email already in use
 	ErrCodeNewPasswordIsOldPassword ErrCode = "ERR_NEW_PASSWORD_IS_OLD_PASSWORD" // 409: new password is not allowed to be the same as the old password
-
-	// identity.role
-
-	ErrCodeInvalidMemRole       ErrCode = "ERR_INVALID_MEMORIAL_ROLE"    // 403: invalid memorial role
-	ErrCodeInvalidFSPRole       ErrCode = "ERR_INVALID_FSP_ROLE"         // 403: invalid fsp role
-	ErrCodeMemorialRoleNotFound ErrCode = "ERR_MEMORIAL_ROLE_NOT_FOUND"  // 404: memorial role not found
-	ErrCodeUserHasMemorialRole  ErrCode = "ERR_USER_HAS_MEMORIAL_ROLE"   // 409: user already has a role in this memorial
-	ErrCodeFSPRoleNotFound      ErrCode = "ERR_FSP_ROLE_NOT_FOUND"       // 404: fsp role not found
-	ErrCodeUserHasFSPRole       ErrCode = "ERR_USER_HAS_FSP_ROLE"        // 409: user already has a role in this fsp
-	ErrCodeUserIsLastSuperAdmin ErrCode = "ERR_USER_IS_LAST_SUPER_ADMIN" // 409: user is the last superadmin in this fsp
-	ErrCodeApplicationNotFound  ErrCode = "ERR_APPLICATION_NOT_FOUND"    // 404: application not found in db
-	ErrCodeUserHasApplication   ErrCode = "ERR_USER_HAS_APPLICATION"     // 409: user already has an application in this memorial
-	ErrCodeInvitationNotFound   ErrCode = "ERR_INVITATION_NOT_FOUND"     // 404: invitation not found in db
-	ErrCodeUserHasInvitation    ErrCode = "ERR_USER_HAS_INVITATION"      // 409: user already has an invitation
-	ErrCodeInvitationResponded  ErrCode = "ERR_INVITATION_RESPONDED"     // 409: invitation has already been responded to
-	ErrCodeInvitationExpired    ErrCode = "ERR_INVITATION_EXPIRED"       // 403: invitation has expired
-	ErrCodeInvitationNotForUser ErrCode = "ERR_INVITATION_NOT_FOR_USER"  // 403: invitation is not for this user
-	ErrCodeUserIsCurator        ErrCode = "ERR_USER_IS_CURATOR"          // 409: curator cannot invite themselves
-
-	// memorial
-
-	ErrCodeMemorialNotFound              ErrCode = "ERR_MEMORIAL_NOT_FOUND"               // 404: memorial not found
-	ErrCodeContributionElementNotFound   ErrCode = "ERR_CONTRIBUTION_ELEMENT_NOT_FOUND"   // 404: element not found, this error is common for all types of contribution elements
-	ErrCodeContributionElementImmutable  ErrCode = "ERR_CONTRIBUTION_ELEMENT_IMMUTABLE"   // 403: contributor has flagged this element as immutable, only they can edit it
-	ErrCodeContributionElementNotPending ErrCode = "ERR_CONTRIBUTION_ELEMENT_NOT_PENDING" // 403: contribution is not in the pending state, only pending contributions can be edited or approved
-
-	ErrCodeExportNotFound   ErrCode = "ERR_EXPORT_NOT_FOUND"   // 404: export not found
-	ErrCodeExportInProgress ErrCode = "ERR_EXPORT_IN_PROGRESS" // 409: an export is in progress
 )
+
+type StatusCodeMap map[ErrCode]int
+
+var statusCodeMap = StatusCodeMap{
+	ErrCodeInternal:     http.StatusInternalServerError,
+	ErrCodeInvalidInput: http.StatusBadRequest,
+	ErrCodeUnauthorized: http.StatusUnauthorized,
+	ErrCodeForbidden:    http.StatusForbidden,
+	ErrCodeTenant:       http.StatusBadRequest,
+	ErrCodeToken:        http.StatusBadRequest,
+	ErrCodeInput:        http.StatusBadRequest,
+
+	ErrCodeUserNotFound:             http.StatusNotFound,
+	ErrCodeInvalidCredentials:       http.StatusUnauthorized,
+	ErrCodeEmailNotConfirmed:        http.StatusForbidden,
+	ErrCodeEmailConfirmed:           http.StatusConflict,
+	ErrCodeEmailInUse:               http.StatusConflict,
+	ErrCodeNewPasswordIsOldPassword: http.StatusConflict,
+}
 
 // Type error messages for backend to match with errors.Is
 
@@ -97,34 +89,21 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrEmailNotConfirmed  = errors.New("email not confirmed")
 	ErrEmailInUse         = errors.New("email already in use")
-
-	ErrMemorialRoleNotFound = errors.New("memorial role not found")
-	ErrUserHasMemorialRole  = errors.New("user already has a role in this memorial")
-	ErrFSPRoleNotFound      = errors.New("fsp role not found")
-	ErrUserHasFSPRole       = errors.New("user already has a role in this fsp")
-	ErrUserIsLastSuperAdmin = errors.New("user is the last superadmin in this fsp")
-
-	ErrMemorialNotFound     = errors.New("memorial not found")
-	ErrApplicationNotFound  = errors.New("application not found")
-	ErrUserHasApplication   = errors.New("user already has an application in this memorial")
-	ErrApplicationResponded = errors.New("application has already been responded to")
-	ErrInvitationNotFound   = errors.New("invitation not found")
-	ErrUserHasInvitation    = errors.New("user already has an invitation")
-	ErrInvitationResponded  = errors.New("invitation has already been responded to")
-	ErrInvitationExpired    = errors.New("invitation has expired")
-	ErrInvitationNotForUser = errors.New("invitation is not for this user")
-	ErrUserIsCurator        = errors.New("user is already the curator of this memorial")
-
-	ErrContributionElementNotFound   = errors.New("contribution element not found")
-	ErrContributionElementImmutable  = errors.New("contribution element is immutable")
-	ErrContributionElementNotPending = errors.New("contribution is not in the pending state")
-
-	ErrExportNotFound   = errors.New("export not found")
-	ErrExportInProgress = errors.New("an export is in progress")
 )
 
 // Custom error type to return in api responses
 type ErrResponse struct {
 	Code    ErrCode `json:"code"`
 	TraceID string  `json:"traceId"`
+}
+
+// GetStatusCode returns the http status code for a given ErrCode
+// Falls back to 500 if the code is not found
+func GetStatusCode(code ErrCode) int {
+	status, ok := statusCodeMap[code]
+	if !ok {
+		return http.StatusInternalServerError
+	}
+
+	return status
 }

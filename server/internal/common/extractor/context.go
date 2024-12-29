@@ -21,7 +21,7 @@ func ExtractTenantIdentifierFromContext(c echo.Context) (*string, error) {
 	return &tenantIdentifier, nil
 }
 
-func ExtractFSPIDFromContext(c echo.Context) (*uint, error) {
+func ExtractTenantIDFromContext(c echo.Context) (*uint, error) {
 	TenantID, ok := c.Get(constant.ContextTenantID).(uint)
 	if !ok {
 		return nil, fmt.Errorf("ExtractFSPIDFromContext: %s", "error extracting TenantID from context")

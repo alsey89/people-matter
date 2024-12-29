@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Domain struct {
+type Module struct {
 	scope    string
 	logger   *zap.Logger
 	config   *Config
@@ -36,23 +36,23 @@ type Config struct {
 	senderEmail  string
 	publicAPIKey string
 	secretAPIKey string
-	clientDomain string
+	clientModule string
 }
 
 const (
-	defaultSenderEmail  = "team@curate.memorial"
+	defaultSenderEmail  = "team@peoplematter.app"
 	defaultPublicAPIKey = "pub-api-key"
 	defaultSecretAPIKey = "secret-api-key"
 	defaultClientDomain = "localhost:3000"
 )
 
-// ! Domain ---------------------------------------------------------------
+// ! Module ---------------------------------------------------------------
 
-func InjectDomain(scope string) fx.Option {
+func InjectModule(scope string) fx.Option {
 	return fx.Module(
 		scope,
-		fx.Provide(func(p Params) *Domain {
-			m := &Domain{scope: scope}
+		fx.Provide(func(p Params) *Module {
+			m := &Module{scope: scope}
 			m.params = p
 			m.logger = m.setupLogger(scope, p)
 			m.config = m.setupConfig(scope)
@@ -60,7 +60,7 @@ func InjectDomain(scope string) fx.Option {
 
 			return m
 		}),
-		fx.Invoke(func(m *Domain, p Params) {
+		fx.Invoke(func(m *Module, p Params) {
 			p.Lifecycle.Append(
 				fx.Hook{
 					OnStart: m.onStart,
@@ -72,32 +72,32 @@ func InjectDomain(scope string) fx.Option {
 }
 
 // ! Internal ---------------------------------------------------------------
-func (d *Domain) setupLogger(scope string, p Params) *zap.Logger {
+func (d *Module) setupLogger(scope string, p Params) *zap.Logger {
 	logger := p.Logger.Named("[" + scope + "]")
 	return logger
 }
 
-func (d *Domain) setupConfig(scope string) *Config {
+func (d *Module) setupConfig(scope string) *Config {
 	viper.SetDefault(util.GetConfigPath(scope, "sender_email"), defaultSenderEmail)
 	viper.SetDefault(util.GetConfigPath(scope, "public_api_key"), defaultPublicAPIKey)
 	viper.SetDefault(util.GetConfigPath(scope, "secret_api_key"), defaultSecretAPIKey)
-	viper.SetDefault(util.GetConfigPath("global", "client_domain"), defaultClientDomain)
+	viper.SetDefault(util.GetConfigPath("global", "client_Module"), defaultClientDomain)
 
 	return &Config{
 		senderEmail:  viper.GetString(util.GetConfigPath(scope, "sender_email")),
 		publicAPIKey: viper.GetString(util.GetConfigPath(scope, "public_api_key")),
 		secretAPIKey: viper.GetString(util.GetConfigPath(scope, "secret_api_key")),
-		clientDomain: viper.GetString(util.GetConfigPath("global", "client_domain")),
+		clientModule: viper.GetString(util.GetConfigPath("global", "client_Module")),
 	}
 }
 
-func (d *Domain) setupMailjetClient() *mailjet.Client {
+func (d *Module) setupMailjetClient() *mailjet.Client {
 	mjClient := mailjet.NewMailjetClient(d.config.publicAPIKey, d.config.secretAPIKey)
 	return mjClient
 }
 
-func (d *Domain) onStart(ctx context.Context) error {
-	d.logger.Info("Starting transactional email domain.")
+func (d *Module) onStart(ctx context.Context) error {
+	d.logger.Info("Starting transactional email Module.")
 
 	if viper.GetString("global.log_level") == "DEBUG" || viper.GetString("global.log_level") == "debug" {
 		d.logConfigurations()
@@ -106,15 +106,15 @@ func (d *Domain) onStart(ctx context.Context) error {
 	return nil
 }
 
-func (m *Domain) onStop(ctx context.Context) error {
-	m.logger.Info("Stopping auth domain.")
+func (m *Module) onStop(ctx context.Context) error {
+	m.logger.Info("Stopping auth Module.")
 	return nil
 }
 
-func (d *Domain) logConfigurations() {
+func (d *Module) logConfigurations() {
 	d.logger.Debug("----- Seeder Configuration -----")
 	d.logger.Debug("Sender Email: ", zap.String("sender_email", d.config.senderEmail))
-	d.logger.Debug("Client Base URL: ", zap.String("client_base_url", d.config.clientDomain))
+	d.logger.Debug("Client Base URL: ", zap.String("client_base_url", d.config.clientModule))
 	d.logger.Debug("Public API Key: ", zap.String("public_api_key", d.config.publicAPIKey))
 	d.logger.Debug("Secret API Key: ", zap.String("secret_api_key", d.config.secretAPIKey))
 	d.logger.Debug("-------------------------------")
@@ -122,11 +122,11 @@ func (d *Domain) logConfigurations() {
 
 // ! Public ---------------------------------------------------------------
 
-func (d *Domain) GetFSPByID(TenantID uint) (*schema.Tenant, error) {
+func (d *Module) GetFSPByID(TenantID uint) (*schema.Company, error) {
 	db := d.params.DB.GetDB()
 
-	var fsp schema.Tenant
-	err := db.Model(&schema.Tenant{}).Where("id = ?", TenantID).First(&fsp).Error
+	var fsp schema.Company
+	err := db.Model(&schema.Company{}).Where("id = ?", TenantID).First(&fsp).Error
 	if err != nil {
 		return nil, fmt.Errorf("getFSPByID: %w", err)
 	}
@@ -136,8 +136,8 @@ func (d *Domain) GetFSPByID(TenantID uint) (*schema.Tenant, error) {
 
 // Sends an email to the recipient with the given templateID.
 // urlPath and variables are optional.
-// urlPath will be converted to a full URL using the Tenant's tenant identifier and the client domain.
-func (d *Domain) SendMail(TenantID uint, recipientEmail string, templateID int, urlPath *string, variables map[string]interface{}) error {
+// urlPath will be converted to a full URL using the Tenant's tenant identifier and the client Module.
+func (d *Module) SendMail(TenantID uint, recipientEmail string, templateID int, urlPath *string, variables map[string]interface{}) error {
 	if TenantID == 0 || recipientEmail == "" || templateID == 0 {
 		d.logger.Error("SendMail: Invalid parameters", zap.Any("TenantID", TenantID), zap.Any("recipientEmail", recipientEmail), zap.Any("templateID", templateID))
 		return nil
@@ -163,8 +163,8 @@ func (d *Domain) SendMail(TenantID uint, recipientEmail string, templateID int, 
 	if urlPath != nil {
 		variables["url"], err = util.PathToFullURL(
 			*urlPath,              // path string
-			fsp.TenantIdentifier,  // subdomain string
-			d.config.clientDomain, // domain string
+			fsp.TenantIdentifier,  // subModule string
+			d.config.clientModule, // Module string
 		)
 		if err != nil {
 			d.logger.Error("SendMail:", zap.Error(err))
