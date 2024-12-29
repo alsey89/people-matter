@@ -30,13 +30,6 @@ database:
   loglevel: "error"
   auto_migrate: true
 
-mailer:
-  host: "smtp.gmail.com"
-  port: 587
-  username: "phyokyawsoe89@gmail.com"
-  password: "rzjx eyff upzz wcrx"
-  tls: true
-
 transmail:
   sender_email: "team@curate.memorial"
   public_api_key: "230556edd57cad91a4bdc0b56ea7ebfb"
@@ -67,6 +60,3 @@ auth:
   jwt_email_scope: "jwt_email"
   jwt_pw_change_scope: "jwt_pw_change"
   jwt_pw_reset_scope: "jwt_pw_reset"
-
-memorial:
-  gitlab_trigger_token: "glptt-8901eb400b6d74388600c219ae2bd614b1186bb0"
