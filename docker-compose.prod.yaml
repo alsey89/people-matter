@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:latest
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  client:
+    image: registry.gitlab.com/revere-curate/monolith/client:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - BUILD_ENV=production
+      - NUXT_PUBLIC_API_URL=/api/v1
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  server:
+    image: registry.gitlab.com/revere-curate/monolith/server:latest
+    ports:
+      - "3001:3001"
+    environment:
+      - BUILD_ENV=production
+      - SERVER_GLOBAL_CLIENT_BASE_URL=https://reverehere.com
+      - SERVER_GLOBAL_SERVER_BASE_URL=https://reverehere.com
+      - SERVER_GLOBAL_CLIENT_DOMAIN=curate.memorial
+      - SERVER_GLOBAL_SERVER_DOMAIN=curate.memorial
+      - SERVER_SERVER_HOST=0.0.0.0
+      - SERVER_SERVER_PORT=3001
+      - SERVER_DATABASE_HOST=postgres
+      - SERVER_DATABASE_PORT=5432
+      - SERVER_DATABASE_DBNAME=postgres
+      - SERVER_DATABASE_USER=postgres
+      - SERVER_DATABASE_PASSWORD=password
+      - SERVER_DATABASE_SSLMODE=prefer
+      - SERVER_SERVER_CSRF_DOMAIN=curate.memorial
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  caddy:
+    image: ghcr.io/caddybuilds/caddy-cloudflare:latest
+    container_name: caddy
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile # Mount Caddyfile
+      - caddy_data:/data # Persist Caddy data like SSL certs
+      - caddy_config:/config # Store Caddy config
+    networks:
+      - app-network
+    depends_on:
+      - client
+      - server
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

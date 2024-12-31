@@ -1,0 +1,26 @@
+# GLOBAL --------------------------------------------------------------------------
+global:
+  log_level: "debug"
+
+# MODULES -------------------------------------------------------------------------
+
+server:
+  host: "0.0.0.0"
+  port: 5555
+  log_level: "DEV"
+  allow_headers: "*"
+  allow_methods: "*"
+  allow_origins: "*"
+  csrf_protection: true
+  csrf_secure: false
+  csrf_domain: "localhost"
+
+database:
+  host: "postgres" #use postgres in docker-compose setup
+  port: 5432
+  dbname: "postgres"
+  user: "postgres"
+  password: "postgres"
+  sslmode: "prefer"
+  loglevel: "error"
+  auto_migrate: true
