@@ -15,7 +15,7 @@ var logger *zap.Logger
 
 // default values
 const (
-	DefaultSystemLogLevel = zap.InfoLevel
+	DefaultGlobalLogLevel = zap.InfoLevel
 )
 
 //! MODULE ---------------------------------------------------------------
@@ -50,7 +50,7 @@ func setupLogger() *zap.Logger {
 
 	zap.ReplaceGlobals(logger)
 
-	logger.Named("[logger]").Info(fmt.Sprintf("System log level is set to \"%s\"\n", logLevel.Level().CapitalString()))
+	logger.Named("[logger]").Info(fmt.Sprintf("Global log level is set to \"%s\"\n", logLevel.Level().CapitalString()))
 
 	return logger
 }
@@ -74,7 +74,7 @@ func setupLevel() zap.AtomicLevel {
 	case zap.FatalLevel.String(), zap.FatalLevel.CapitalString():
 		logLevel = zap.FatalLevel
 	default:
-		logLevel = DefaultSystemLogLevel
+		logLevel = DefaultGlobalLogLevel
 	}
 
 	return zap.NewAtomicLevelAt(logLevel)

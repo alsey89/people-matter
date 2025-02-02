@@ -19,7 +19,7 @@ services:
       retries: 5
 
   client:
-    image: registry.gitlab.com/revere-curate/monolith/client:latest
+    image: registry.gitlab.com/revere-github.com/alsey89/people-matter/monolith/client:latest
     ports:
       - "3000:3000"
     environment:
@@ -31,7 +31,7 @@ services:
       - app-network
 
   server:
-    image: registry.gitlab.com/revere-curate/monolith/server:latest
+    image: registry.gitlab.com/revere-github.com/alsey89/people-matter/monolith/server:latest
     ports:
       - "3001:3001"
     environment:

@@ -305,7 +305,7 @@ func (m *Module) logRequest(c echo.Context, v middleware.RequestLoggerValues) er
 			zap.Duration("latency", v.Latency),
 		)
 	case "debug":
-		m.logger.Debug("request",
+		m.logger.Info("request",
 			zap.String("method", v.Method),
 			zap.String("URI", v.URI),
 			zap.Int("status", v.Status),

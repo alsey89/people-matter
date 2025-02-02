@@ -8,9 +8,7 @@
     dns cloudflare secret-key
   }
 
-  reverse_proxy /api/* server:3001 {
-    header_up X-Tenant sci
-  }
+  reverse_proxy /api/* server:3001
 
   reverse_proxy /api/_nuxt_icon/* client:3000
 
